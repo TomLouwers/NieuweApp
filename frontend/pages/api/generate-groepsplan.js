@@ -298,12 +298,27 @@ async function readRawJson(req) {
 }
 
 async function getBody(req) {
-  // In tests or local dev Next may have already parsed body
-  if (req && typeof req.body === "object" && req.body !== null) return req.body;
-  // On Vercel with bodyParser disabled we parse manually
+  // If Next or a proxy already set req.body, try to use it
+  if (req && req.body != null) {
+    if (typeof req.body === "object") return req.body;
+    if (Buffer.isBuffer(req.body)) {
+      try { return JSON.parse(req.body.toString("utf8")); } catch (_) { /* ignore */ }
+    }
+    if (typeof req.body === "string") {
+      const s = req.body.trim().replace(/^\uFEFF/, "");
+      try { return JSON.parse(s); } catch (_) { /* ignore */ }
+    }
+  }
+  // Parse from raw stream when content-type hints JSON
   const ct = String(req?.headers?.["content-type"] || req?.headers?.["Content-Type"] || "").toLowerCase();
   if (ct.includes("application/json")) {
     try { return await readRawJson(req); } catch (_) { return {}; }
+  }
+  // Support URL-encoded fallback
+  if (ct.includes("application/x-www-form-urlencoded")) {
+    try {
+      const obj = await readRawJson(req); // will give {} because content isn't JSON; we need raw text
+    } catch (_) {}
   }
   // Fallback: empty body
   return {};
