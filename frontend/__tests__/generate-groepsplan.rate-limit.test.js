@@ -8,8 +8,8 @@ describe("generate-groepsplan API - rate limit handling", () => {
 
   test("returns 429 with retryAfter when Claude is rate limited", async () => {
     // Mock error-handler to force a rate limit error without waiting for backoff
-    jest.doMock("../../lib/error-handler.js", () => {
-      const actual = jest.requireActual("../../lib/error-handler.js");
+    jest.doMock("../lib/error-handler.js", () => {
+      const actual = jest.requireActual("../lib/error-handler.js");
       return {
         ...actual,
         callClaudeWithRetry: jest.fn(async () => {
