@@ -21,7 +21,10 @@ try {
   // Library not installed in some environments; handled at runtime with a friendly error
 }
 
-const MODEL = "claude-3-5-sonnet-20241022";
+const OPENAI_KEY = process.env.OPENAI_API_KEY;
+const CLAUDE_MODEL = "claude-3-5-sonnet-20241022";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const MODEL = OPENAI_KEY ? OPENAI_MODEL : CLAUDE_MODEL;
 const MAX_TOKENS = 4000;
 const TEMPERATURE = 0.7;
 const TIMEOUT_MS = 25000; // keep p95 under ~25s on hobby plans (soft-fail)
@@ -98,6 +101,90 @@ function buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet }) {
 }
 
 async function callClaude({ groep, vak, periode, allowedSLO, previousSnippet, signal }) {
+  // If OPENAI_API_KEY is configured, use OpenAI via a small shim and return early
+  if (OPENAI_KEY) {
+    const makeOpenAIShim = (apiKey) => ({
+      messages: {
+        create: async (params, { signal } = {}) => {
+          const sys = String(params?.system || "");
+          let userText = "";
+          try {
+            const first = Array.isArray(params?.messages) ? params.messages[0] : null;
+            userText = String(first?.content || "");
+          } catch (_) {}
+
+          const body = {
+            model: OPENAI_MODEL,
+            temperature: typeof params?.temperature === "number" ? params.temperature : TEMPERATURE,
+            max_tokens: typeof params?.max_tokens === "number" ? params.max_tokens : MAX_TOKENS,
+            messages: [
+              ...(sys ? [{ role: "system", content: sys }] : []),
+              { role: "user", content: userText },
+            ],
+          };
+
+          const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            signal,
+          });
+
+          if (!resp.ok) {
+            const err = new Error(`OpenAI request failed: ${resp.status}`);
+            err.status = resp.status;
+            try { err.headers = Object.fromEntries(resp.headers.entries()); } catch (_) {}
+            throw err;
+          }
+
+          const json = await resp.json();
+          const text = String(json?.choices?.[0]?.message?.content || "");
+          return {
+            content: [{ type: "text", text }],
+            usage: {
+              input_tokens: json?.usage?.prompt_tokens ?? null,
+              output_tokens: json?.usage?.completion_tokens ?? null,
+            },
+          };
+        },
+      },
+    });
+
+    const anthropic = makeOpenAIShim(OPENAI_KEY);
+    const system = buildSystemPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
+    const user = buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
+    const params = {
+      model: OPENAI_MODEL,
+      max_tokens: MAX_TOKENS,
+      temperature: TEMPERATURE,
+      system,
+      messages: [
+        { role: "user", content: user },
+      ],
+    };
+
+    const resp = await callClaudeWithRetry(anthropic, params, { signal, maxRetries: 2 });
+
+    // Extract text safely
+    let text = "";
+    try {
+      if (Array.isArray(resp?.content)) {
+        text = resp.content
+          .map((c) => (c?.type === "text" && typeof c?.text === "string" ? c.text : ""))
+          .filter(Boolean)
+          .join("\n");
+      }
+      if (!text && typeof resp?.content?.[0]?.text === "string") {
+        text = resp.content[0].text;
+      }
+      text = (text || "").trim();
+    } catch (_) {
+      text = "";
+    }
+
+    const usage = resp?.usage || null;
+    return { text, usage };
+  }
   if (!AnthropicClient) {
     throw Object.assign(new Error("Anthropic SDK ontbreekt of is niet geïnstalleerd."), {
       code: "SDK_NOT_AVAILABLE",
