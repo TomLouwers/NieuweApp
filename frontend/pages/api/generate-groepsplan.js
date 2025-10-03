@@ -258,8 +258,19 @@ async function readRawJson(req) {
       const chunks = [];
       let total = 0;
       req.on("data", (chunk) => {
-        // Normalize chunk to Buffer
-        const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
+        // Normalize chunk to Buffer across runtimes (Buffer, Uint8Array, string)
+        let buf;
+        if (Buffer.isBuffer(chunk)) {
+          buf = chunk;
+        } else if (chunk instanceof Uint8Array) {
+          buf = Buffer.from(chunk);
+        } else if (typeof chunk === "string") {
+          buf = Buffer.from(chunk, "utf8");
+        } else if (chunk && typeof chunk === "object" && typeof chunk.buffer === "object") {
+          try { buf = Buffer.from(chunk.buffer); } catch (_) { buf = Buffer.from(String(chunk), "utf8"); }
+        } else {
+          buf = Buffer.from(String(chunk), "utf8");
+        }
         chunks.push(buf);
         total += buf.length;
         if (total > 1_000_000) {
@@ -269,7 +280,9 @@ async function readRawJson(req) {
       req.on("end", () => {
         try {
           if (total === 0) return resolve({});
-          const raw = Buffer.concat(chunks, total).toString("utf8");
+          let raw = Buffer.concat(chunks, total).toString("utf8");
+          // Strip UTF-8 BOM if present
+          if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
           const trimmed = raw.trim();
           if (!trimmed) return resolve({});
           resolve(JSON.parse(trimmed));
