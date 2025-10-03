@@ -296,7 +296,13 @@ async function handler(req, res) {
   }
 
   // Basic body parsing and validation (no logging of body to respect privacy)
-  const body = await getBody(req);
+  let body = {};
+  try {
+    body = await getBody(req);
+  } catch (e) {
+    const status = e?.status && Number.isFinite(e.status) ? e.status : 400;
+    return res.status(status).json(friendlyValidationError("Ongeldig JSON-body formáat."));
+  }
   const groepRaw = body.groep;
   const vakRaw = body.vak;
   const periodeRaw = body.periode;
