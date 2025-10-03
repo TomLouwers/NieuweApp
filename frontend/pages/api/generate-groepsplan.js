@@ -252,6 +252,38 @@ function friendlyValidationError(msg) {
   };
 }
 
+async function readRawJson(req) {
+  return new Promise((resolve, reject) => {
+    try {
+      let data = "";
+      req.on("data", (chunk) => {
+        data += chunk;
+        if (data.length > 1_000_000) {
+          // 1MB guard
+          reject(Object.assign(new Error("Request body too large."), { status: 413 }));
+        }
+      });
+      req.on("end", () => {
+        if (!data) return resolve({});
+        try { resolve(JSON.parse(data)); } catch (e) { reject(Object.assign(new Error("Invalid JSON body."), { status: 400 })); }
+      });
+      req.on("error", reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function getBody(req) {
+  // In tests or local dev Next may have already parsed body
+  if (req && typeof req.body === "object" && req.body !== null) return req.body;
+  // On Vercel with bodyParser disabled we parse manually
+  const ct = String(req?.headers?.["content-type"] || req?.headers?.["Content-Type"] || "").toLowerCase();
+  if (ct.includes("application/json")) return await readRawJson(req);
+  // Fallback: empty body
+  return {};
+}
+
 async function handler(req, res) {
   const started = Date.now();
   const reqId = Math.random().toString(36).slice(2, 10);
@@ -264,7 +296,7 @@ async function handler(req, res) {
   }
 
   // Basic body parsing and validation (no logging of body to respect privacy)
-  const body = req.body || {};
+  const body = await getBody(req);
   const groepRaw = body.groep;
   const vakRaw = body.vak;
   const periodeRaw = body.periode;
@@ -423,4 +455,4 @@ async function handler(req, res) {
 module.exports = handler;
 // Ensure default export is attached to module.exports for bundlers/importers
 module.exports.default = module.exports;
-module.exports.config = { maxDuration: 60 };
+module.exports.config = { maxDuration: 60, api: { bodyParser: false } };
