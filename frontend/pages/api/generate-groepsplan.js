@@ -289,9 +289,29 @@ async function getBody(req) {
   if (req && typeof req.body === "object" && req.body !== null) return req.body;
   // On Vercel with bodyParser disabled we parse manually
   const ct = String(req?.headers?.["content-type"] || req?.headers?.["Content-Type"] || "").toLowerCase();
-  if (ct.includes("application/json")) return await readRawJson(req);
+  if (ct.includes("application/json")) {
+    try { return await readRawJson(req); } catch (_) { return {}; }
+  }
   // Fallback: empty body
   return {};
+}
+
+function getQuery(req) {
+  try {
+    const url = new URL(req.url || "", "http://localhost");
+    const groep = url.searchParams.get("groep");
+    const vak = url.searchParams.get("vak");
+    const periode = url.searchParams.get("periode");
+    const previousContent = url.searchParams.get("previousContent");
+    const obj = {};
+    if (groep != null) obj.groep = groep;
+    if (vak != null) obj.vak = vak;
+    if (periode != null) obj.periode = periode;
+    if (previousContent != null) obj.previousContent = previousContent;
+    return obj;
+  } catch (_) {
+    return {};
+  }
 }
 
 async function handler(req, res) {
@@ -306,12 +326,10 @@ async function handler(req, res) {
   }
 
   // Basic body parsing and validation (no logging of body to respect privacy)
-  let body = {};
-  try {
-    body = await getBody(req);
-  } catch (e) {
-    const status = e?.status && Number.isFinite(e.status) ? e.status : 400;
-    return res.status(status).json(friendlyValidationError("Ongeldig JSON-body formáat."));
+  let body = await getBody(req);
+  if (!body || typeof body !== "object" || Object.keys(body).length === 0) {
+    // Fallback to query parameters if body is empty or unparsed
+    body = getQuery(req);
   }
   const groepRaw = body.groep;
   const vakRaw = body.vak;
