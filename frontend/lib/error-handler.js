@@ -82,10 +82,12 @@ function isAuthError(err) {
   return status === 401 || status === 403;
 }
 
-async function callClaudeWithRetry(anthropic, params, { signal, maxRetries = 2 } = {}) {
+async function callClaudeWithRetry(
+  anthropic,
+  params,
+  { signal, maxRetries = 4, baseDelayMs = 1000, maxDelayMs = 10000 } = {}
+) {
   let attempt = 0;
-  // attempt 0 + up to maxRetries retries
-  // backoff: 1s, 2s
   while (true) {
     try {
       return await anthropic.messages.create(params, { signal });
@@ -93,8 +95,11 @@ async function callClaudeWithRetry(anthropic, params, { signal, maxRetries = 2 }
       if (isAuthError(err)) throw err;
       if (!isRateLimitError(err)) throw err;
       if (attempt >= maxRetries) throw err;
-      const backoffMs = (attempt === 0 ? 1000 : 2000);
-      await sleep(backoffMs);
+      const ra = parseRetryAfter(err);
+      let backoffMs = ra != null ? ra * 1000 : baseDelayMs * Math.pow(2, attempt);
+      backoffMs = Math.min(backoffMs, maxDelayMs);
+      const jitter = 200 + Math.floor(Math.random() * 400);
+      await sleep(backoffMs + jitter);
       attempt += 1;
       continue;
     }
