@@ -1,0 +1,769 @@
+Requirements Specification: Teacher Administrative Relief System
+Document ID: REQ-PEBBLE-2025-001
+Version: 1.0
+Date: October 2025
+Author: Senior Requirements Engineer
+Stakeholder: Primary School Teachers (Netherlands)
+
+1. Executive Summary
+1.1 Problem Statement
+Dutch primary school teachers spend 8+ hours weekly on repetitive administrative tasks (groepsplannen, OPP's, gespreksverslagen), causing burnout and reducing time for actual teaching. Existing tools add complexity rather than reducing burden.
+1.2 Core User Need
+"Make Friday less awful by reducing this week's most dreaded task from 2 hours to 10 minutes."
+1.3 Success Criteria
+
+User completes onboarding in <60 seconds
+First document generated in <30 seconds
+Output quality sufficient for direct submission (no major rewrites)
+User returns within 7 days to generate second document
+User willing to pay after demonstrating value
+
+
+2. User Persona & Context
+2.1 Primary User Profile
+Name: Representative Dutch Primary Teacher
+Age: 35-55
+Experience: 10-25 years teaching
+Technical proficiency: Low to medium (uses email, WhatsApp, basic Word)
+Work context:
+
+Teaches 25-30 students
+Works 50+ hours/week (40 contracted)
+Has 2-4 hours weekly for admin (insufficient)
+Under constant time pressure
+Risk-averse regarding inspectie compliance
+
+2.2 User's Current Workflow (OPP Example)
+Total time: 2.5 hours
+Breakdown:
+
+Retrieve previous OPP: 10 min (searching email/drive)
+Copy relevant sections: 15 min
+Rewrite for current period: 45 min
+Format in school template: 30 min
+Proofread and adjust: 20 min
+Save and file: 5 min
+
+Pain points:
+
+85% of time is repetitive copying/formatting
+15% is actual new thinking
+High anxiety about getting format/structure wrong
+Multiple interruptions extend task across days
+
+2.3 Environmental Constraints
+
+Works on personal laptop (school desktop is slow)
+Unreliable school WiFi
+Limited uninterrupted time (home after 22:00)
+Must work on mobile device when away from desk
+Cannot install software requiring admin rights
+
+
+3. Functional Requirements
+FR-1: Zero-Friction Onboarding
+FR-1.1 Instant Demo Access
+
+Requirement: User can test document generation without creating account
+Rationale: Eliminates signup friction during evaluation
+Acceptance Criteria:
+
+Landing page has "Try Now" button
+Upload document OR select template without login
+Generate preview within 30 seconds
+Preview shows first page + "Sign up to download"
+Conversion from demo to signup in <2 clicks
+
+
+
+FR-1.2 Minimal Registration Fields
+
+Requirement: Account creation requires only essential information
+Rationale: Reduces abandonment during signup
+Acceptance Criteria:
+
+Required fields: Email, Password only
+Optional fields: School name (for later)
+No email verification required for first document
+Total signup time: <45 seconds
+
+
+
+FR-1.3 Mobile-First Onboarding
+
+Requirement: Complete onboarding flow on mobile device
+Rationale: Users often start on phone during downtime
+Acceptance Criteria:
+
+All forms single-column, thumb-friendly
+Upload works via camera or file picker
+Text input minimal (use dropdowns/buttons)
+Completion rate on mobile ≥ desktop
+
+
+
+
+FR-2: Immediate Value Delivery
+FR-2.1 Document Generation Speed
+
+Requirement: First document preview in <30 seconds
+Rationale: Longer wait = user closes tab
+Acceptance Criteria:
+
+Upload to preview: Max 30 seconds (95th percentile)
+Show progress: "Analyseren... 30%", "Genereren... 70%"
+If >30s expected: "Dit duurt ~45 sec, koffie pakken?"
+Failure fallback: "Dit bestand is complex, probeer opnieuw of [Contact support]"
+
+
+
+FR-2.2 Template-Based Fast Path
+
+Requirement: Generate document without upload in <20 seconds
+Rationale: Users without existing documents need alternative
+Acceptance Criteria:
+
+Ask: Groep (dropdown), Vak (buttons), Type (OPP/Groepsplan)
+Total questions: ≤3
+Each question one screen (no scrolling)
+Generate from template: <20 seconds
+
+
+
+FR-2.3 Output Quality Threshold
+
+Requirement: Generated document requires <10% editing
+Rationale: If extensive rewrite needed, no time saved
+Acceptance Criteria:
+
+Structure: 100% compliant with Passend Onderwijs format
+Content: 90% accurate (based on uploaded document or template)
+Formatting: Matches uploaded document style
+SLO codes: Valid and relevant
+Language: Natural Dutch, no awkward translations
+User testing: 8/10 teachers rate as "directly usable" or "minor edits only"
+
+
+
+
+FR-3: Chaos-Compatible Input
+FR-3.1 Messy Document Handling
+
+Requirement: Accept documents in various states of completion
+Rationale: Users don't have time to clean up files first
+Acceptance Criteria:
+
+Accepts: PDF, DOCX, photos of handwritten notes
+Handles: Incomplete sections, handwritten annotations, multiple formats in one doc
+Extracts: Key information despite formatting issues
+Errors gracefully: "Kon deze sectie niet lezen, wil je het handmatig invoeren?"
+
+
+
+FR-3.2 Smart Information Extraction
+
+Requirement: Minimize questions by extracting from uploaded document
+Rationale: Every question = friction point
+Acceptance Criteria:
+
+Auto-detect: Groep level, student profile type, period/date
+Only ask what cannot be determined
+Confirm extracted info: "Ik zie dat dit voor Groep 5 is. Klopt dat?"
+Allow correction in 1 click
+
+
+
+FR-3.3 No Upload Required (Alternative Path)
+
+Requirement: Full functionality without uploading existing documents
+Rationale: User may not have old document handy
+Acceptance Criteria:
+
+"Start from scratch" option equally prominent as "Upload"
+Template selection: School format (if configured) or standard
+Guided questions: Max 5, all dropdowns/buttons
+Quality equivalent to upload-based generation
+
+
+
+
+FR-4: Risk Mitigation (Inspectie-Proof)
+FR-4.1 Compliance Validation
+
+Requirement: Automated check against Passend Onderwijs requirements
+Rationale: Users will not adopt if they fear inspectie rejection
+Acceptance Criteria:
+
+Check presence of: Beginsituatie, Doelen, Aanpak, Evaluatie, Betrokkenen
+Flag missing elements: "Let op: evaluatiemoment ontbreekt"
+Score: "Compliantie: 9/10" (with explanation)
+Option to auto-fix: "Voeg standaard evaluatie toe?"
+
+
+
+FR-4.2 Social Proof Integration
+
+Requirement: Show evidence of successful use by peers
+Rationale: Trust deficit for AI in formal documentation
+Acceptance Criteria:
+
+Display: "Gebruikt door 247 leerkrachten zonder inspectie-problemen"
+Show: Anonymized examples from similar schools
+Provide: Downloadable sample OPP/groepsplan before signup
+Include: "IB'er approved" badge (if school admin confirms)
+
+
+
+FR-4.3 Escape Hatch (Revert to Safe Default)
+
+Requirement: Option to fall back to proven template if user doubts output
+Rationale: Reduces anxiety about trying AI-generated content
+Acceptance Criteria:
+
+Button: "Gebruik standaard format" (always visible)
+Generates: Conservative, traditional format guaranteed compliant
+Clearly marked: "Basis template - 100% inspectie-veilig"
+
+
+
+
+FR-5: Adaptive User Interface
+FR-5.1 Context-Aware Guidance
+
+Requirement: UI adapts based on user's current task and history
+Rationale: Different needs on first use vs. 10th use
+Acceptance Criteria:
+
+First time: Show tooltips, examples, "Try this"
+2nd-5th time: Reduce guidance, suggest shortcuts
+6+ times: Minimal UI, power user features (keyboard shortcuts)
+User can toggle: "Show me tips" / "Expert mode"
+
+
+
+FR-5.2 Mobile-Optimized Generation
+
+Requirement: Full create/edit/download flow works on smartphone
+Rationale: Users often work on phone (couch, bed, commute)
+Acceptance Criteria:
+
+Single column layout (no horizontal scroll)
+Tap targets ≥44x44px
+Document preview: Readable without zooming
+Edit inline: Works with touch keyboard
+Upload: Via camera or file picker
+Download: Saves to device or shares via WhatsApp/email
+
+
+
+FR-5.3 Offline-Tolerant
+
+Requirement: Graceful degradation when internet unavailable
+Rationale: School WiFi is unreliable
+Acceptance Criteria:
+
+Cache: Last 5 generated documents for offline viewing
+Queue: Edits sync when connection restored
+Indicate: "Offline - wijzigingen worden opgeslagen zodra je online bent"
+Don't block: Viewing/editing already downloaded documents
+
+
+
+
+FR-6: Editing Efficiency
+FR-6.1 In-Place Editing
+
+Requirement: Edit generated document directly in browser
+Rationale: Download → edit in Word → re-upload is too many steps
+Acceptance Criteria:
+
+Click any text block to edit
+Rich text formatting: Bold, italic, bullets, numbering
+Real-time save (no "Save" button needed)
+Undo/redo (10 steps back)
+Changes persist across sessions
+
+
+
+FR-6.2 AI-Assisted Refinement
+
+Requirement: Request specific changes without manual editing
+Rationale: Easier to describe change than make it
+Acceptance Criteria:
+
+Input box: "Wat wil je aanpassen?"
+Examples: "Maak korter", "Voeg meer differentiatie toe", "Formeler toon"
+Apply change: <10 seconds
+Preview before accepting
+Revert option: "Ongedaan maken"
+
+
+
+FR-6.3 Template Conformance Lock
+
+Requirement: Edits maintain school template formatting
+Rationale: Users break formatting accidentally in Word
+Acceptance Criteria:
+
+Structure protected: Headers, footers, logo position locked
+Content editable: Text, tables can be changed
+Style inheritance: New text adopts template styles
+Warning: "Let op: dit wijzigt het sjabloon. Weet je het zeker?"
+
+
+
+
+FR-7: Export & Distribution
+FR-7.1 Multi-Format Export
+
+Requirement: Download in formats teachers actually use
+Rationale: Different recipients require different formats
+Acceptance Criteria:
+
+Formats: DOCX (editable), PDF (final), HTML (email)
+Quality: Formatting preserved 95%+ in Word
+Speed: Export <5 seconds
+Naming: Auto-names "Groepsplan_Groep5_Rekenen_Q2_2025.docx"
+
+
+
+FR-7.2 Direct Share Integrations
+
+Requirement: Send document without downloading first
+Rationale: Mobile workflow, teachers use WhatsApp/email
+Acceptance Criteria:
+
+Share options: Email, WhatsApp, Teams (if connected)
+Email: Pre-fills subject "Groepsplan Groep 5 Q2"
+WhatsApp: Sends as PDF attachment
+Teams: Posts to selected channel with message
+
+
+
+FR-7.3 Version History
+
+Requirement: Access previous versions of documents
+Rationale: "I liked it better before" / undo major changes
+Acceptance Criteria:
+
+Auto-save: After each edit session
+Retain: Last 10 versions per document
+View: Side-by-side comparison
+Restore: One-click revert to any version
+Label: "Versie 3 - 2 uur geleden"
+
+
+
+
+FR-8: Pricing & Payment
+FR-8.1 Friction-Free Trial
+
+Requirement: Try full product without payment info
+Rationale: Asking for credit card during trial reduces signups 40%+
+Acceptance Criteria:
+
+Trial: 14 days, full access
+No credit card required
+Generate: Unlimited documents during trial
+Reminder: Email 2 days before trial ends
+Conversion: Prompted to pay on day 15, not before
+
+
+
+FR-8.2 Micro-Commitment Pricing
+
+Requirement: Price low enough for impulse purchase
+Rationale: >€15/month requires school approval (months delay)
+Acceptance Criteria:
+
+Individual: €9.99/month (psychological threshold)
+Annual: €99/year (2 months free, encourages commitment)
+School: €7/teacher/month (5+ teachers)
+Currency: EUR only (Dutch market)
+Payment: iDEAL, credit card, PayPal
+
+
+
+FR-8.3 Transparent Value Communication
+
+Requirement: Show time saved in monetary terms
+Rationale: Justifies expense to self or school
+Acceptance Criteria:
+
+Track: Estimated time saved per document
+Display: "Je hebt 12 uur bespaard deze maand (waarde: €480)"
+Compare: "€10/maand voor 12 uur besparing = €0.83 per uur"
+Invoice: Optional business receipt for school reimbursement
+
+
+
+
+FR-9: Support & Recovery
+FR-9.1 Contextual Help
+
+Requirement: Help appears where/when needed
+Rationale: Generic FAQs are ignored, context-specific help is used
+Acceptance Criteria:
+
+On error: Specific solution, not generic "contact support"
+On pause: "Stuck? Try [common solution]" after 30 seconds inactivity
+Icon: [?] on every screen, opens relevant help
+Search: "How do I..." with instant answers
+Escalation: "Not helpful? [Chat with us]" after 2 failed help attempts
+
+
+
+FR-9.2 Human Support Accessibility
+
+Requirement: Reach real person within 4 hours
+Rationale: Teachers work evenings/weekends, need async support
+Acceptance Criteria:
+
+Channels: Email (support@), in-app chat
+Hours: Monitored 9-21h weekdays, 14-18h weekends
+Response time: <4 hours during coverage, <24h otherwise
+Quality: Native Dutch speaker, understands education context
+Escalation: Technical issues forwarded to developer if needed
+
+
+
+FR-9.3 Fail-Safe Mode
+
+Requirement: If AI fails, provide manual alternative
+Rationale: Users cannot be blocked by technical issues
+Acceptance Criteria:
+
+Detect: Generation fails after 60 seconds
+Offer: "AI timeout. Download basis template?"
+Provide: Pre-made Word template with instructions
+Compensate: Extend trial by 1 week if failure during trial
+Log: All failures for later debugging
+
+
+
+
+4. Non-Functional Requirements
+NFR-1: Performance
+MetricTargetMeasurementPage load (cold)<3sLighthouse scorePage load (warm)<1sCached assetsDocument generation<30s (95th percentile)Server-side timingExport to Word<5sEnd-to-end timingMobile responsiveness<2s TTIMobile device testingAPI uptime99.5%Monthly average
+NFR-2: Scalability
+NFR-2.1 Concurrent Users
+
+Support 100 simultaneous document generations without degradation
+Auto-scale: Add capacity at 70% load
+Queue: Requests beyond capacity (show wait time)
+
+NFR-2.2 Storage
+
+100MB per user (average 50 documents × 2MB)
+Compress: Documents older than 90 days
+Archive: Delete after 2 years (with user notification)
+
+NFR-3: Security & Privacy
+NFR-3.1 Data Protection
+
+Encryption: AES-256 at rest, TLS 1.3 in transit
+Location: EU servers only (GDPR compliance)
+Backup: Daily, retained 30 days
+Deletion: Permanent within 48h of user request
+
+NFR-3.2 Access Control
+
+Authentication: Email + password (bcrypt hashing)
+Session: 24h timeout, refresh token
+MFA: Optional (email code)
+No shared accounts: One teacher = one account
+
+NFR-3.3 AVG Compliance
+
+No student PII: System rejects documents with names in certain fields
+Processor agreement: Template ready for schools
+Data export: User can download all their data (JSON format)
+Right to erasure: "Delete account" self-service
+
+NFR-4: Reliability
+NFR-4.1 Error Handling
+
+Graceful degradation: Feature unavailable ≠ entire app broken
+User-friendly errors: "Something went wrong" + specific action
+Automatic retry: Failed generations retry 2x before showing error
+Monitoring: Alert developer if error rate >1%
+
+NFR-4.2 Data Integrity
+
+Auto-save: Every 30 seconds while editing
+Conflict resolution: Last write wins (with notification)
+Versioning: No data loss from concurrent edits
+Backup validation: Weekly restore test
+
+NFR-5: Maintainability
+NFR-5.1 Code Quality
+
+Test coverage: 70% minimum for critical paths
+Documentation: Every API endpoint documented
+Logging: All errors logged with context
+Deployment: Zero-downtime rolling updates
+
+NFR-5.2 Monitoring
+
+Metrics: Response time, error rate, user actions
+Alerts: Email/SMS for critical issues
+Dashboard: Real-time usage statistics
+User feedback: In-app "[Report bug]" button
+
+
+5. Constraints & Assumptions
+5.1 Technical Constraints
+
+AI Provider: Anthropic Claude or OpenAI GPT-4 (no self-hosted models)
+Hosting: EU-based cloud (GDPR requirement)
+Browser support: Chrome 90+, Firefox 88+, Safari 14+, Mobile Safari/Chrome
+No native apps: Web-only (PWA for mobile)
+
+5.2 Business Constraints
+
+Development: Solo founder (max 30h/week)
+Budget: <€1000/month operational costs
+Timeline: MVP in 8 weeks
+Support: Founder handles support initially
+
+5.3 User Assumptions
+
+Has internet access (mobile or WiFi)
+Can upload documents (understands file upload)
+Reads Dutch (no English version needed)
+Willing to try AI if it demonstrably saves time
+
+
+6. Success Metrics
+6.1 Acquisition Metrics (Month 1-3)
+
+Landing page conversion: 3% (visitors → signups)
+Trial activation: 60% (signups → generate document)
+Demo effectiveness: 15% (demo users → signup)
+
+6.2 Engagement Metrics (Ongoing)
+
+Weekly active users: 40% of total users
+Documents per user per month: Average 4
+Completion rate: 80% (started generation → downloaded)
+Time to first document: Median <5 minutes from signup
+
+6.3 Retention Metrics
+
+Day 7 return rate: 50%
+Day 30 return rate: 30%
+Trial to paid conversion: 20%
+Monthly churn: <15%
+
+6.4 Quality Metrics
+
+User satisfaction: 4+ stars (out of 5)
+Output quality: 8/10 teachers rate "directly usable"
+Support ticket volume: <5% of users need help
+Time saved (self-reported): Average 90+ minutes/week
+
+6.5 Business Metrics
+
+Months to 50 paying users: 6 months
+Customer acquisition cost (CAC): <€30
+Lifetime value (LTV): >€150 (12 months retention)
+LTV:CAC ratio: >5:1
+
+
+7. Prioritization Framework
+7.1 Must-Have (MVP - Week 1-8)
+
+FR-1.1, FR-1.2: Instant demo + minimal signup
+FR-2.1, FR-2.2: Fast document generation
+FR-3.1, FR-3.3: Accept messy input OR template path
+FR-4.1: Basic compliance check
+FR-6.1: In-browser editing
+FR-7.1: Export to Word/PDF
+FR-8.1, FR-8.2: Trial + simple pricing
+
+7.2 Should-Have (Month 2-3)
+
+FR-1.3: Mobile onboarding optimization
+FR-2.3: Output quality improvements
+FR-4.2: Social proof display
+FR-5.1: Adaptive UI
+FR-6.2: AI-assisted refinement
+FR-9.1, FR-9.2: Support infrastructure
+
+7.3 Could-Have (Month 4-6)
+
+FR-3.2: Smart extraction improvements
+FR-4.3: Escape hatch templates
+FR-5.2: Full mobile feature parity
+FR-7.2: Direct share integrations
+FR-7.3: Version history
+
+7.4 Won't-Have (V1)
+
+Multi-user collaboration
+LVS integrations (ParnasSys, Esis)
+Extensive SLO tracking
+School-wide templates
+Advanced analytics dashboard
+
+
+8. Risk Assessment
+8.1 High-Risk Items
+Risk: AI output quality insufficient
+
+Impact: Users don't trust output, won't pay
+Likelihood: Medium
+Mitigation:
+
+Test with 20 teachers before launch
+Human review option (premium tier)
+Continuous prompt optimization based on feedback
+
+
+Contingency: Pivot to AI-assisted (human edits AI draft) vs. fully automated
+
+Risk: Inspectie compliance concerns prevent adoption
+
+Impact: Teachers avoid for official documents
+Likelihood: High
+Mitigation:
+
+Get IB'er validation
+Compliance checklist built-in
+Conservative default templates
+Insurance: "If inspectie rejects structure, we fix free"
+
+
+Contingency: Partner with onderwijsadviseur for review service
+
+Risk: Pricing too high for individual adoption
+
+Impact: Low conversion from trial to paid
+Likelihood: Medium
+Mitigation:
+
+Test pricing during pre-launch email capture
+Offer annual discount
+Provide ROI calculator ("€10/month = €0.16 per hour saved")
+
+
+Contingency: Lower to €7.99/month if conversion <15%
+
+8.2 Medium-Risk Items
+Risk: Solo founder burnout
+
+Impact: Development stalls, support suffers
+Mitigation: Define scope strictly, use no-code where possible, automate support
+Contingency: Seek co-founder or freelance support help
+
+Risk: Competition from free alternatives (ChatGPT)
+
+Impact: "Why pay when ChatGPT is free?"
+Mitigation: Emphasize integrations, compliance, ease-of-use
+Contingency: Add unique features ChatGPT can't replicate (school templates, compliance)
+
+
+9. Implementation Approach
+9.1 Recommended Tech Stack
+
+Frontend: Next.js (React) - fast, SEO-friendly, deployed on Vercel
+Backend: Next.js API routes (same repo, simpler)
+Database: Supabase (PostgreSQL + auth + storage built-in)
+AI: Anthropic Claude API (better for long documents than GPT)
+Payments: Stripe (supports iDEAL for Dutch market)
+Analytics: Plausible (privacy-friendly, GDPR-compliant)
+Monitoring: Sentry (error tracking)
+
+9.2 Development Phases
+Phase 1 (Weeks 1-2): Core Generation
+
+Landing page with demo
+Document upload + template selection
+Claude API integration
+Basic Word export
+
+Phase 2 (Weeks 3-4): User Accounts
+
+Registration/login (Supabase Auth)
+Document storage
+Payment integration (Stripe)
+Trial logic
+
+Phase 3 (Weeks 5-6): Editing & Polish
+
+In-browser editing
+Mobile responsiveness
+Compliance checker
+Error handling
+
+Phase 4 (Weeks 7-8): Launch Prep
+
+User testing with 10 teachers
+Bug fixes
+Support documentation
+Analytics setup
+
+Phase 5 (Week 9+): Post-Launch
+
+Monitor metrics daily
+Fix critical bugs within 24h
+Iterate based on user feedback
+Weekly feature releases
+
+
+10. Validation Checkpoints
+10.1 Pre-Build Validation (Week 0)
+
+ 50+ email signups from landing page
+ 20 teacher interviews confirming problem
+ 5 teachers commit: "I'll pay €10/month if this works"
+ Pricing sensitivity tested (survey)
+
+Decision: If <30 emails, reconsider building
+10.2 MVP Validation (Week 8)
+
+ 10 beta users successfully generate documents
+ 7/10 rate output quality 4+ stars
+ 5/10 use it 3+ times in 2 weeks
+ 0 critical bugs blocking usage
+
+Decision: If <5/10 satisfied, major pivot needed
+10.3 Market Validation (Month 3)
+
+ 50+ trial signups
+ 10+ paying customers (20% conversion)
+ €100+ MRR
+ <10% churn
+
+Decision: If <€50 MRR, evaluate continuation
+
+11. Acceptance Criteria Summary
+A requirement is considered "done" when:
+
+Functionally complete: Behavior matches specification
+Tested: Manual testing + automated tests where applicable
+Documented: User-facing changes documented in help/FAQ
+Performance validated: Meets specified speed/uptime targets
+Accessible: Works on mobile + desktop, keyboard navigable
+Error-handled: Graceful failures with clear user guidance
+User-validated: 3+ teachers successfully use feature without confusion
+
+
+12. Out of Scope (Explicitly Not Included)
+To maintain focus and ship quickly:
+
+❌ Native mobile apps (web + PWA sufficient)
+❌ Offline-first architecture (online-required acceptable)
+❌ Real-time collaboration (single-user editing only)
+❌ LVS integrations (manual export acceptable for V1)
+❌ Advanced SLO tracking (basic coverage checking only)
+❌ School-wide administration (individual accounts only)
+❌ White-labeling for partners (direct-to-teacher only)
+❌ Multi-language support (Dutch only)
+❌ Custom branding per school (single brand)
+❌ Extensive analytics dashboard (basic metrics only)
+
+
+Document Status: Final
+Approval Required From: Founder/Product Owner
+Next Steps: Review, approve, begin Phase 1 development

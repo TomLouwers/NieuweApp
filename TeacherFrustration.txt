@@ -1,0 +1,90 @@
+What Would Actually Help Me (As a Burned-Out Dutch Teacher)
+Let me be completely honest with you.
+What I DON'T Need
+Another tool to learn. I'm drowning. The last thing I want is to spend an hour figuring out how your AI works.
+More features. You keep talking about Werkmap, Teams integration, SLO tracking. I don't care. I just want my weekends back.
+Promises about saving time. Every tool promises this. ParnasSys promised it. Our new methode promised it. None delivered.
+What Would Actually Make Me Try Your Product
+1. Solve ONE thing I'm doing THIS week
+Don't tell me about all your features. Tell me:
+"You have to write a groepsplan by Friday. Give me 10 minutes right now, and you'll never have to write one from scratch again."
+That's it. That's the pitch.
+If it works, I'll come back. If it doesn't, I won't - no matter how many other features you have.
+2. Make it work with my chaos
+My reality:
+
+I have a half-finished groepsplan from last year somewhere in my email
+My school uses a specific format that my IB'er is very particular about
+I don't have time to "set up" anything
+I need this done by Friday and it's already Wednesday
+
+Your tool needs to handle this mess, not require me to be organized first.
+3. Don't make me fear the inspectie
+If I use your AI-generated groepsplan and the inspectie rejects it, I'm in trouble. Not you - me.
+So either:
+
+Guarantee it's inspectie-proof (with actual evidence, not marketing speak)
+Or let me see what other teachers in my position have successfully used
+Or have someone with credibility (IB'er, PO-raad) vouch for it
+
+Without this, I'm not risking it for official documents.
+4. Show me it works in 30 seconds
+Not a demo video. Not a sales pitch. Not a tour of features.
+Let me upload my old groepsplan right now, no account needed, and show me an improved version in 30 seconds.
+If it's good, I'll sign up.
+If it's mediocre, I'll use ChatGPT.
+If I have to watch a video first, I'll close the tab.
+5. Price it so I don't have to ask permission
+If it's more than €10/month, I have to ask my school. That means:
+
+Asking my directeur
+Waiting for the next budget meeting
+Justifying why I need it
+Probably getting rejected because "we already have ParnasSys"
+
+At €10/month, I'll just pay it myself if it saves me 2 hours.
+At €20/month, I have to think about it.
+At €30+/month, I need school approval, which means months of waiting.
+6. Make it work on my phone
+I'm not at my laptop at 22:00 on Sunday when I remember I need to finish that groepsplan.
+I'm on my couch with my phone.
+If I can't use your tool on my phone, I'll use something else.
+What Would Make Me Actually PAY (Not Just Try)
+After 2 weeks of free trial, I'll only pay if:
+
+I actually used it 3+ times (not just tried it once)
+It saved me at least 2 hours (measurable, not theoretical)
+The output was good enough to actually submit (not just "interesting" or "helpful")
+Nobody complained about it (no IB'er comments, no colleague questions)
+I feel anxious about losing access ("Oh no, I need this for next groepsplan")
+
+If all five are true, I'll pay €10/month without hesitation.
+If only 3 are true, I'll probably cancel.
+If less than 3, I'll definitely cancel.
+The Real Question You Should Ask Me
+Not "what features do you want?"
+But: "What are you doing this week that you absolutely hate?"
+My answer today: Writing an OPP for a student with dyslexie. I have to:
+
+Describe current situation (I've already written this 3x this year)
+Set goals (same goals as last OPP, just different wording)
+Describe approach (copy from previous OPP with minor tweaks)
+Plan evaluation moments (same schedule as always)
+Format it in our school's template (fiddly Word formatting)
+Get it done by Thursday for gesprek with ouders
+
+Total time: 2.5 hours
+Time that's actually thinking: 20 minutes
+Time that's repetitive copying/formatting: 2 hours 10 minutes
+If your tool could do that 2 hours 10 minutes for me, I'd pay €20/month happily.
+If it can't, I don't care about any other features.
+Bottom Line
+You asked: "How can I help you?"
+Help me by making Friday less awful.
+Not by building a comprehensive platform.
+Not by offering 8 different features.
+Not by having the best AI or the most integrations.
+Just: Make the thing I'm dreading this week take 10 minutes instead of 2 hours.
+Do that, and I'm yours.
+Fail at that, and I don't care how amazing your roadmap is.
+That's the truth from a burned-out leerkracht who's heard too many promises from too many tools.

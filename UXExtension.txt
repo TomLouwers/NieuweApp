@@ -1,0 +1,257 @@
+Kritische Vraag: Focus vs. Feature Creep
+Je raakt precies de spanning die dit project gaat maken of breken.
+Het Dilemma
+Je hebt gelijk om te vragen. In het requirements document staan 6 functionaliteiten:
+
+Groepsplan
+OPP/Handelingsplan
+Toetsresultaten
+Gespreksverslagen
+Planoverleg prep
+Duo-handover
+
+In het UX-concept focus ik op groepsplan.
+Dat is een bewuste keuze. Maar het creëert een probleem.
+Drie Strategieën (met eerlijke trade-offs)
+Strategie A: Sequentiële Rollout (Aanbevolen)
+Aanpak:
+Bouw én launch functies één voor één.
+Maand 1-2: Alleen groepsplan
+
+Landing page zegt: "Groepsplannen in 10 minuten"
+Taakkeuze scherm toont alleen: "Groepsplan maken"
+Andere functies bestaan niet (niet grijs, niet "binnenkort", gewoon niet)
+
+Maand 3-4: Voeg OPP toe
+
+Landing page update: "Groepsplannen én OPP's"
+Taakkeuze scherm: Nu 2 opties
+Email naar bestaande users: "Nieuw: OPP generator"
+
+Maand 5-6: Voeg rest toe
+
+Etc.
+
+Voordelen:
+
+Focus op één ding perfect maken
+Leert van echte gebruikers voor je volgende feature bouwt
+Snellere launch (6 weken ipv 16 weken)
+Minder bugs (minder code = minder dat stuk kan)
+
+Nadelen:
+
+"Incomplete" product (maar is dat erg?)
+Concurrenten kunnen voorsprong nemen
+Sommige users willen OPP, niet groepsplan (mis je die markt)
+
+Wanneer dit werkt:
+Als groepsplan het meest gevraagde is (valideer dit eerst).
+
+Strategie B: Alles Tegelijk, Maar Verborgen Menu
+Aanpak:
+Bouw alle 6 functies, maar toon ze pas na eerste gebruik.
+Eerste bezoek:
+Homepage: "Groepsplannen in 10 minuten"
+CTA: "Maak je eerste groepsplan"
+
+Taakkeuze: Alleen groepsplan zichtbaar
+Tweede bezoek (na account/eerste document):
+Dashboard: "Wat wil je vandaag maken?"
+
+Kaarten voor alle 6 functies
+"Nieuw voor jou: Ook OPP's, gespreksverslagen..."
+Of: Progressive disclosure in taakkeuze
+EERSTE KEER:
+┌──────────────┐
+│ Groepsplan   │  ← Grote kaart, prominent
+└──────────────┘
+
+[Meer opties ↓]  ← Klein, onderaan
+
+TWEEDE KEER:
+┌──────────────┐ ┌──────────────┐
+│ Groepsplan   │ │ OPP          │
+└──────────────┘ └──────────────┘
+
+┌──────────────┐ ┌──────────────┐
+│ Toetsresult. │ │ Gesprek      │
+└──────────────┘ └──────────────┘
+
+[Meer opties ↓]
+Voordelen:
+
+Complete product vanaf dag 1
+Kan alle use cases bedienen
+Users ontdekken features geleidelijk (niet overweldigd)
+
+Nadelen:
+
+Langer development tijd (16 weken)
+Meer bugs (6x de code)
+Focus versplinterd tijdens bouwen
+Marketing lastig ("We doen alles" is zwak boodschap)
+
+Wanneer dit werkt:
+Als je 4+ maanden development tijd hebt en zeker weet dat alle features nodig zijn.
+
+Strategie C: Modulaire Architectuur, User Kiest
+Aanpak:
+Laat gebruiker bij onboarding kiezen wat ze willen.
+Homepage:
+"Welke administratie kost jou de meeste tijd?"
+
+┌────────────────────────┐
+│ Groepsplannen (47%)    │  ← Meest gekozen
+│ OPP's (28%)            │
+│ Gespreksverslagen (15%)│
+│ Toetsresultaten (10%)  │
+└────────────────────────┘
+
+[Kies wat je wilt proberen]
+Dan:
+
+Kies "Groepsplannen" → Zie alleen die flow
+Kies "OPP's" → Zie alleen die flow
+Later: "Probeer ook..." (cross-sell)
+
+Voordelen:
+
+Iedereen ziet wat voor hen relevant is
+Minder overweldigend (1 feature per user journey)
+Data over wat het populairst is (inform roadmap)
+
+Nadelen:
+
+Complex menu-systeem (wat als ze later van gedachten veranderen?)
+Vereist alle features gebouwd vanaf dag 1
+Verwarrend als user later andere feature wil (moeten zoeken)
+
+Wanneer dit werkt:
+Als je niet zeker weet welke feature het belangrijkst is en data nodig hebt.
+
+Mijn Eerlijke Aanbeveling
+Strategie A: Sequentiële Rollout
+Maar met deze specifieke implementatie:
+Fase 1: MVP (Week 1-8)
+Alleen groepsplan
+Landing page:
+"Groepsplannen in 10 minuten"
+[Probeer nu]
+Geen vermelding van andere features. Ze bestaan niet.
+Fase 2: Validate (Week 9-12)
+Test met 50 users
+Na 4 weken, vraag:
+
+Wat ontbreek je?
+Wat zou je als volgende willen?
+
+Als 30+ zeggen "OPP's" → Bouw dat.
+Als 30+ zeggen "Niets, dit is genoeg" → Verbeter groepsplan verder.
+Fase 3: Expand (Week 13+)
+Voeg #2 feature toe (waarschijnlijk OPP)
+Update landing page:
+"Groepsplannen én OPP's in minuten"
+Taakkeuze scherm nu 2 opties.
+Email naar bestaande users:
+"Goed nieuws! Je kunt nu ook OPP's maken.
+
+Probeer het: [link]"
+Fase 4: Complete (Maand 6+)
+Als momentum er is:
+Voeg toe: Gespreksverslagen, Toetsresultaten, etc.
+Maar alleen als:
+
+Er vraag naar is
+Je resources hebt
+Core features stabiel zijn
+
+
+Waar Komen Andere Features in UX?
+Als je toch alle features vanaf dag 1 wil (Strategie B), dan zo:
+Landing Page Aanpassing
+In plaats van:
+"Groepsplannen in 10 minuten"
+Dit:
+"Administratie in minuten in plaats van uren"
+
+Wat kost jou de meeste tijd?
+- Groepsplannen (2u → 10min)
+- OPP's (3u → 15min)
+- Gespreksverslagen (45min → 5min)
+- Toetsresultaten (1u → 5min)
+
+[Probeer gratis]
+Taakkeuze Scherm
+Optie 1: Alle 6 tegelijk (risico: overweldigend)
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│ Groepsplan │ │ OPP        │ │ Toetsres.  │
+│ 2u→10min   │ │ 3u→15min   │ │ 1u→5min    │
+└────────────┘ └────────────┘ └────────────┘
+
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│ Gesprek    │ │ Planoverleg│ │ Duo-hand.  │
+│ 45m→5min   │ │ 45m→5min   │ │ 10m→1min   │
+└────────────┘ └────────────┘ └────────────┘
+Optie 2: Top 3 + "Meer" (beter)
+"Meest gebruikt:"
+
+┌────────────┐ ┌────────────┐ ┌────────────┐
+│ Groepsplan │ │ OPP        │ │ Gesprek    │
+│ 2u→10min   │ │ 3u→15min   │ │ 45m→5min   │
+└────────────┘ └────────────┘ └────────────┘
+
+[Meer opties ↓]
+
+(klik "Meer" ontvouwt rest)
+Navigatie (voor terugkerende users)
+Dashboard:
+┌─────────────────────────────────────────┐
+│ [+ Nieuw]    [Documenten]    [Account]  │
+├─────────────────────────────────────────┤
+│ Wat wil je maken?                       │
+│                                         │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│ │Groepsplan│ │   OPP    │ │ Gesprek  │ │
+│ └──────────┘ └──────────┘ └──────────┘ │
+│                                         │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│ │ Toetsres.│ │Planoverleg│ │Duo-hand. │ │
+│ └──────────┘ └──────────┘ └──────────┘ │
+│                                         │
+│ Recent:                                 │
+│ • Groepsplan Q2 (gisteren)             │
+│ • OPP Dyslexie (3 dagen geleden)       │
+└─────────────────────────────────────────┘
+Alle features beschikbaar, maar niet overweldigend door:
+
+Groepering (top 3 gebruikte groter)
+Recente documenten (snelle toegang)
+Flat navigatie (geen menu's, alles direct)
+
+
+De Harde Waarheid
+Je vraagt dit omdat je hoopt dat het antwoord is: "Bouw alles tegelijk, het kan wel."
+Maar de realiteit:
+Je bent solo founder. Je hebt max 30 uur/week. Je hebt geen co-founder.
+Optie A (sequentieel): 6 weken tot launch groepsplan, 12 weken tot 2 features
+Optie B (alles tegelijk): 16 weken tot launch, waarschijnlijk 20 in praktijk
+16 weken = 4 maanden.
+In die tijd:
+
+Andere tools kunnen lanceren
+ChatGPT kan education-features toevoegen
+Je raakt gemotiveerd kwijt (gebeurt bij maand 3)
+Je geld raakt op
+Je hebt nog geen enkele paying user
+
+Mijn advies: Kies Strategie A.
+Bouw groepsplan perfect. Launch over 6 weken. Als het werkt, bouw dan OPP. Als het niet werkt, heb je 10 weken bespaard.
+Je kunt altijd features toevoegen. Je kunt nooit tijd terugkrijgen.
+De vraag is niet "waar komen andere features", maar "heb ik andere features nodig om te starten?"
+Antwoord: Nee.
+Als groepsplan waarde levert, komen users terug.
+Dan kun je vragen: "Wat wil je nog meer?"
+En dan bouw je dat.
+Maar start met één ding dat werkt.
+Niet zes dingen die half werken.

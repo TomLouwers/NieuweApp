@@ -1,0 +1,724 @@
+AI Engineering Analysis: Teacher Administrative Relief System
+Core Problem (Technical Reframe)
+Teacher's reality:
+
+2.5 hours to write OPP
+2 hours to write groepsplan
+85% of time = mechanical copying/reformatting
+15% of time = actual thinking
+
+This is a text transformation problem, not a generation problem.
+Teachers don't need AI to "think" for them. They need AI to eliminate the mechanical drudgery of reformatting content they already know.
+
+Where Current AI Solutions Fail
+ChatGPT's Limitations
+Problem 1: No context retention
+
+Teacher: "Make groepsplan for Groep 5 Rekenen Q2"
+ChatGPT generates generic template
+Teacher: "Now update it for Q3"
+ChatGPT has no memory of Q2, starts from scratch
+
+Problem 2: No document structure understanding
+
+Upload PDF groepsplan
+ChatGPT can extract text, but loses:
+
+Table formatting
+Section hierarchy
+Logo/header positioning
+Custom school styles
+
+
+Output is plain text, teacher must reformat manually (still 30+ minutes)
+
+Problem 3: No domain grounding
+
+Doesn't know Dutch SLO codes
+Doesn't understand inspectie requirements
+Generates content that looks good but violates Passend Onderwijs structure
+Teacher must verify everything (trust deficit)
+
+Problem 4: No workflow integration
+
+Can't export to Word with proper formatting
+Can't remember "this is OBS De Regenboog's template"
+Can't auto-populate next quarter's plan
+Each use is manual prompt engineering
+
+
+AI Architecture for Pebble (Technical Specification)
+System Components
+┌─────────────────────────────────────────────────────────┐
+│                    USER INTERFACE                       │
+│  (Next.js frontend - handles routing, forms, display)   │
+└────────────────────┬────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────┐
+│                  API GATEWAY                            │
+│  (Next.js API routes - auth, rate limiting, routing)    │
+└────────────────────┬────────────────────────────────────┘
+                     │
+        ┌────────────┴───────────────┐
+        │                            │
+┌───────▼────────┐          ┌────────▼─────────┐
+│  DOCUMENT      │          │   AI PIPELINE    │
+│  PROCESSOR     │          │                  │
+│                │          │  - Prompt Engine │
+│ - Parse PDF    │          │  - Claude API    │
+│ - Parse DOCX   │◄─────────┤  - Response      │
+│ - Extract text │          │    Validator     │
+│ - Detect       │          │  - Output        │
+│   structure    │          │    Formatter     │
+└───────┬────────┘          └────────┬─────────┘
+        │                            │
+        │                            │
+┌───────▼────────────────────────────▼─────────┐
+│           KNOWLEDGE BASE                     │
+│                                              │
+│  - SLO database (validated codes)            │
+│  - Template library (school-specific)        │
+│  - Compliance rules (Passend Onderwijs)      │
+│  - User document history (context)           │
+└───────┬──────────────────────────────────────┘
+        │
+┌───────▼────────┐
+│   STORAGE      │
+│  (Supabase)    │
+│                │
+│  - User docs   │
+│  - Metadata    │
+│  - Templates   │
+└────────────────┘
+
+Critical AI Components (Deep Dive)
+1. Document Understanding Engine
+Purpose: Extract meaning from chaotic input documents.
+Challenge:
+Teachers upload:
+
+Scanned PDFs (handwritten notes)
+Word docs with broken formatting
+Photos from phone
+Mix of multiple documents
+
+Technical approach:
+pythonclass DocumentProcessor:
+    def process(self, file):
+        # Step 1: Convert to text
+        if file.type == 'pdf':
+            text = self.extract_pdf(file)
+        elif file.type == 'docx':
+            text = self.extract_docx(file)
+        elif file.type == 'image':
+            text = self.ocr_image(file)  # Tesseract or Cloud Vision
+        
+        # Step 2: Detect structure
+        sections = self.detect_sections(text)
+        # Look for: "Beginsituatie:", "Doelen:", "Aanpak:", etc.
+        
+        # Step 3: Extract metadata
+        metadata = {
+            'groep': self.extract_groep(text),  # Regex: "Groep [1-8]"
+            'vak': self.extract_vak(text),      # Regex: "Rekenen|Taal|Lezen"
+            'periode': self.extract_periode(text),  # Q1, Q2, etc.
+            'school_logo': self.extract_logo(file) if docx else None
+        }
+        
+        # Step 4: Validate SLO codes
+        slo_codes = self.extract_slo_codes(text)
+        validated_codes = [code for code in slo_codes 
+                          if self.validate_slo(code)]
+        
+        return {
+            'text': text,
+            'sections': sections,
+            'metadata': metadata,
+            'slo_codes': validated_codes,
+            'template_id': self.detect_template(file)  # Match to known templates
+        }
+Key insight:
+Don't rely on perfect input. Build tolerance for messy, real-world documents.
+
+2. Prompt Engineering Engine
+Purpose: Generate contextual prompts that produce inspectie-ready output.
+Challenge:
+Generic prompts produce generic output. Need domain-specific, context-aware prompting.
+Technical approach:
+pythonclass PromptEngine:
+    def build_groepsplan_prompt(self, context):
+        """
+        Context includes:
+        - Previous groepsplan (if exists)
+        - Groep level, vak, periode
+        - School template structure
+        - User's past ratings/feedback
+        """
+        
+        # Base instruction (always included)
+        base = """Je bent een expert in Nederlands basisonderwijs.
+        Genereer een groepsplan volgens Passend Onderwijs 2024 richtlijnen.
+        """
+        
+        # Add historical context (if available)
+        if context.previous_plan:
+            base += f"""
+            Vorig groepsplan (Q{context.previous_quarter}):
+            {context.previous_plan['summary']}
+            
+            Bouw hierop voort. Behandelde doelen herhalen niet, 
+            maar wel refereren in beginsituatie.
+            """
+        
+        # Add compliance requirements
+        base += """
+        Verplichte structuur:
+        1. Beginsituatie (wat kunnen leerlingen al)
+        2. Doelen (3-5 SLO doelen voor dit kwartaal)
+        3. Aanpak (hoe ga je lesgeven)
+        4. Differentiatie (drie niveaus: basis, extra uitdaging, extra ondersteuning)
+        5. Evaluatie (hoe toets je de doelen, wanneer)
+        """
+        
+        # Add SLO context
+        base += f"""
+        Relevante SLO-doelen voor Groep {context.groep} {context.vak}:
+        {self.get_relevant_slo_codes(context.groep, context.vak)}
+        
+        Kies 3-5 doelen passend bij {context.periode}.
+        """
+        
+        # Add school-specific requirements
+        if context.school_template:
+            base += f"""
+            School-specifieke aanpassingen:
+            {context.school_template['requirements']}
+            """
+        
+        # Add output format instruction
+        base += """
+        Output format: Markdown met duidelijke headers.
+        Toon: Nederlands, helder, geen jargon.
+        Taalgebruik: Professioneel maar toegankelijk (B1 niveau).
+        """
+        
+        return base
+    
+    def get_relevant_slo_codes(self, groep, vak):
+        """Query knowledge base for relevant SLO codes"""
+        return self.knowledge_base.query(
+            f"SELECT code, description FROM slo_goals 
+             WHERE groep = {groep} AND vak = '{vak}' 
+             ORDER BY sequence"
+        )
+Key insight:
+The prompt is not static. It adapts based on:
+
+What user uploaded
+What they generated before
+School-specific requirements
+Compliance rules
+
+
+3. Response Validation & Quality Control
+Purpose: Ensure AI output meets minimum quality standards before showing to user.
+Challenge:
+LLMs hallucinate. They make mistakes. Teachers cannot afford mistakes in official documents.
+Technical approach:
+pythonclass OutputValidator:
+    def validate_groepsplan(self, generated_text, context):
+        """Multi-stage validation"""
+        
+        errors = []
+        warnings = []
+        
+        # Stage 1: Structure validation
+        required_sections = [
+            'Beginsituatie', 
+            'Doelen', 
+            'Aanpak', 
+            'Differentiatie', 
+            'Evaluatie'
+        ]
+        
+        for section in required_sections:
+            if section not in generated_text:
+                errors.append(f"Verplichte sectie '{section}' ontbreekt")
+        
+        # Stage 2: SLO code validation
+        mentioned_codes = self.extract_slo_codes(generated_text)
+        for code in mentioned_codes:
+            if not self.slo_database.exists(code):
+                errors.append(f"Ongeldige SLO code: {code}")
+            
+            # Check if code matches groep/vak
+            slo_info = self.slo_database.get(code)
+            if slo_info.groep != context.groep:
+                warnings.append(
+                    f"{code} is voor Groep {slo_info.groep}, "
+                    f"niet Groep {context.groep}"
+                )
+        
+        # Stage 3: Content quality checks
+        if len(generated_text) < 500:
+            warnings.append("Document lijkt erg kort (<500 woorden)")
+        
+        if self.check_generic_content(generated_text):
+            warnings.append(
+                "Inhoud lijkt generiek. Overweeg meer specifieke details."
+            )
+        
+        # Stage 4: Blacklist check (prohibited content)
+        prohibited_terms = self.load_blacklist()
+        for term in prohibited_terms:
+            if term.lower() in generated_text.lower():
+                errors.append(f"Ongepaste term gedetecteerd: {term}")
+        
+        # Stage 5: Format compliance
+        if context.school_template:
+            if not self.matches_template(generated_text, context.school_template):
+                warnings.append("Output wijkt af van schoolsjabloon")
+        
+        # Decision logic
+        if errors:
+            return {
+                'valid': False,
+                'action': 'REGENERATE',
+                'errors': errors,
+                'warnings': warnings
+            }
+        elif warnings:
+            return {
+                'valid': True,
+                'action': 'SHOW_WITH_WARNINGS',
+                'errors': [],
+                'warnings': warnings
+            }
+        else:
+            return {
+                'valid': True,
+                'action': 'SHOW',
+                'errors': [],
+                'warnings': []
+            }
+    
+    def check_generic_content(self, text):
+        """Detect if content is too generic"""
+        generic_phrases = [
+            "de leerlingen zullen leren",
+            "we gaan werken aan",
+            "dit is belangrijk omdat"
+        ]
+        
+        count = sum(1 for phrase in generic_phrases if phrase in text.lower())
+        return count > 3  # Too many generic phrases
+Key insight:
+Never show unvalidated AI output to users. Fail silently and regenerate if needed.
+
+4. Template Matching & Formatting Engine
+Purpose: Output documents in exact school format (logo, headers, styling).
+Challenge:
+Every school has different Word templates. Can't manually code 8000 variations.
+Technical approach:
+pythonclass TemplateEngine:
+    def learn_template(self, uploaded_docx):
+        """Analyze uploaded document to extract template structure"""
+        
+        doc = docx.Document(uploaded_docx)
+        
+        template = {
+            'id': generate_uuid(),
+            'school_id': get_school_id(),  # From user metadata
+            'structure': {
+                'has_logo': self.detect_logo(doc),
+                'logo_position': self.get_logo_position(doc) if has_logo else None,
+                'header_style': self.extract_style(doc, 'Heading 1'),
+                'body_style': self.extract_style(doc, 'Normal'),
+                'table_style': self.extract_table_style(doc),
+                'page_setup': {
+                    'margins': doc.sections[0].page_margins,
+                    'orientation': doc.sections[0].orientation
+                }
+            },
+            'required_sections': self.detect_sections(doc),
+            'sample_content': self.extract_sample_text(doc)
+        }
+        
+        # Store for reuse
+        self.template_db.save(template)
+        
+        return template
+    
+    def apply_template(self, generated_markdown, template_id):
+        """Convert markdown to Word doc matching template"""
+        
+        template = self.template_db.get(template_id)
+        
+        # Create new Word document
+        doc = docx.Document()
+        
+        # Apply page setup
+        section = doc.sections[0]
+        section.page_margins = template['structure']['page_setup']['margins']
+        
+        # Add logo (if template has one)
+        if template['structure']['has_logo']:
+            logo = self.get_school_logo(template['school_id'])
+            doc.add_picture(logo, **template['structure']['logo_position'])
+        
+        # Convert markdown to Word with template styles
+        for line in generated_markdown.split('\n'):
+            if line.startswith('# '):  # H1
+                doc.add_heading(line[2:], level=1)
+                # Apply template's heading style
+                doc.paragraphs[-1].style = template['structure']['header_style']
+            
+            elif line.startswith('## '):  # H2
+                doc.add_heading(line[3:], level=2)
+            
+            elif line.startswith('- '):  # Bullet
+                doc.add_paragraph(line[2:], style='List Bullet')
+            
+            else:  # Body text
+                p = doc.add_paragraph(line)
+                p.style = template['structure']['body_style']
+        
+        return doc
+Key insight:
+Learn from uploaded documents. Don't require manual template configuration.
+
+5. Context Memory System
+Purpose: Remember user's history to avoid repetitive questions and improve suggestions.
+Challenge:
+Teachers use Pebble sporadically (monthly for groepsplannen). Need to remember context across sessions.
+Technical approach:
+pythonclass ContextManager:
+    def get_user_context(self, user_id, document_type):
+        """Retrieve relevant historical context"""
+        
+        # Get user's document history
+        history = self.db.query(
+            f"""SELECT * FROM documents 
+                WHERE user_id = {user_id} 
+                AND type = '{document_type}'
+                ORDER BY created_at DESC 
+                LIMIT 5"""
+        )
+        
+        # Extract patterns
+        context = {
+            'most_used_groep': self.get_most_frequent(history, 'groep'),
+            'most_used_vak': self.get_most_frequent(history, 'vak'),
+            'average_generation_time': self.calculate_avg(history, 'generation_time'),
+            'typical_document_length': self.calculate_avg(history, 'word_count'),
+            'last_generated': history[0] if history else None,
+            'feedback_history': self.get_feedback(user_id, document_type)
+        }
+        
+        # Smart defaults for next generation
+        if history:
+            last = history[0]
+            context['suggested_defaults'] = {
+                'groep': last['groep'],
+                'vak': last['vak'],
+                'periode': self.next_quarter(last['periode']),
+                'template_id': last['template_id']
+            }
+        
+        return context
+    
+    def learn_from_feedback(self, user_id, document_id, feedback):
+        """User edited the output - learn what they changed"""
+        
+        original = self.db.get_document(document_id)
+        edited = feedback['edited_content']
+        
+        # Diff analysis
+        changes = {
+            'sections_added': self.detect_added_sections(original, edited),
+            'sections_removed': self.detect_removed_sections(original, edited),
+            'length_change': len(edited) - len(original),
+            'tone_change': self.analyze_tone_shift(original, edited),
+            'slo_changes': self.detect_slo_changes(original, edited)
+        }
+        
+        # Store preferences
+        self.db.save_preferences(user_id, {
+            'prefers_longer': changes['length_change'] > 100,
+            'prefers_more_detail': len(changes['sections_added']) > 0,
+            'preferred_slo_count': len(changes['slo_changes']['final'])
+        })
+        
+        # Use in future prompts
+        return changes
+Key insight:
+Every interaction is training data. Learn user preferences implicitly, don't ask explicitly.
+
+Specific AI Solutions to Teacher Frustrations
+Frustration 1: "I spend 2 hours copying from last year's plan"
+AI Solution: Intelligent Template Evolution
+pythondef evolve_groepsplan(previous_plan, target_quarter):
+    """Transform last quarter's plan to next quarter"""
+    
+    prompt = f"""
+    Vorig kwartaal (Q{previous_plan.quarter}):
+    {previous_plan.content}
+    
+    Taak: Maak plan voor Q{target_quarter}
+    
+    Regels:
+    1. Beginsituatie: Verwijs naar resultaten Q{previous_plan.quarter}
+    2. Doelen: Volgende SLO-doelen in sequence (niet herhalen)
+    3. Aanpak: Behoud werkende elementen, innoveer waar nodig
+    4. Differentiatie: Update op basis van voortgang
+    5. Evaluatie: Nieuwe data en momenten
+    
+    Behoud:
+    - Schrijfstijl en toon
+    - Succesvolle aanpak-elementen
+    - Differentiatie-structuur
+    
+    Verander:
+    - Concrete doelen (nieuwe SLO's)
+    - Specifieke activiteiten
+    - Evaluatiemomenten (nieuwe data)
+    """
+    
+    return claude.generate(prompt)
+Result: 2 hours → 5 minutes (edit small details)
+
+Frustration 2: "School wants specific format, I spend 30 min on formatting"
+AI Solution: Format-Agnostic Generation + Template Application
+pythondef generate_with_format(content_request, school_template):
+    """Generate content in markdown, apply formatting separately"""
+    
+    # Step 1: Generate content (format-agnostic)
+    markdown_content = ai_generate(content_request)
+    
+    # Step 2: Apply school template
+    word_doc = apply_template(markdown_content, school_template)
+    
+    # Step 3: Validate formatting
+    if validate_format(word_doc, school_template):
+        return word_doc
+    else:
+        # Retry with explicit formatting instructions
+        return regenerate_with_format_hints(markdown_content, school_template)
+Result: Manual formatting eliminated entirely.
+
+Frustration 3: "I don't trust AI for official documents"
+AI Solution: Hybrid Human-AI Review System
+pythonclass QualityAssurance:
+    def generate_with_confidence_score(self, request):
+        """Generate and score confidence"""
+        
+        output = ai_generate(request)
+        
+        confidence_checks = {
+            'structure_valid': self.validate_structure(output),
+            'slo_codes_valid': self.validate_slo_codes(output),
+            'length_appropriate': self.check_length(output),
+            'no_hallucinations': self.detect_hallucinations(output),
+            'matches_user_history': self.compare_to_history(output)
+        }
+        
+        confidence_score = sum(confidence_checks.values()) / len(confidence_checks)
+        
+        if confidence_score < 0.8:
+            # Flag for human review (premium tier) or show warnings
+            return {
+                'output': output,
+                'confidence': confidence_score,
+                'warnings': [k for k, v in confidence_checks.items() if not v],
+                'recommended_action': 'REVIEW_BEFORE_USE'
+            }
+        else:
+            return {
+                'output': output,
+                'confidence': confidence_score,
+                'warnings': [],
+                'recommended_action': 'SAFE_TO_USE'
+            }
+Result: Transparency builds trust. User knows when to double-check.
+
+Frustration 4: "Working at 22:00, on my phone, internet is slow"
+AI Solution: Progressive Enhancement + Caching
+pythonclass MobileOptimization:
+    def generate_progressive(self, request):
+        """Generate in stages, show partial results early"""
+        
+        # Stage 1: Quick outline (5 seconds)
+        outline = ai_generate_outline(request)
+        yield {
+            'stage': 'outline',
+            'content': outline,
+            'time': 5
+        }
+        
+        # Stage 2: Fill sections (15 seconds total)
+        for section in ['Beginsituatie', 'Doelen', 'Aanpak', 'Differentiatie', 'Evaluatie']:
+            section_content = ai_generate_section(section, request, outline)
+            yield {
+                'stage': 'section',
+                'section_name': section,
+                'content': section_content,
+                'time': 15
+            }
+        
+        # Stage 3: Polish (optional, can skip on slow connection)
+        if not request.is_slow_connection:
+            polished = ai_polish(combined_content)
+            yield {
+                'stage': 'final',
+                'content': polished,
+                'time': 20
+            }
+    
+    def cache_aggressive(self, user_id):
+        """Cache likely next requests"""
+        
+        # Predict what user might generate next
+        last_doc = self.get_last_document(user_id)
+        
+        if last_doc.type == 'groepsplan' and last_doc.quarter == 'Q1':
+            # Pre-generate Q2 plan in background
+            self.background_generate(user_id, 'groepsplan', 'Q2')
+            
+        # Cache templates
+        self.cache_user_template(user_id)
+        
+        # Cache SLO database for user's groep
+        self.cache_slo_codes(last_doc.groep)
+Result: Fast experience even on poor connection. Show results incrementally.
+
+Technical Risks & Mitigation
+Risk 1: AI Generates Incorrect SLO Codes
+Problem: Claude might invent codes like "REK-G5-99" that don't exist.
+Mitigation:
+python# Constrained generation with validation
+def generate_with_slo_validation(prompt, groep, vak):
+    valid_codes = slo_database.get_valid_codes(groep, vak)
+    
+    prompt += f"""
+    ONLY use these SLO codes (no others):
+    {', '.join(valid_codes)}
+    """
+    
+    output = claude.generate(prompt)
+    
+    # Post-validation
+    mentioned_codes = extract_slo_codes(output)
+    invalid = [c for c in mentioned_codes if c not in valid_codes]
+    
+    if invalid:
+        # Regenerate with explicit correction
+        prompt += f"\nPREVIOUSLY USED INVALID CODES: {invalid}. DO NOT USE THESE."
+        output = claude.generate(prompt)
+    
+    return output
+
+Risk 2: Template Formatting Breaks
+Problem: Word document export might not match uploaded template perfectly.
+Mitigation:
+python# Fallback to simple format + manual template application
+try:
+    formatted_doc = apply_complex_template(content, template)
+    if validate_formatting(formatted_doc, template, threshold=0.95):
+        return formatted_doc
+except FormattingError:
+    # Fallback: Return well-structured markdown
+    return {
+        'format': 'markdown',
+        'content': content,
+        'message': 'Kopieer deze tekst in je schoolsjabloon (formatting kon niet automatisch)'
+    }
+
+Risk 3: AI Costs Explode at Scale
+Problem: Claude API costs $0.015 per 1K tokens. 1000 groepsplannen/day = $150/day = $4500/month.
+Mitigation:
+pythonclass CostOptimization:
+    def generate_economically(self, request):
+        # Use caching aggressively
+        cache_key = hash(request.groep, request.vak, request.quarter)
+        
+        if cached := self.cache.get(cache_key):
+            # Customize cached result (cheap)
+            return self.customize(cached, request.specific_needs)
+        
+        # Use shorter prompts (less tokens)
+        prompt = self.build_minimal_prompt(request)
+        
+        # Use cheaper model for drafts
+        if request.is_preview:
+            output = claude_haiku.generate(prompt)  # Cheaper model
+        else:
+            output = claude_sonnet.generate(prompt)  # Better quality
+        
+        # Cache result
+        self.cache.set(cache_key, output, ttl=86400)
+        
+        return output
+Expected costs at scale:
+
+100 generations/day: $15/day = $450/month
+With 60% cache hit rate: $180/month
+Sustainable at €10/user/month pricing (50+ active users)
+
+
+Implementation Priority (Eng Perspective)
+Week 1-2: Core AI Pipeline
+
+Claude API integration
+Basic prompt templates
+Markdown → Word export (simple)
+
+Week 3-4: Quality Layer
+4. SLO validation
+5. Structure validation
+6. Output quality checks
+Week 5-6: Context & Memory
+7. Document history storage
+8. Smart defaults based on history
+9. Template learning (basic)
+Week 7-8: Polish
+10. Advanced template matching
+11. Progressive generation (mobile)
+12. Cost optimization
+Post-MVP (Month 3+):
+
+Human review integration (premium)
+Advanced caching
+Multi-model fallback
+Fine-tuning on user feedback
+
+
+Conclusion
+AI can solve the teacher's problem, but only if we:
+
+Understand it's not about generation, it's about transformation
+
+Teachers know what to write, they hate the mechanics
+
+
+Build domain-specific validation
+
+Generic AI = generic problems
+Education-specific checks = trust
+
+
+Optimize for chaos
+
+Messy uploads, interrupted workflows, slow connections
+AI must handle real-world, not ideal-world
+
+
+Make quality measurable
+
+Confidence scores, validation checks, escape hatches
+Teachers need to trust before they'll adopt
+
+
+
+The technical challenge is not "can AI write a groepsplan" (it can).
+The challenge is "can AI write a groepsplan that a stressed teacher at 22:00 will trust enough to submit to their IB'er without extensive review."
+That requires engineering, not just prompting.

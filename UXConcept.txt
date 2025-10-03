@@ -1,0 +1,984 @@
+UX-Concept voor Pebble: Administratieve Hulp voor Leerkrachten
+1. Analyse Requirements Document
+Kernprobleem
+Nederlandse basisschoolleerkrachten besteden 8+ uur per week aan repetitieve administratie (groepsplannen, OPP's, gespreksverslagen), wat leidt tot burnout. 85% van deze tijd is mechanisch kopiëren/formatteren, slechts 15% is daadwerkelijk nadenken.
+Primaire gebruikersbehoefte
+"Maak vrijdag minder verschrikkelijk door de meest gevreesde taak van deze week terug te brengen van 2 uur naar 10 minuten."
+Kritieke gebruikersfrustraties
+
+Tijdsdruk: Werkt >50 uur/week, slechts 2-4 uur voor admin (ontoereikend)
+Inspectie-angst: Terreur voor afkeuring door inspectie
+Chaos-realiteit: Heeft geen tijd om bestanden te organiseren voordat ze hulp zoeken
+Tool-moeheid: Heeft beloftes van "tijdbesparende tools" te vaak gehoord
+Lage tech-vaardigheid: Gebruikt alleen email, WhatsApp, basis Word
+Avond/weekend werk: Werkt thuis na 22:00 op laptop of telefoon
+Veranderingsangst: Wil geen nieuw systeem leren, wil gewoon dat het werkt
+
+Harde succeseisen
+
+Onboarding <60 seconden
+Eerste document <30 seconden
+Output direct bruikbaar (geen herschrijven)
+Werkt op telefoon
+Prijs ≤€10/maand (anders schoolgoedkeuring nodig)
+
+
+2. UX-Strategie: Anti-Pattern Design
+Kernprincipe
+Traditionele SaaS-design werkt NIET voor deze doelgroep. We moeten het tegenovergestelde doen van wat "best practices" voorschrijven.
+Traditioneel SaaS:
+
+Toon alle features → Kies wat je wilt doen
+Maak account → Configureer → Gebruik
+Leer de tool → Word expert → Bespaar tijd
+
+Pebble aanpak:
+
+Toon direct resultaat → Beslis daarna of je het wilt
+Gebruik → Maak account als het werkt → Blijf gebruiken
+Geen leren nodig → Direct waarde → Kom terug
+
+
+3. Informatiearchitectuur
+3.1 Schermhiërarchie (3-lagen structuur)
+LAAG 1: LANDING (Publiek)
+├─ Homepage (overtuigen in 10 seconden)
+└─ Instant Demo (zonder account)
+
+LAAG 2: GENERATIE (Ingelogd/Trial)
+├─ Taakkeuze (1 scherm)
+├─ Snelle input (max 3 vragen)
+├─ Generatie (met voortgang)
+└─ Resultaat (met edit/download)
+
+LAAG 3: BEHEER (Optional)
+├─ Mijn documenten (simpele lijst)
+├─ Account (minimaal)
+└─ Support (contextgevoelig)
+Waarom 3 lagen?
+
+Laag 1: Overtuigen kost <30 seconden
+Laag 2: Waarde leveren kost <3 minuten
+Laag 3: Alleen nodig als ze terugkomen (95% tijd in laag 2)
+
+3.2 Navigatiemodel
+Geen klassieke navigatiebalk.
+Reden: Elke link = afleiding = kans om af te haken.
+In plaats daarvan: Contextnavigatie
+[← Terug naar keuze]     GROEPSPLAN MAKEN     [? Hulp]
+Alleen wat relevant is op dit moment.
+Na eerste document:
+[Nieuw document] [Mijn documenten (3)]
+Simpel. Geen menu's, geen dropdowns, geen tabs.
+
+4. Gebruikersflow (Stap-voor-stap)
+Flow A: Nieuwe gebruiker zonder account
+Doel: Van landing tot gedownload document in <3 minuten zonder registratie.
+┌─────────────────────────────────────────────────┐
+│ STAP 1: LANDING (0-10 sec)                      │
+├─────────────────────────────────────────────────┤
+│ Scherm: Homepage                                │
+│                                                 │
+│ [Hero: "Van 2 uur groepsplan naar 10 minuten"] │
+│                                                 │
+│ Actie:                                          │
+│ [PROBEER NU - GEEN ACCOUNT NODIG] ← Groot      │
+│ [Zie hoe het werkt] ← Klein                     │
+│                                                 │
+│ Focus: Eén dominante actie, tijdsbesparing     │
+└─────────────────────────────────────────────────┘
+              ↓ (klik "Probeer nu")
+┌─────────────────────────────────────────────────┐
+│ STAP 2: TAAKKEUZE (10-20 sec)                   │
+├─────────────────────────────────────────────────┤
+│ Scherm: Wat wil je maken?                       │
+│                                                 │
+│ "Wat kost je deze week de meeste tijd?"        │
+│                                                 │
+│ ┌─────────────────┐  ┌─────────────────┐       │
+│ │ 📋 Groepsplan   │  │ 📝 OPP/Handeling│       │
+│ │ 2u → 10min      │  │ 3u → 15min      │       │
+│ └─────────────────┘  └─────────────────┘       │
+│                                                 │
+│ ┌─────────────────┐  ┌─────────────────┐       │
+│ │ 📊 Toetsresult. │  │ 💬 Gesprekvers. │       │
+│ │ 1u → 5min       │  │ 45min → 5min    │       │
+│ └─────────────────┘  └─────────────────┘       │
+│                                                 │
+│ UX-detail: Grote klikbare kaarten (niet kleine │
+│ radio buttons), tijdsbesparing prominent        │
+└─────────────────────────────────────────────────┘
+              ↓ (kies "Groepsplan")
+┌─────────────────────────────────────────────────┐
+│ STAP 3: INPUT KEUZE (20-25 sec)                 │
+├─────────────────────────────────────────────────┤
+│ "Heb je een oud groepsplan?"                    │
+│                                                 │
+│ ┌────────────────────────────────┐              │
+│ │ 📤 JA, UPLOADEN                │              │
+│ │ Ik verbeter je huidige plan    │              │
+│ │                                │              │
+│ │ [Sleep hier of klik]           │              │
+│ └────────────────────────────────┘              │
+│                                                 │
+│         of                                      │
+│                                                 │
+│ ┌────────────────────────────────┐              │
+│ │ ✨ NEE, MAAK NIEUW             │              │
+│ │ Ik gebruik een standaard       │              │
+│ │ template                       │              │
+│ └────────────────────────────────┘              │
+│                                                 │
+│ UX-detail: Beide opties even prominent (geen   │
+│ upload-dwang), visueel gescheiden               │
+└─────────────────────────────────────────────────┘
+              ↓ (kies "Maak nieuw")
+┌─────────────────────────────────────────────────┐
+│ STAP 4A: SNELLE VRAGEN (25-35 sec)              │
+├─────────────────────────────────────────────────┤
+│ "Even een paar dingen:"                         │
+│                                                 │
+│ Vraag 1/3: Voor welke groep?                   │
+│ [1] [2] [3] [4] [5] [6] [7] [8]                │
+│                                                 │
+│ (na klik op "5")                                │
+│                                                 │
+│ Vraag 2/3: Welk vak?                            │
+│ [Rekenen] [Taal] [Lezen]                        │
+│                                                 │
+│ (na klik op "Rekenen")                          │
+│                                                 │
+│ Vraag 3/3: Welke periode?                      │
+│ [Q1] [Q2] [Q3] [Q4] [Heel jaar]                │
+│                                                 │
+│ [Start genereren →]                             │
+│                                                 │
+│ UX-detail: Progressie (1/3, 2/3, 3/3), grote   │
+│ knoppen, één vraag per scherm (niet allemaal   │
+│ tegelijk), auto-scroll naar volgende vraag      │
+└─────────────────────────────────────────────────┘
+              ↓ (klik "Start")
+┌─────────────────────────────────────────────────┐
+│ STAP 5: GENERATIE (35-60 sec)                   │
+├─────────────────────────────────────────────────┤
+│ "Je groepsplan wordt gemaakt..."                │
+│                                                 │
+│ ▰▰▰▰▰▰▰▱▱▱ 70%                                  │
+│                                                 │
+│ → Doelen analyseren...                          │
+│                                                 │
+│ Dit duurt ongeveer 20 seconden                  │
+│                                                 │
+│ (Achtergrond: subtiele animatie, geen spinner) │
+│                                                 │
+│ UX-detail: Specifieke status (niet "laden..."), │
+│ tijdsindicatie (verwachting managen), geen     │
+│ leeg scherm (angstreductie)                     │
+└─────────────────────────────────────────────────┘
+              ↓ (na 20 sec)
+┌─────────────────────────────────────────────────┐
+│ STAP 6: PREVIEW (60-90 sec)                     │
+├─────────────────────────────────────────────────┤
+│ "Groepsplan is klaar! ✓"                        │
+│                                                 │
+│ ┌────────────────────────────────┐              │
+│ │ GROEPSPLAN Q2 2025             │              │
+│ │ Groep 5 - Rekenen              │              │
+│ │                                │              │
+│ │ Beginsituatie:                 │              │
+│ │ De leerlingen van groep 5...   │              │
+│ │                                │              │
+│ │ Doelen:                        │              │
+│ │ • SLO REK-G5-12: Breuken...    │              │
+│ │                                │              │
+│ │ [Scroll voor meer ↓]           │              │
+│ └────────────────────────────────┘              │
+│                                                 │
+│ [✏️ Bewerken] [📥 DOWNLOADEN]                   │
+│                                                 │
+│ Wil je dit opslaan? [Maak gratis account]      │
+│                                                 │
+│ UX-detail: Preview scrollbaar (niet volledig   │
+│ scherm), download mogelijk zonder account,     │
+│ account-suggestie na waardelevering            │
+└─────────────────────────────────────────────────┘
+              ↓ (klik "Downloaden")
+┌─────────────────────────────────────────────────┐
+│ STAP 7: SIGNUP NUDGE (90-120 sec)               │
+├─────────────────────────────────────────────────┤
+│ Download start automatisch...                   │
+│                                                 │
+│ ✓ groepsplan_groep5_q2.docx                     │
+│                                                 │
+│ ┌────────────────────────────────┐              │
+│ │ Maak een account om:           │              │
+│ │ • Je documenten op te slaan    │              │
+│ │ • Geen limiet op downloads     │              │
+│ │ • 14 dagen gratis proberen     │              │
+│ │                                │              │
+│ │ Email: [________________]      │              │
+│ │ Wachtwoord: [___________]      │              │
+│ │                                │              │
+│ │ [Account maken] [Later]        │              │
+│ └────────────────────────────────┘              │
+│                                                 │
+│ UX-detail: Account-vraag NA waarde, niet ervoor│
+│ "Later" optie aanwezig (geen dwang), minimale  │
+│ velden (alleen email + wachtwoord)              │
+└─────────────────────────────────────────────────┘
+Kritieke UX-beslissingen in deze flow:
+
+Geen account vereist vooraf - Grootste frictiepunt verwijderd
+Taakkeuze met tijdsbesparing - Concrete waarde direct zichtbaar
+Upload OF template - Geen drempel, beide wegen werken
+Maximaal 3 vragen - Cognitieve last minimaal
+Grote knoppen, geen tekstvelden - Geen typen = sneller + geen fouten
+Voortgangsindicatie - Angst reduceren tijdens wachten
+Preview voor download - Vertrouwen opbouwen
+Account suggestie na waarde - Conversie op moment van tevredenheid
+
+
+Flow B: Terugkerende gebruiker (ingelogd)
+Doel: Direct naar generatie, nog sneller dan eerste keer.
+┌─────────────────────────────────────────────────┐
+│ Login → Dashboard (0-5 sec)                      │
+├─────────────────────────────────────────────────┤
+│ "Hoi Anna, wat ga je vandaag maken?"            │
+│                                                 │
+│ ┌─────────────────┐  ┌─────────────────┐       │
+│ │ 📋 Groepsplan   │  │ 📝 OPP          │       │
+│ │ (laatst: 2 dagen│  │ (laatst: 1 week)│       │
+│ └─────────────────┘  └─────────────────┘       │
+│                                                 │
+│ ──────────────────────────────────────────────  │
+│                                                 │
+│ Recent:                                         │
+│ • Groepsplan Q2 Groep 5 (gisteren)             │
+│ • OPP Dyslexie (3 dagen geleden)               │
+│                                                 │
+│ [Alle documenten (12)]                          │
+│                                                 │
+│ UX-detail: Herinnert laatste gebruik, recente  │
+│ documenten direct toegankelijk, geen lege staat│
+└─────────────────────────────────────────────────┘
+              ↓ (klik "Groepsplan")
+┌─────────────────────────────────────────────────┐
+│ Smart pre-fill (5-10 sec)                       │
+├─────────────────────────────────────────────────┤
+│ "Nog een groepsplan voor Groep 5?"              │
+│                                                 │
+│ [Ja, zelfde instellingen]                       │
+│ [Nee, andere groep/vak]                         │
+│                                                 │
+│ (als "Ja"):                                     │
+│ → Direct naar generatie (skip vragen)           │
+│                                                 │
+│ UX-detail: Onthoudt context, voorkomt herhaling│
+│ van vragen, 1-click naar generatie mogelijk     │
+└─────────────────────────────────────────────────┘
+Time-to-value voor terugkerende gebruiker: <30 seconden
+
+Flow C: Edit na generatie
+┌─────────────────────────────────────────────────┐
+│ Preview scherm → Klik "Bewerken"                │
+├─────────────────────────────────────────────────┤
+│ Document opent in editor                        │
+│                                                 │
+│ ┌────────────────────────────────┐              │
+│ │ [Document tekst, editeerbaar]  │              │
+│ │                                │              │
+│ │ Klik op tekst om te bewerken   │              │
+│ │                                │              │
+│ │ Of gebruik AI:                 │              │
+│ │ [Wat wil je aanpassen?___]     │              │
+│ │ Voorbeelden:                   │              │
+│ │ • "Maak korter"                │              │
+│ │ • "Meer differentiatie"        │              │
+│ │ • "Formeler toon"              │              │
+│ └────────────────────────────────┘              │
+│                                                 │
+│ [← Terug] [Opslaan] [Downloaden]                │
+│                                                 │
+│ UX-detail: In-place editing (geen Word nodig), │
+│ AI-assisted refinement (beschrijf ipv doen),   │
+│ auto-save (geen "save" button nodig eigenlijk) │
+└─────────────────────────────────────────────────┘
+
+5. Wireframe-voorstellen per Scherm
+5.1 Homepage (Desktop)
+┌──────────────────────────────────────────────────────────────┐
+│ [Pebble logo]            Features  Prijzen  Contact  [Inloggen│
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│     ┌────────────────────────────┐  ┌──────────────────┐    │
+│     │                            │  │                  │    │
+│     │  Van 2 uur groepsplan      │  │  [Illustratie:   │    │
+│     │  naar 10 minuten           │  │   Leerkracht     │    │
+│     │                            │  │   met laptop,    │    │
+│     │  Bespaar 2-3 uur per week  │  │   glimlachend]   │    │
+│     │  op administratie.         │  │                  │    │
+│     │                            │  │  "98% tevreden"  │    │
+│     │  AI maakt groepsplannen    │  │                  │    │
+│     │  en OPP's in minuten.      │  │                  │    │
+│     │                            │  │                  │    │
+│     │  ┌──────────────────────┐  │  └──────────────────┘    │
+│     │  │ PROBEER NU - GRATIS  │  │                          │
+│     │  │ Geen account nodig   │  │                          │
+│     │  └──────────────────────┘  │                          │
+│     │                            │                          │
+│     │  [Zie hoe het werkt]       │                          │
+│     │                            │                          │
+│     └────────────────────────────┘                          │
+│                                                              │
+│  "Gebruikt door 247 leerkrachten"                            │
+│  [School logo] [School logo] [School logo]                   │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+Design rationale:
+
+Hero focust op tijdsbesparing (niet features)
+Primaire CTA: "Probeer nu - gratis" (groot, blauw, gecentreerd)
+Secundaire CTA: "Zie hoe het werkt" (klein, outline)
+Sociale proof onder de fold (niet afleidend)
+Geen feature-lijst (komt op aparte pagina)
+Illustratie toont emotie (opluchting) niet product
+
+5.2 Taakkeuze scherm (Desktop + Mobile)
+Desktop:
+┌──────────────────────────────────────────────────┐
+│ [← Terug]      WAT WIL JE MAKEN?        [? Hulp] │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  "Wat kost je deze week de meeste tijd?"        │
+│                                                  │
+│  ┌───────────────────┐    ┌───────────────────┐ │
+│  │  📋               │    │  📝               │ │
+│  │  Groepsplan       │    │  OPP/Handeling    │ │
+│  │  maken            │    │  schrijven        │ │
+│  │                   │    │                   │ │
+│  │  2 uur → 10 min   │    │  3 uur → 15 min   │ │
+│  └───────────────────┘    └───────────────────┘ │
+│                                                  │
+│  ┌───────────────────┐    ┌───────────────────┐ │
+│  │  📊               │    │  💬               │ │
+│  │  Toetsresultaten  │    │  Gesprekverslag   │ │
+│  │  verwerken        │    │  maken            │ │
+│  │                   │    │                   │ │
+│  │  1 uur → 5 min    │    │  45 min → 5 min   │ │
+│  └───────────────────┘    └───────────────────┘ │
+│                                                  │
+└──────────────────────────────────────────────────┘
+Mobile (stack verticaal):
+┌──────────────────────┐
+│ [←] WAT MAKEN? [?]   │
+├──────────────────────┤
+│                      │
+│ "Wat kost je de      │
+│  meeste tijd?"       │
+│                      │
+│ ┌──────────────────┐ │
+│ │ 📋 Groepsplan    │ │
+│ │ 2u → 10min       │ │
+│ └──────────────────┘ │
+│                      │
+│ ┌──────────────────┐ │
+│ │ 📝 OPP           │ │
+│ │ 3u → 15min       │ │
+│ └──────────────────┘ │
+│                      │
+│ ┌──────────────────┐ │
+│ │ 📊 Toetsresult.  │ │
+│ │ 1u → 5min        │ │
+│ └──────────────────┘ │
+│                      │
+│ ┌──────────────────┐ │
+│ │ 💬 Gesprek       │ │
+│ │ 45m → 5min       │ │
+│ └──────────────────┘ │
+│                      │
+└──────────────────────┘
+Design rationale:
+
+Cards groot genoeg voor duim (mobile) of vinger (touchscreen laptop)
+Tijdsbesparing direct zichtbaar (niet in hover state)
+Geen radio buttons (te klein, te formeel)
+Wit ruimte tussen kaarten (voorkomt misclicks)
+Icon + tekst (visueel + tekstueel begrip)
+Symmetrische layout (esthetisch rustgevend)
+
+5.3 Input keuze (Upload vs Template)
+┌─────────────────────────────────────────────────┐
+│ [←]           GROEPSPLAN MAKEN            [?]   │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  "Heb je een oud groepsplan?"                   │
+│                                                 │
+│  ┌──────────────────────────────────────────┐   │
+│  │  📤 JA, UPLOADEN                         │   │
+│  │                                          │   │
+│  │  Ik verbeter je huidige plan            │   │
+│  │                                          │   │
+│  │  ┌────────────────────────────────────┐ │   │
+│  │  │                                    │ │   │
+│  │  │  Sleep bestand hierheen           │ │   │
+│  │  │  of klik om te kiezen              │ │   │
+│  │  │                                    │ │   │
+│  │  │  Ondersteund: PDF, Word, foto      │ │   │
+│  │  │  Max 5MB                           │ │   │
+│  │  │                                    │ │   │
+│  │  └────────────────────────────────────┘ │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+│                   of                            │
+│                                                 │
+│  ┌──────────────────────────────────────────┐   │
+│  │  ✨ NEE, MAAK NIEUW                      │   │
+│  │                                          │   │
+│  │  Ik gebruik een standaard template      │   │
+│  │                                          │   │
+│  │  [→ Verder met template]                │   │
+│  └──────────────────────────────────────────┘   │
+│                                                 │
+└─────────────────────────────────────────────────┘
+Design rationale:
+
+Beide opties even groot (geen hiërarchie, beide valide)
+Upload zone groot (>200px hoog) - makkelijk raken
+"Of" visueel centraal (duidelijke scheiding)
+Template-optie heeft directe actieknop (snelste pad)
+Upload-zone toont beperkingen vooraf (voorkomt fouten)
+Drag-and-drop + klik (twee interactiemethodes)
+
+5.4 Snelle vragen (Progressieve disclosure)
+Scherm 1 van 3:
+┌──────────────────────────────────────┐
+│ [←]    GROEPSPLAN MAKEN       [?]    │
+├──────────────────────────────────────┤
+│                                      │
+│  Vraag 1 van 3                       │
+│  ●○○                                 │
+│                                      │
+│  Voor welke groep?                   │
+│                                      │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐        │
+│  │ 1  │ │ 2  │ │ 3  │ │ 4  │        │
+│  └────┘ └────┘ └────┘ └────┘        │
+│                                      │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐        │
+│  │ 5  │ │ 6  │ │ 7  │ │ 8  │        │
+│  └────┘ └────┘ └────┘ └────┘        │
+│                                      │
+│                                      │
+│  (Auto-scroll naar vraag 2 na klik)  │
+│                                      │
+└──────────────────────────────────────┘
+Na selectie, zelfde scherm transformeert:
+┌──────────────────────────────────────┐
+│ [←]    GROEPSPLAN MAKEN       [?]    │
+├──────────────────────────────────────┤
+│                                      │
+│  Vraag 2 van 3                       │
+│  ●●○                                 │
+│                                      │
+│  Welk vak?                           │
+│                                      │
+│  ┌──────────┐ ┌──────────┐          │
+│  │ Rekenen  │ │  Taal    │          │
+│  └──────────┘ └──────────┘          │
+│                                      │
+│  ┌──────────┐                        │
+│  │  Lezen   │                        │
+│  └──────────┘                        │
+│                                      │
+│                                      │
+│  Groep 5 ✓ (klik om te wijzigen)    │
+│                                      │
+└──────────────────────────────────────┘
+Design rationale:
+
+Progressie-indicator (●●○) - weet waar je bent
+Eén vraag per keer (geen cognitieve overload)
+Vorige antwoorden blijven zichtbaar (met edit-optie)
+Auto-scroll (geen handmatige navigatie nodig)
+Grote knoppen (makkelijk klikken, ook op mobile)
+Geen "Volgende" knop nodig (klik op antwoord = volgende)
+
+5.5 Generatie scherm
+┌──────────────────────────────────────┐
+│        GROEPSPLAN MAKEN              │
+├──────────────────────────────────────┤
+│                                      │
+│                                      │
+│   Je groepsplan wordt gemaakt...     │
+│                                      │
+│   ▰▰▰▰▰▰▰▱▱▱ 70%                     │
+│                                      │
+│   → Differentiatie toevoegen...      │
+│                                      │
+│                                      │
+│   Dit duurt ongeveer 20 seconden     │
+│                                      │
+│                                      │
+│   [Annuleren]                        │
+│                                      │
+│                                      │
+│  (Achtergrond: subtiele pulserende   │
+│   animatie, geen harde spinner)      │
+│                                      │
+└──────────────────────────────────────┘
+Design rationale:
+
+Geen leeg wit scherm (angst-inducerend)
+Specifieke status (niet "Laden...")
+Percentage + tekst (dubbele feedback)
+Tijdsindicatie (verwachting managen)
+Annuleer-optie (controle behouden)
+Rustige animatie (niet afleidend)
+
+5.6 Preview + Download
+┌────────────────────────────────────────────────┐
+│ [←]      GROEPSPLAN KLAAR! ✓          [? Hulp]RetryClaude does not have the ability to run the code it generates yet.TContinueEditUX-Concept voor Pebble (Vervolg)
+5.6 Preview + Download (Vervolg)
+┌────────────────────────────────────────────────┐
+│ [←]      GROEPSPLAN KLAAR! ✓          [? Hulp] │
+├────────────────────────────────────────────────┤
+│                                                │
+│  ┌──────────────────────────────────────────┐  │
+│  │ GROEPSPLAN Q2 2025 - GROEP 5 REKENEN    │  │
+│  │                                          │  │
+│  │ Beginsituatie:                           │  │
+│  │ De leerlingen van groep 5 hebben in Q1  │  │
+│  │ gewerkt aan basisvaardigheden...        │  │
+│  │                                          │  │
+│  │ Doelen voor Q2:                          │  │
+│  │ • SLO REK-G5-12: Breuken vereenvoudigen │  │
+│  │ • SLO REK-G5-13: Breuken optellen       │  │
+│  │                                          │  │
+│  │ Differentiatie:                          │  │
+│  │ - Verlengde instructie: groep A         │  │
+│  │ - Zelfstandig werken: groep B           │  │
+│  │                                          │  │
+│  │ [Scroll om alles te zien ↓]             │  │
+│  └──────────────────────────────────────────┘  │
+│                                                │
+│  ┌──────────┐  ┌────────────────────────────┐ │
+│  │ BEWERKEN │  │ 📥 DOWNLOADEN ALS WORD     │ │
+│  └──────────┘  └────────────────────────────┘ │
+│                                                │
+│  ─────────────────────────────────────────────│
+│                                                │
+│  Dit document is gebaseerd op Passend         │
+│  Onderwijs richtlijnen 2024                   │
+│                                                │
+│  Wil je dit opslaan?                          │
+│  [Maak gratis account - 14 dagen proberen]    │
+│  [Nee, alleen downloaden]                     │
+│                                                │
+└────────────────────────────────────────────────┘
+Design rationale:
+
+Preview scrollbaar (eerste 3 secties zichtbaar)
+Download-knop prominent maar niet agressief
+Bewerk-optie aanwezig (niet verplicht om perfect te zijn)
+Compliance-badge (vertrouwen opbouwen)
+Account-suggestie NA waarde-demonstratie
+"Nee" optie expliciet aanwezig (geen dark pattern)
+
+5.7 In-browser Editor
+┌──────────────────────────────────────────────────────────────┐
+│ [← Terug naar preview]  GROEPSPLAN BEWERKEN     [Opslaan ✓]  │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ ┌────────────┐                                               │
+│ │ AI Assist  │  "Wat wil je aanpassen?"                      │
+│ │            │  [________________________________]  [Pas aan] │
+│ │ Voorbeelden│                                               │
+│ │ • Korter   │  Voorbeelden: "Maak korter", "Meer over      │
+│ │ • Formeler │  differentiatie", "Andere doelen"            │
+│ │ • +Doel    │                                               │
+│ └────────────┘                                               │
+│                                                              │
+│ ────────────────────────────────────────────────────────────│
+│                                                              │
+│ GROEPSPLAN Q2 2025 - GROEP 5 REKENEN [Edit mode]            │
+│                                                              │
+│ Beginsituatie:                                               │
+│ ┌──────────────────────────────────────────────────────────┐ │
+│ │ De leerlingen van groep 5 hebben in Q1 gewerkt aan      │ │
+│ │ basisvaardigheden rekenen. [Klik om te bewerken]        │ │
+│ └──────────────────────────────────────────────────────────┘ │
+│                                                              │
+│ Doelen voor Q2:                                              │
+│ ┌──────────────────────────────────────────────────────────┐ │
+│ │ • SLO REK-G5-12: Breuken vereenvoudigen                 │ │
+│ │ • SLO REK-G5-13: Breuken optellen                       │ │
+│ │ [Klik om te bewerken]                                    │ │
+│ └──────────────────────────────────────────────────────────┘ │
+│                                                              │
+│ [+ Sectie toevoegen]                                         │
+│                                                              │
+│ ────────────────────────────────────────────────────────────│
+│                                                              │
+│ [Annuleren]  [Preview]  [📥 DOWNLOADEN]                      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+Design rationale:
+
+AI-assist in sidebar (altijd beschikbaar, niet opdringerig)
+Click-to-edit inline (geen apart edit-mode nodig)
+Duidelijke edit-zones (hover effect toont editeerbare delen)
+Auto-save (geen expliciete save-knop nodig, maar wel indicator)
+Preview-knop (check hoe het eruitziet voor download)
+Sectie toevoegen mogelijk (flexibiliteit voor edge cases)
+
+5.8 Mijn Documenten (voor terugkerende gebruikers)
+┌──────────────────────────────────────────────────────────┐
+│ [Pebble]  [+ Nieuw document]        [Account] [Uitloggen] │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  MIJN DOCUMENTEN                                         │
+│                                                          │
+│  [Alles] [Groepsplannen (8)] [OPP's (3)] [Overig (1)]   │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ 📋 Groepsplan Q2 2025 - Groep 5 Rekenen           │  │
+│  │ Gemaakt: gisteren • Laatst bewerkt: 2 uur geleden│  │
+│  │                                                   │  │
+│  │ [Openen] [Downloaden] [Dupliceren] [Verwijderen] │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ 📝 OPP Dyslexie - Groep 4                         │  │
+│  │ Gemaakt: 3 dagen geleden • Gedownload 2x          │  │
+│  │                                                   │  │
+│  │ [Openen] [Downloaden] [Dupliceren] [Verwijderen] │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ 📋 Groepsplan Q1 2025 - Groep 5 Rekenen           │  │
+│  │ Gemaakt: 2 maanden geleden • Gearchiveerd        │  │
+│  │                                                   │  │
+│  │ [Openen] [Downloaden] [Dupliceren] [Verwijderen] │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  [Meer laden]                                            │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+Design rationale:
+
+Chronologische lijst (nieuwste eerst - meest relevant)
+Filters als tabs (makkelijk switchen tussen types)
+Metadata relevant (gemaakt, bewerkt, downloads - helpt herinneren)
+Inline acties (geen menu's, direct toegankelijk)
+Dupliceren-optie (voor snelle varianten)
+Simpele lijst-weergave (geen fancy cards, sneller scannen)
+
+
+6. Component Library (Herbruikbare elementen)
+6.1 Buttons
+Primaire actie (Call-to-Action):
+cssGrootte: Min 44x44px (mobile), 48px hoog (desktop)
+Kleur: #4A90E2 (blauw)
+Hover: #357ABD (donkerder)
+Tekst: Wit, 16px, bold
+Border-radius: 8px
+Shadow: 0 2px 4px rgba(0,0,0,0.1)
+Secundaire actie:
+cssGrootte: 44x44px
+Kleur: Transparant
+Border: 2px solid #4A90E2
+Tekst: #4A90E2, 16px, normal
+Hover: Lichte blauwe background (#F0F7FF)
+Destructieve actie (Verwijderen):
+cssKleur: Transparant
+Border: 1px solid #CCCCCC
+Tekst: #666666, 14px
+Hover: Border rood (#E74C3C), tekst rood
+6.2 Input Fields
+Tekst input:
+cssHoogte: 48px
+Border: 1px solid #DDDDDD
+Focus: 2px border #4A90E2
+Padding: 12px 16px
+Font: 16px (voorkomt zoom op iOS)
+Placeholder: #999999
+Upload zone:
+cssMin-hoogte: 200px
+Border: 2px dashed #CCCCCC
+Background: #FAFAFA
+Hover: Border solid, background wit
+Dragging: Border #4A90E2, background lichtblauw
+6.3 Cards (voor taakkeuze)
+cssBreedte: 280px (desktop), 100% (mobile)
+Hoogte: 140px
+Background: Wit
+Border: 1px solid #EEEEEE
+Border-radius: 12px
+Shadow: 0 2px 8px rgba(0,0,0,0.05)
+Hover: Shadow 0 4px 16px rgba(0,0,0,0.1), transform translateY(-2px)
+Padding: 24px
+Cursor: pointer
+Transition: 0.2s ease
+6.4 Progress Indicators
+Stappen-indicator:
+●●○○  (actieve stap blauw, toekomstige grijs)
+Grootte: 12px diameter per dot
+Spacing: 8px tussen dots
+Percentage bar:
+Hoogte: 8px
+Background: #F0F0F0
+Fill: #4A90E2
+Border-radius: 4px
+Animatie: Smooth fill (0.5s ease)
+
+7. UX-Principes Toegepast
+7.1 Cognitieve Last Reductie
+Probleem: Leerkrachten zijn mentaal uitgeput na een werkdag.
+Oplossing:
+
+Maximaal 3 vragen voor document generatie
+Grote knoppen (geen kleine radio buttons)
+Geen tekstvelden waar mogelijk (dropdowns/buttons)
+Auto-vooruitgang (geen "Volgende" knoppen)
+Eén vraag per scherm (niet alles tegelijk)
+
+Resultaat: Gebruiker moet niet nadenken, alleen klikken.
+7.2 Vertrouwen Door Transparantie
+Probleem: Angst voor inspectie-afkeuring verhindert adoptie.
+Oplossing:
+
+Compliance badge: "Voldoet aan Passend Onderwijs 2024"
+Preview voor download: Zie wat je krijgt
+Bewerkbaar: Niet verplicht om AI-output te accepteren
+Sociale proof: "247 leerkrachten gebruiken zonder problemen"
+Escape hatch: "Gebruik basis template" (conservatief, veilig)
+
+Resultaat: Risico-perceptie verlaagd, vertrouwen opgebouwd.
+7.3 Frictionless Onboarding
+Probleem: Elke extra stap = 50% drop-off rate.
+Oplossing:
+
+Geen account vooraf: Direct proberen
+Download zonder login: Waarde eerst, commitment daarna
+Minimale registratie: Alleen email + wachtwoord
+Geen email verificatie: Direct beginnen
+14 dagen trial: Geen creditcard nodig
+
+Resultaat: Van landing tot download in <3 minuten.
+7.4 Mobile-First Design
+Probleem: Leerkrachten werken vaak 's avonds op telefoon/couch.
+Oplossing:
+
+Single-column layout: Geen horizontal scroll
+Grote tap targets: 44x44px minimum
+Duim-bereik navigatie: Belangrijk onderin scherm
+Leesbare tekst: 16px minimum (geen zoom nodig)
+Upload via camera: Niet alleen file picker
+
+Resultaat: Volledige functionaliteit op smartphone.
+7.5 Progressieve Disclosure
+Probleem: Alles tegelijk tonen = overweldigend.
+Oplossing:
+
+Stap 1: Taakkeuze (4 opties)
+Stap 2: Upload vs. Template (2 opties)
+Stap 3: 3 vragen (één per keer)
+Stap 4: Preview (met 2 acties)
+Later: "Mijn documenten" pas zichtbaar na eerste document
+
+Resultaat: Gebruiker ziet alleen wat relevant is op dat moment.
+7.6 Feedback Loops
+Probleem: Onzekerheid tijdens wachten = angst = tab sluiten.
+Oplossing:
+
+Specifieke status: "Differentiatie toevoegen..." (niet "Laden...")
+Percentage + tijd: "70% - nog 8 seconden"
+Auto-save indicator: "Opgeslagen ✓" (passief, niet opdringerig)
+Hover states: Knop licht op bij hover (bevestigt klikbaarheid)
+Micro-animations: Subtiele beweging (levend, niet statisch)
+
+Resultaat: Gebruiker weet altijd wat er gebeurt.
+7.7 Error Prevention Over Error Handling
+Probleem: Fouten frustreren en kosten tijd.
+Oplossing:
+
+Beperkingen vooraf tonen: "Max 5MB" voor upload
+Validatie tijdens invoer: Email check bij focus loss
+Smart defaults: Laatste groep/vak als standaard
+Confirmaties voor destructieve acties: "Weet je zeker dat je wilt verwijderen?"
+Auto-correct: "groep5" → "Groep 5" (automatisch)
+
+Resultaat: Fouten gebeuren zelden, flow wordt niet onderbroken.
+7.8 Accessibility Beyond Compliance
+Probleem: WCAG is minimum, niet optimum.
+Oplossing:
+
+Contrast 4.5:1+: Alle tekst leesbaar
+Keyboard navigatie: Tab through alles
+Focus indicators: Duidelijk zichtbare focus states
+Alt text: Alle iconen beschrijven functie
+Simpele taal: Geen jargon, B1 niveau Nederlands
+Foutmeldingen in context: Bij veld zelf, niet alleen top
+
+Resultaat: Bruikbaar voor iedereen, inclusief ouderen en mensen met beperkingen.
+
+8. Prototyping & Testing Aanbevelingen
+8.1 Clickable Prototype Tools
+Aanbevolen: Figma (gratis tier voldoende)
+Waarom:
+
+Snelle prototypes zonder code
+Interactieve flows testen
+Delen via link (geen installatie)
+Mobile preview mogelijk
+
+Wat te prototypen:
+
+Homepage → Taakkeuze → Upload → Preview → Download (happy path)
+Template path (zonder upload)
+Bewerk-flow
+
+8.2 Guerrilla Testing (Week 1)
+Doel: Validate of flows begrijpelijk zijn
+Methode:
+
+Zoek 5 leerkrachten (vrienden/familie/Facebook groepen)
+Stuur Figma link: "Probeer dit prototype, denk hardop"
+Zoom meeting (15 min), observeer zonder helpen
+Let op: Waar aarzelen ze? Waar klikken ze verkeerd?
+
+Success criteria:
+
+4/5 voltooien happy path zonder hulp
+<5 minuten van landing tot "download"
+Gemiddelde frustratie <3/10
+
+8.3 A/B Testing Hypotheses (Post-launch)
+Test 1: CTA copy
+
+A: "Probeer nu - Gratis"
+B: "Maak je eerste groepsplan"
+Metric: Click-through rate
+
+Test 2: Upload vs. Template prominence
+
+A: Beide even groot (huidige design)
+B: Template prominenter (sneller pad)
+Metric: Time to first document
+
+Test 3: Account prompt timing
+
+A: Na eerste download (huidige)
+B: Na preview, voor download
+Metric: Signup conversion rate
+
+
+9. Implementatie Fasen
+Fase 1: Static Prototype (Week 1-2)
+Deliverables:
+
+Figma designs (alle schermen)
+Clickable prototype (happy path)
+User testing met 5 leerkrachten
+Iteratie op basis van feedback
+
+Fase 2: Frontend Skeleton (Week 3-4)
+Deliverables:
+
+HTML/CSS voor alle schermen (responsive)
+Routing tussen schermen (Next.js)
+Form validatie (client-side)
+Mock data voor preview
+
+Tech stack:
+
+Next.js + React
+Tailwind CSS (utility-first, snel)
+Vercel deploy (gratis, auto-deploy)
+
+Fase 3: Backend Integration (Week 5-6)
+Deliverables:
+
+Claude API integration
+Document generation (Word export)
+File upload handling
+Database setup (Supabase)
+
+Fase 4: Polish & Launch Prep (Week 7-8)
+Deliverables:
+
+Loading states geïmplementeerd
+Error handling compleet
+Mobile testing (real devices)
+Analytics setup (Plausible)
+Beta launch met 10 gebruikers
+
+
+10. Kritische Ontwerp-Beslissingen Samengevat
+Wat we NIET doen (en waarom)
+❌ Chat interface als primaire UI
+
+Waarom niet: Te open-ended, vereist nadenken
+In plaats daarvan: Guided flow met knoppen
+
+❌ Feature showcase homepage
+
+Waarom niet: Overweldigend, niet overtuigend
+In plaats daarvan: Eén waardepropositie, direct proberen
+
+❌ Account vereist vooraf
+
+Waarom niet: Grootste conversie-killer
+In plaats daarvan: Try-before-commit
+
+❌ Uitgebreide onboarding tutorial
+
+Waarom niet: Niemand kijkt tutorials
+In plaats daarvan: Learning by doing
+
+❌ Dashboard met grafieken/stats
+
+Waarom niet: Niet relevant voor primaire use case
+In plaats daarvan: Simpele lijst met documenten
+
+Wat we WEL doen (en waarom)
+✅ Instant demo zonder account
+
+Waarom: Laat waarde zien, bouw vertrouwen
+Trade-off: Mogelijk misbruik (acceptable voor MVP)
+
+✅ Grote knoppen, weinig tekstvelden
+
+Waarom: Sneller, minder fouten, mobile-friendly
+Trade-off: Minder flexibiliteit (acceptable voor 90% use cases)
+
+✅ In-browser editing
+
+Waarom: Geen Word nodig, snellere iteratie
+Trade-off: Complex te bouwen (maar essentieel)
+
+✅ Mobile-first responsive
+
+Waarom: Veel gebruik op telefoon 's avonds
+Trade-off: Desktop UX soms minder optimaal (acceptable)
+
+✅ Preview voor download
+
+Waarom: Vertrouwen, kans om te bewerken
+Trade-off: Extra stap in flow (maar noodzakelijk voor adoptie)
+
+
+Slotopmerking
+Dit UX-concept is gebouwd rond één kernprincipe:
+"Maak het onmogelijk om vast te lopen."
+Op elk punt in de user journey moet duidelijk zijn:
+
+Waar ben ik?
+Wat moet ik doen?
+Wat gebeurt er als ik dit doe?
+
+Als een leerkracht op vrijdagavond om 22:00, moe en gefrustreerd, Pebble opent en binnen 3 minuten een bruikbaar groepsplan heeft gedownload...
+Dan hebben we geslaagd.
+Als ze stuck raken, de interface niet snappen, of het resultaat niet kunnen gebruiken...
+Dan hebben we gefaald, hoe mooi de pixels ook zijn.
+Bouw voor de uitgeputte leerkracht, niet voor de design awards.

@@ -1,0 +1,20 @@
+{
+  "name": "nieuweapp-frontend",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "test": "jest",
+    "test:ci": "jest --ci"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.21.1",
+    "@supabase/supabase-js": "^2.45.4",
+    "formidable": "^3.5.4",
+    "mammoth": "^1.6.0",
+    "pdf-parse": "^1.1.1",
+    "docx": "^8.5.0"
+  }
+}
