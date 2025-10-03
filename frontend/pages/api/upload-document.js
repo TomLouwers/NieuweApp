@@ -192,5 +192,6 @@ async function handler(req, res) {
 }
 
 module.exports = handler;
-exports.default = handler;
+// Ensure default export is attached to module.exports for bundlers/importers
+module.exports.default = module.exports;
 module.exports.config = { api: { bodyParser: false } };

@@ -421,5 +421,6 @@ async function handler(req, res) {
 // Explicitly avoid logging request bodies or secrets to comply with privacy constraint.
 
 module.exports = handler;
-exports.default = handler;
+// Ensure default export is attached to module.exports for bundlers/importers
+module.exports.default = module.exports;
 module.exports.config = { maxDuration: 60 };
