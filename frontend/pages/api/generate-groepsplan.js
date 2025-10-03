@@ -255,21 +255,31 @@ function friendlyValidationError(msg) {
 async function readRawJson(req) {
   return new Promise((resolve, reject) => {
     try {
-      let data = "";
+      const chunks = [];
+      let total = 0;
       req.on("data", (chunk) => {
-        data += chunk;
-        if (data.length > 1_000_000) {
-          // 1MB guard
+        // Normalize chunk to Buffer
+        const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
+        chunks.push(buf);
+        total += buf.length;
+        if (total > 1_000_000) {
           reject(Object.assign(new Error("Request body too large."), { status: 413 }));
         }
       });
       req.on("end", () => {
-        if (!data) return resolve({});
-        try { resolve(JSON.parse(data)); } catch (e) { reject(Object.assign(new Error("Invalid JSON body."), { status: 400 })); }
+        try {
+          if (total === 0) return resolve({});
+          const raw = Buffer.concat(chunks, total).toString("utf8");
+          const trimmed = raw.trim();
+          if (!trimmed) return resolve({});
+          resolve(JSON.parse(trimmed));
+        } catch (e) {
+          reject(Object.assign(new Error("Invalid JSON body."), { status: 400 }));
+        }
       });
-      req.on("error", reject);
+      req.on("error", (e) => reject(Object.assign(e || new Error("Body stream error"), { status: 400 })));
     } catch (e) {
-      reject(e);
+      reject(Object.assign(e || new Error("Unexpected body parse error"), { status: 400 }));
     }
   });
 }
