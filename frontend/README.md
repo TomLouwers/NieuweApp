@@ -74,3 +74,11 @@ Notes
 - Serverless time limit is set to 60s for generation; the route soft-fails at ~25s with a hint for mobile users.
 - Do not store PII: routes avoid logging request bodies; uploads are processed in temp and deleted after parsing.
 
+### Providers & Rate Limits
+
+- Supports OpenAI and Anthropic:
+  - Set `OPENAI_API_KEY` to enable OpenAI (default model `gpt-4o-mini`; override via `OPENAI_MODEL`).
+  - Set `ANTHROPIC_API_KEY` to enable Anthropic (`claude-3-5-sonnet-20241022`).
+- If both keys are set, the API prefers OpenAI and falls back to Anthropic on recoverable errors (HTTP 429/5xx/timeout).
+- On 429, the API sets `Retry-After` and the `/test-generate` page auto-retries using that header.
+

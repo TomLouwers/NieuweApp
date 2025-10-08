@@ -12,6 +12,27 @@ export default function TestGeneratePage() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function wait(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async function postWithAutoRetry(url, init, { maxRetries = 2 } = {}) {
+    let attempt = 0;
+    let lastJson = null;
+    while (true) {
+      const res = await fetch(url, init);
+      const json = await res.json().catch(() => ({}));
+      lastJson = json;
+      if (res.status !== 429) return { res, json };
+      if (attempt >= maxRetries) return { res, json };
+      const hdr = res.headers?.get?.("Retry-After");
+      const ra = Number(json?.metadata?.retryAfter ?? (hdr != null ? Number(hdr) : NaN));
+      const delayMs = Number.isFinite(ra) ? Math.max(0, ra) * 1000 : 1000 + Math.floor(Math.random() * 500);
+      await wait(delayMs);
+      attempt += 1;
+    }
+  }
+
   async function ensureBypassCookie(tok) {
     if (!tok) return;
     try {
@@ -40,7 +61,7 @@ export default function TestGeneratePage() {
         ...(previousContent ? { previousContent } : {}),
       };
 
-      const res = await fetch("/api/generate-groepsplan", {
+      const { res, json } = await postWithAutoRetry("/api/generate-groepsplan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +72,6 @@ export default function TestGeneratePage() {
       });
 
       setStatus(`HTTP ${res.status}`);
-      const json = await res.json().catch(() => ({}));
       setResult(json);
     } catch (err) {
       setStatus("Request failed");
@@ -73,13 +93,12 @@ export default function TestGeneratePage() {
         vak: String(vak),
         periode: String(periode),
       });
-      const res = await fetch(`/api/generate-groepsplan?${qs.toString()}`, {
+      const { res, json } = await postWithAutoRetry(`/api/generate-groepsplan?${qs.toString()}`, {
         method: "POST",
         headers: { ...(token ? { "x-vercel-protection-bypass": token.trim() } : {}) },
         credentials: "include",
       });
       setStatus(`HTTP ${res.status}`);
-      const json = await res.json().catch(() => ({}));
       setResult(json);
     } catch (err) {
       setStatus("Request failed");
@@ -150,4 +169,3 @@ export default function TestGeneratePage() {
     </div>
   );
 }
-

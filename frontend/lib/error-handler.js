@@ -49,6 +49,16 @@ function handleAPIError(error, res, { shape = "generate" } = {}) {
     message = error?.message || message;
   }
 
+  // If we're rate limited and have retryAfter, set standard header
+  try {
+    if (status === 429 && retryAfter != null) {
+      const secs = Math.max(0, Math.floor(Number(retryAfter)) || 0);
+      if (res && typeof res.setHeader === 'function') {
+        res.setHeader("Retry-After", String(secs));
+      }
+    }
+  } catch (_) {}
+
   if (shape === "upload") {
     const payload = { success: false, text: "", metadata: {}, filename: "", error: message, code };
     if (retryAfter != null) payload.retryAfter = retryAfter;

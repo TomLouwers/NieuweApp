@@ -100,6 +100,128 @@ function buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet }) {
   );
 }
 
+// Provider-agnostic generator with fallback between OpenAI and Anthropic
+async function generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal }) {
+  const haveOpenAI = !!OPENAI_KEY;
+  const haveAnthropic = !!process.env.ANTHROPIC_API_KEY && !!AnthropicClient;
+
+  const system = buildSystemPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
+  const user = buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
+
+  function isRecoverable(err) {
+    const status = err?.status || err?.statusCode || err?.response?.status;
+    const code = err?.code || err?.name || "";
+    if (status === 429) return true;
+    if (status >= 500 && status < 600) return true;
+    if (/rate.?limit/i.test(String(err?.message || ""))) return true;
+    if (code === "AbortError" || code === "TimeoutError") return true;
+    return false;
+  }
+
+  const makeOpenAIShim = (apiKey) => ({
+    messages: {
+      create: async (params, { signal } = {}) => {
+        const sys = String(params?.system || "");
+        let userText = "";
+        try {
+          const first = Array.isArray(params?.messages) ? params.messages[0] : null;
+          userText = String(first?.content || "");
+        } catch (_) {}
+
+        const body = {
+          model: OPENAI_MODEL,
+          temperature: typeof params?.temperature === "number" ? params.temperature : TEMPERATURE,
+          max_tokens: typeof params?.max_tokens === "number" ? params.max_tokens : MAX_TOKENS,
+          messages: [
+            ...(sys ? [{ role: "system", content: sys }] : []),
+            { role: "user", content: userText },
+          ],
+        };
+
+        const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal,
+        });
+
+        if (!resp.ok) {
+          const err = new Error(`OpenAI request failed: ${resp.status}`);
+          err.status = resp.status;
+          try { err.headers = Object.fromEntries(resp.headers.entries()); } catch (_) {}
+          throw err;
+        }
+
+        const json = await resp.json();
+        const text = String(json?.choices?.[0]?.message?.content || "");
+        return {
+          content: [{ type: "text", text }],
+          usage: {
+            input_tokens: json?.usage?.prompt_tokens ?? null,
+            output_tokens: json?.usage?.completion_tokens ?? null,
+          },
+        };
+      },
+    },
+  });
+
+  function extractText(resp) {
+    let text = "";
+    try {
+      if (Array.isArray(resp?.content)) {
+        text = resp.content
+          .map((c) => (c?.type === "text" && typeof c?.text === "string" ? c.text : ""))
+          .filter(Boolean)
+          .join("\n");
+      }
+      if (!text && typeof resp?.content?.[0]?.text === "string") {
+        text = resp.content[0].text;
+      }
+      text = (text || "").trim();
+    } catch (_) {
+      text = "";
+    }
+    return text;
+  }
+
+  // Attempt order
+  const attempts = [];
+  if (haveOpenAI) attempts.push("openai");
+  if (haveAnthropic) attempts.push("anthropic");
+
+  let lastErr = null;
+  for (const provider of attempts) {
+    try {
+      if (provider === "openai") {
+        const client = makeOpenAIShim(OPENAI_KEY);
+        const params = { model: OPENAI_MODEL, max_tokens: MAX_TOKENS, temperature: TEMPERATURE, system, messages: [{ role: "user", content: user }] };
+        const resp = await callClaudeWithRetry(client, params, { signal, maxRetries: 3, baseDelayMs: 800, maxDelayMs: 4000 });
+        const text = extractText(resp);
+        const usage = resp?.usage || null;
+        return { text, usage, modelUsed: OPENAI_MODEL };
+      }
+
+      if (provider === "anthropic") {
+        if (!AnthropicClient) throw Object.assign(new Error("Anthropic SDK ontbreekt of is niet geA_nstalleerd."), { code: "SDK_NOT_AVAILABLE" });
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) throw Object.assign(new Error("Server mist configuratie voor Anthropic API key."), { code: "MISSING_API_KEY" });
+        const anthropic = new AnthropicClient({ apiKey, maxRetries: 0, timeout: TIMEOUT_MS });
+        const params = { model: CLAUDE_MODEL, max_tokens: MAX_TOKENS, temperature: TEMPERATURE, system, messages: [{ role: "user", content: user }] };
+        const resp = await callClaudeWithRetry(anthropic, params, { signal, maxRetries: 3, baseDelayMs: 800, maxDelayMs: 4000 });
+        const text = extractText(resp);
+        const usage = resp?.usage || null;
+        return { text, usage, modelUsed: CLAUDE_MODEL };
+      }
+    } catch (err) {
+      lastErr = err;
+      if (!isRecoverable(err)) break; // do not fallback on non-recoverable errors
+      // otherwise continue to next provider
+    }
+  }
+
+  throw lastErr || new Error("Onbekende fout bij genereren.");
+}
+
 async function callClaude({ groep, vak, periode, allowedSLO, previousSnippet, signal }) {
   // If OPENAI_API_KEY is configured, use OpenAI via a small shim and return early
   if (OPENAI_KEY) {
@@ -417,7 +539,7 @@ async function handler(req, res) {
   }
 
   try {
-    const { text, usage } = await callClaude({ groep, vak, periode, allowedSLO, previousSnippet, signal: ctrl?.signal });
+    const { text, usage, modelUsed } = await generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal: ctrl?.signal });
 
     const durationMs = Date.now() - started;
 
@@ -427,7 +549,7 @@ async function handler(req, res) {
         content: "",
         metadata: {
           error: "Generatie mislukt of resultaat te kort. Probeer het nogmaals.",
-          model: MODEL,
+          model: modelUsed || MODEL,
           duration_ms: durationMs,
           input: { groep, vak, periode },
           slo: { suggested: allowedSLO },
@@ -467,7 +589,7 @@ async function handler(req, res) {
               groep,
               vak,
               periode,
-              model: MODEL,
+              model: modelUsed || MODEL,
               tokensUsed: usage?.output_tokens ?? null,
               duration_ms: durationMs,
             },
@@ -484,7 +606,7 @@ async function handler(req, res) {
       success: true,
       content: text,
       metadata: {
-        model: MODEL,
+        model: modelUsed || MODEL,
         duration_ms: durationMs,
         durationMs: durationMs,
         input: { groep, vak, periode },
