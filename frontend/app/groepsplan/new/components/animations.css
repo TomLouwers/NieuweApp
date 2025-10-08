@@ -1,0 +1,39 @@
+/* Slide animations (300ms ease-out) */
+.slide-forward-enter { opacity: 0; transform: translateX(-24px); }
+.slide-forward-enter-active { opacity: 1; transform: translateX(0); transition: transform 300ms ease-out, opacity 300ms ease-out; }
+.slide-forward-exit { opacity: 1; transform: translateX(0); }
+.slide-forward-exit-active { opacity: 0; transform: translateX(24px); transition: transform 300ms ease-out, opacity 300ms ease-out; }
+
+.slide-back-enter { opacity: 0; transform: translateX(24px); }
+.slide-back-enter-active { opacity: 1; transform: translateX(0); transition: transform 300ms ease-out, opacity 300ms ease-out; }
+.slide-back-exit { opacity: 1; transform: translateX(0); }
+.slide-back-exit-active { opacity: 0; transform: translateX(-24px); transition: transform 300ms ease-out, opacity 300ms ease-out; }
+
+/* Summary and checkmark list (stagger via --index) */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.summary-item { opacity: 0; animation: fadeInUp 300ms ease-out forwards; animation-delay: calc(var(--index, 0) * 80ms); will-change: transform, opacity; }
+.checkmark-item { opacity: 0; animation: fadeInUp 300ms ease-out forwards; animation-delay: calc(var(--index, 0) * 80ms); will-change: transform, opacity; }
+
+/* Result reveal */
+.result-enter { opacity: 0; transform: scale(0.98); }
+.result-enter-active { opacity: 1; transform: scale(1); transition: transform 250ms ease-out, opacity 250ms ease-out; }
+.result-exit { opacity: 1; transform: scale(1); }
+.result-exit-active { opacity: 0; transform: scale(0.98); transition: transform 200ms ease-in, opacity 200ms ease-in; }
+
+/* Loading pulse/fade */
+@keyframes fadePulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.loading { animation: fadePulse 1200ms ease-in-out infinite; }
+
+/* Expansion (max-height technique) */
+.expansion-enter { overflow: hidden; max-height: 0; }
+.expansion-enter-active { overflow: hidden; max-height: var(--expansion-max, 480px); transition: max-height 300ms ease-out; }
+.expansion-exit { overflow: hidden; max-height: var(--expansion-max, 480px); }
+.expansion-exit-active { overflow: hidden; max-height: 0; transition: max-height 280ms ease-in; }
+

@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./groepsplan/new/components/animations.css";
 import React from "react";
 
 export const metadata = {
