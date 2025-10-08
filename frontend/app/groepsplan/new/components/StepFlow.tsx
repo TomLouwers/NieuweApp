@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import SlideContainer from "./SlideContainer";
+import SlideContainer from "@/app/groepsplan/new/components/SlideContainer";
 import DecisionPoint from "./DecisionPoint";
 import ScratchStep from "./ScratchStep";
 
@@ -11,8 +11,8 @@ const order: StepKey[] = ["decision", "scratch", "summary"];
 export default function StepFlow() {
   const router = useRouter();
   const search = useSearchParams();
-  const flow = (search.get("flow") || "").toLowerCase();
-  const stepParam = (search.get("step") || "").toLowerCase();
+  const flow = (search?.get("flow") || "").toLowerCase();
+  const stepParam = (search?.get("step") || "").toLowerCase();
 
   function stepFromParams(): StepKey {
     if (stepParam === "scratch") return "scratch";
@@ -36,7 +36,7 @@ export default function StepFlow() {
   }, [currentIndex]);
 
   function pushStep(next: StepKey) {
-    const params = new URLSearchParams(Array.from(search.entries()));
+    const params = new URLSearchParams(search ? Array.from(search.entries()) : []);
     params.delete("flow");
     params.set("step", next);
     router.push(`/groepsplan/new?${params.toString()}`);
@@ -68,4 +68,3 @@ export default function StepFlow() {
     <SlideContainer direction={direction as any} nodeKey={step}>{content}</SlideContainer>
   );
 }
-
