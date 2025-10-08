@@ -1,4 +1,4 @@
-import DecisionPoint from "./components/DecisionPoint";
+import StepFlow from "./components/StepFlow";
 
 export default function NewGroepsplanPage() {
   return (
@@ -7,7 +7,7 @@ export default function NewGroepsplanPage() {
         <h1>Nieuw Groepsplan</h1>
         <p className="text-muted">Maak een keuze om te starten.</p>
       </div>
-      <DecisionPoint />
+      <StepFlow />
     </main>
   );
 }
