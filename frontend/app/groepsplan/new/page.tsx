@@ -1,16 +1,13 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import DecisionPoint from "./components/DecisionPoint";
 
 export default function NewGroepsplanPage() {
   return (
-    <main className="space-y-6">
-      <header className="flex items-center justify-between">
+    <main className="space-y-4">
+      <div>
         <h1>Nieuw Groepsplan</h1>
-        <Link href="/dashboard"><Button variant="outline">Terug</Button></Link>
-      </header>
-      <p className="text-muted">Lege shell — wordt ingevuld in volgende stappen.</p>
-      <div className="rounded-lg border border-border p-4">Formulier volgt…</div>
+        <p className="text-muted">Maak een keuze om te starten.</p>
+      </div>
+      <DecisionPoint />
     </main>
   );
 }
-
