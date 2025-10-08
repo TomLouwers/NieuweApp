@@ -22,6 +22,7 @@ export default function DecisionPoint() {
   const [warning, setWarning] = React.useState<string>("");
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = React.useState(false);
+  const [uploading, setUploading] = React.useState(false);
 
   function onOpenPicker() {
     setError("");
@@ -33,6 +34,7 @@ export default function DecisionPoint() {
     const fd = new FormData();
     fd.append("file", file);
     try {
+      setUploading(true);
       const resp = await fetch("/api/groepsplan/upload", { method: "POST", body: fd });
       const json = await resp.json();
       if (!resp.ok || !json?.ok) {
@@ -43,6 +45,8 @@ export default function DecisionPoint() {
       if (id) router.push(`/groepsplan/edit/${id}`);
     } catch (e: any) {
       setError("Upload mislukt");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -113,15 +117,16 @@ export default function DecisionPoint() {
           tabIndex={0}
           aria-label="Upload een document"
           data-testid="card-upload"
-          className={clsx(cardBase, cardHover, isDragOver && "border-blue-500 bg-blue-50/30")}
-          onClick={onOpenPicker}
+          aria-disabled={uploading}
+          className={clsx(cardBase, cardHover, isDragOver && "border-blue-500 bg-blue-50/30", uploading && "opacity-60 pointer-events-none")}
+          onClick={!uploading ? onOpenPicker : undefined}
           onKeyDown={(e) => onCardKey(e, onOpenPicker)}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
         >
           <h2 className="mb-2">Upload</h2>
-          <p className="text-sm text-muted">Sleep hierheen of klik om een bestand te kiezen (.pdf, .docx, .jpg, .png).</p>
+          <p className="text-sm text-muted">{uploading ? "Bezig met uploaden…" : "Sleep hierheen of klik om een bestand te kiezen (.pdf, .docx, .jpg, .png)."}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -138,8 +143,9 @@ export default function DecisionPoint() {
           tabIndex={0}
           aria-label="Start vanaf nul"
           data-testid="card-scratch"
-          className={clsx(cardBase, cardHover)}
-          onClick={toScratch}
+          aria-disabled={uploading}
+          className={clsx(cardBase, cardHover, uploading && "opacity-60 pointer-events-none")}
+          onClick={!uploading ? toScratch : undefined}
           onKeyDown={(e) => onCardKey(e, toScratch)}
         >
           <h2 className="mb-2">Start vanaf nul</h2>
@@ -152,8 +158,9 @@ export default function DecisionPoint() {
           tabIndex={0}
           aria-label="Bekijk eerst een voorbeeld"
           data-testid="card-sample"
-          className={clsx(cardBase, cardHover)}
-          onClick={onSample}
+          aria-disabled={uploading}
+          className={clsx(cardBase, cardHover, uploading && "opacity-60 pointer-events-none")}
+          onClick={!uploading ? onSample : undefined}
           onKeyDown={(e) => onCardKey(e, onSample)}
         >
           <h2 className="mb-2">Bekijk eerst een voorbeeld</h2>
@@ -168,6 +175,9 @@ export default function DecisionPoint() {
         ) : null}
         {error ? (
           <div className="text-sm text-red-600" role="alert">{error}</div>
+        ) : null}
+        {uploading ? (
+          <div className="text-sm" role="status" aria-live="polite" data-testid="uploading-indicator">Bezig met uploaden…</div>
         ) : null}
       </div>
 
