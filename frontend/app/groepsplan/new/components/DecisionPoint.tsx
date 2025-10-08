@@ -29,8 +29,21 @@ export default function DecisionPoint() {
     fileInputRef.current?.click();
   }
 
-  function toUploadFlow() {
-    router.push("/groepsplan/new?flow=upload");
+  async function uploadFile(file: File) {
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const resp = await fetch("/api/groepsplan/upload", { method: "POST", body: fd });
+      const json = await resp.json();
+      if (!resp.ok || !json?.ok) {
+        setError(String(json?.error || "Upload mislukt"));
+        return;
+      }
+      const id = json.id || "";
+      if (id) router.push(`/groepsplan/edit/${id}`);
+    } catch (e: any) {
+      setError("Upload mislukt");
+    }
   }
 
   function toScratch() {
@@ -53,8 +66,8 @@ export default function DecisionPoint() {
       setError("Ongeldig bestandstype. Toegestaan: .pdf, .docx, .jpg, .png");
       return;
     }
-    // Defer actual upload to Upload Flow (A1)
-    toUploadFlow();
+    // Start Upload Flow (A1)
+    uploadFile(file);
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -205,4 +218,3 @@ export default function DecisionPoint() {
     </div>
   );
 }
-
