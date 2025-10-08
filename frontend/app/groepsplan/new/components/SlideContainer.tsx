@@ -18,15 +18,15 @@ export interface SlideContainerProps {
 export default function SlideContainer({ direction, children, nodeKey, className }: SlideContainerProps) {
   const classNames = direction === "forward" ? "slide-forward" : "slide-back";
   const key = nodeKey ?? (React.isValidElement(children) ? (children as any).key ?? 0 : 0);
+  const nodeRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div className={className} style={{ position: "relative" }}>
       <SwitchTransition>
-        <CSSTransition key={String(key)} classNames={classNames} timeout={300} unmountOnExit>
-          <div style={{ willChange: "transform, opacity" }}>{children}</div>
+        <CSSTransition key={String(key)} classNames={classNames} timeout={300} unmountOnExit nodeRef={nodeRef}>
+          <div ref={nodeRef} style={{ willChange: "transform, opacity" }}>{children}</div>
         </CSSTransition>
       </SwitchTransition>
     </div>
   );
 }
-

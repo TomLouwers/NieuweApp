@@ -2,6 +2,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import UploadProcessing from "../path-a/UploadProcessing";
+import { setSelectedFileName } from "@/lib/stores/groepsplanStore";
 
 const ACCEPT = [
   ".pdf",
@@ -22,6 +24,8 @@ export default function DecisionPoint() {
   const [warning, setWarning] = React.useState<string>("");
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = React.useState(false);
+  const [processing, setProcessing] = React.useState(false);
+  const [pendingFile, setPendingFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
 
   function onOpenPicker() {
@@ -30,24 +34,18 @@ export default function DecisionPoint() {
     fileInputRef.current?.click();
   }
 
-  async function uploadFile(file: File) {
+  async function startUploadRequest(file: File) {
     const fd = new FormData();
     fd.append("file", file);
-    try {
-      setUploading(true);
-      const resp = await fetch("/api/groepsplan/upload", { method: "POST", body: fd });
-      const json = await resp.json();
-      if (!resp.ok || !json?.ok) {
-        setError(String(json?.error || "Upload mislukt"));
-        return;
-      }
-      const id = json.id || "";
-      if (id) router.push(`/groepsplan/edit/${id}`);
-    } catch (e: any) {
-      setError("Upload mislukt");
-    } finally {
-      setUploading(false);
+    const resp = await fetch("/api/groepsplan/upload", { method: "POST", body: fd });
+    const json = await resp.json();
+    if (!resp.ok || !json?.ok) {
+      const err = new Error(String(json?.error || "Upload mislukt"));
+      // @ts-ignore
+      err.code = "UPLOAD_FAILED";
+      throw err;
     }
+    return json;
   }
 
   function toScratch() {
@@ -70,8 +68,10 @@ export default function DecisionPoint() {
       setError("Ongeldig bestandstype. Toegestaan: .pdf, .docx, .jpg, .png");
       return;
     }
-    // Start Upload Flow (A1)
-    uploadFile(file);
+    // Start Upload Flow (A1) as overlay
+    setSelectedFileName(file.name);
+    setPendingFile(file);
+    setProcessing(true);
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -225,6 +225,30 @@ export default function DecisionPoint() {
        * - warns on multiple files dropped: "1 bestand tegelijk"
        * - opens and closes sample modal
        */}
+
+      {processing && pendingFile ? (
+        <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-center justify-center">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-md">
+            <UploadProcessing
+              start={() => startUploadRequest(pendingFile)}
+              onDone={(res) => {
+                setProcessing(false);
+                const id = res?.id || "";
+                if (id) router.push(`/groepsplan/edit/${id}`);
+              }}
+              onRetry={() => {
+                setProcessing(false);
+                setPendingFile(null);
+              }}
+              onStartFromScratch={() => {
+                setProcessing(false);
+                setPendingFile(null);
+                router.push('/groepsplan/new?flow=scratch');
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
