@@ -233,8 +233,8 @@ export default function DecisionPoint() {
               start={() => startUploadRequest(pendingFile)}
               onDone={(res) => {
                 setProcessing(false);
-                const id = res?.id || "";
-                if (id) router.push(`/groepsplan/edit/${id}`);
+                // Continue into Path A flow (A2 confirm)
+                router.push(`/groepsplan/new?step=a2`);
               }}
               onRetry={() => {
                 setProcessing(false);

@@ -48,7 +48,7 @@ describe('DecisionPoint interactions', () => {
     fireEvent.drop(upload, { dataTransfer: { files: [f1, f2] } });
     expect(await screen.findByRole('alert')).toHaveTextContent(/1 bestand tegelijk/i);
     await waitFor(() => {
-      expect(getRouterPushMock()).toHaveBeenCalledWith('/groepsplan/edit/doc_123');
+      expect(getRouterPushMock()).toHaveBeenCalledWith('/groepsplan/new?step=a2');
     });
   });
 

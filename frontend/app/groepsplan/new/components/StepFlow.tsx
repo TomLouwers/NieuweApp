@@ -4,9 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SlideContainer from "@/app/groepsplan/new/components/SlideContainer";
 import DecisionPoint from "./DecisionPoint";
 import ScratchStep from "./ScratchStep";
+import ConfirmExtracted from "../path-a/ConfirmExtracted";
+import Challenge from "../path-a/Challenge";
+import SummaryScreen from "../components/SummaryScreen";
+import { setSelectedGroep, setSelectedVak, getSelectedGroep, getSelectedVak, getSummaryPeriode } from "@/lib/stores/groepsplanStore";
 
-type StepKey = "decision" | "scratch" | "summary";
-const order: StepKey[] = ["decision", "scratch", "summary"];
+type StepKey = "decision" | "scratch" | "a2" | "a3" | "a4" | "summary";
+const order: StepKey[] = ["decision", "scratch", "a2", "a3", "a4", "summary"];
 
 export default function StepFlow() {
   const router = useRouter();
@@ -17,6 +21,9 @@ export default function StepFlow() {
   function stepFromParams(): StepKey {
     if (stepParam === "scratch") return "scratch";
     if (stepParam === "summary") return "summary";
+    if (stepParam === "a2") return "a2";
+    if (stepParam === "a3") return "a3";
+    if (stepParam === "a4") return "a4";
     if (flow === "scratch") return "scratch";
     return "decision";
   }
@@ -46,11 +53,60 @@ export default function StepFlow() {
   const onBackToDecision = () => pushStep("decision");
   const onBackToScratch = () => pushStep("scratch");
 
+  function normalizeVak(longLabel: string | null): "rekenen" | "taal" | "lezen" {
+    const v = (longLabel || "").toLowerCase();
+    if (v.includes("rekenen")) return "rekenen";
+    if (v.includes("lezen")) return "lezen";
+    return "taal"; // spelling/schrijven/andere
+  }
+
+  async function handleGenerate() {
+    const groep = getSelectedGroep();
+    const vakLabel = getSelectedVak();
+    const periode = getSummaryPeriode() || "";
+    const vak = normalizeVak(vakLabel || "");
+    if (!groep || !vak || !periode) return;
+    try {
+      await fetch("/api/groepsplan/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ groep, vak, periode }),
+      });
+      // Stay on summary for now (future: navigate to result view)
+    } catch (_) {}
+  }
+
   let content: React.ReactNode = null;
   if (step === "decision") {
     content = <DecisionPoint />;
   } else if (step === "scratch") {
     content = <ScratchStep onNext={onNextFromScratch} onBack={onBackToDecision} />;
+  } else if (step === "a2") {
+    content = (
+      <ConfirmExtracted
+        extractedData={undefined}
+        onBack={onBackToDecision}
+        onNext={({ groep, vak }) => {
+          setSelectedGroep(groep);
+          setSelectedVak(vak);
+          pushStep("a3");
+        }}
+      />
+    );
+  } else if (step === "a3") {
+    content = (
+      <Challenge
+        onBack={() => pushStep("a2")}
+        onNext={() => pushStep("a4")}
+      />
+    );
+  } else if (step === "a4") {
+    content = (
+      <SummaryScreen
+        onBack={() => pushStep("a3")}
+        onGenerate={handleGenerate}
+      />
+    );
   } else {
     content = (
       <div className="space-y-3">
