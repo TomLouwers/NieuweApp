@@ -4,13 +4,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SlideContainer from "@/app/groepsplan/new/components/SlideContainer";
 import DecisionPoint from "./DecisionPoint";
 import ScratchStep from "./ScratchStep";
+import GroepVakScreen from "../path-b/GroepVakScreen";
+import GroepssamenstellingScreen from "../path-b/GroepssamenstellingScreen";
 import ConfirmExtracted from "../path-a/ConfirmExtracted";
 import Challenge from "../path-a/Challenge";
 import SummaryScreen from "../components/SummaryScreen";
 import { setSelectedGroep, setSelectedVak, getSelectedGroep, getSelectedVak, getSummaryPeriode } from "@/lib/stores/groepsplanStore";
 
-type StepKey = "decision" | "scratch" | "a2" | "a3" | "a4" | "summary";
-const order: StepKey[] = ["decision", "scratch", "a2", "a3", "a4", "summary"];
+type StepKey = "decision" | "scratch" | "b2" | "a2" | "a3" | "a4" | "summary";
+const order: StepKey[] = ["decision", "scratch", "b2", "a2", "a3", "a4", "summary"];
 
 export default function StepFlow() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function StepFlow() {
   function stepFromParams(): StepKey {
     if (stepParam === "scratch") return "scratch";
     if (stepParam === "summary") return "summary";
+    if (stepParam === "b2") return "b2";
     if (stepParam === "a2") return "a2";
     if (stepParam === "a3") return "a3";
     if (stepParam === "a4") return "a4";
@@ -80,7 +83,19 @@ export default function StepFlow() {
   if (step === "decision") {
     content = <DecisionPoint />;
   } else if (step === "scratch") {
-    content = <ScratchStep onNext={onNextFromScratch} onBack={onBackToDecision} />;
+    content = (
+      <GroepVakScreen
+        onBack={onBackToDecision}
+        onNext={() => pushStep("b2")}
+      />
+    );
+  } else if (step === "b2") {
+    content = (
+      <GroepssamenstellingScreen
+        onBack={() => pushStep("scratch")}
+        onNext={() => pushStep("summary")}
+      />
+    );
   } else if (step === "a2") {
     content = (
       <ConfirmExtracted

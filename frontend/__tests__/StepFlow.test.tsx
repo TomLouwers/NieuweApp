@@ -25,22 +25,22 @@ describe('StepFlow transitions', () => {
     expect(screen.getByText(/Kies een startpunt/i)).toBeInTheDocument();
   });
 
-  test('initializing with flow=scratch shows ScratchStep', () => {
+  test('initializing with flow=scratch shows B1 (Groep/Vak)', () => {
     mockParams = new URLSearchParams('flow=scratch');
     render(<StepFlow />);
-    expect(screen.getByText(/Stap 1 — Start vanaf nul/i)).toBeInTheDocument();
-    // Summary list items should carry --index style
-    const items = screen.getAllByRole('listitem');
-    expect(items[0].getAttribute('style') || '').toMatch(/--index: 0/);
+    expect(screen.getByText(/Voor welke groep\?/i)).toBeInTheDocument();
   });
 
-  test('clicking Volgende from scratch pushes to summary step', () => {
+  test('clicking Volgende from scratch pushes to B2', () => {
     mockParams = new URLSearchParams('flow=scratch');
     render(<StepFlow />);
+    // preselect groep and vak for Path B
+    fireEvent.click(screen.getByText(/^1$/));
+    fireEvent.click(screen.getByText(/Rekenen/i));
     fireEvent.click(screen.getByText(/Volgende/i));
     expect(pushMock).toHaveBeenCalled();
     const url = String(pushMock.mock.calls.at(-1)?.[0] || '');
-    expect(url).toMatch(/\/groepsplan\/new\?(.+&)?step=summary/);
+    expect(url).toMatch(/\/groepsplan\/new\?(.+&)?step=b2/);
   });
 
   test('backwards change transitions summary -> scratch', async () => {
@@ -48,10 +48,10 @@ describe('StepFlow transitions', () => {
     const { container, rerender } = render(<StepFlow />);
     expect(await screen.findByText(/Samenvatting/i)).toBeInTheDocument();
 
-    // now change to previous step (scratch) and verify back-enter class appears
+    // now change to previous step (scratch)
     mockParams = new URLSearchParams('step=scratch');
     rerender(<StepFlow />);
-    expect(await screen.findByText(/Stap 1 — Start vanaf nul/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Voor welke groep\?/i)).toBeInTheDocument();
   });
 
   test('from summary clicking Terug pushes to scratch', () => {
@@ -63,3 +63,7 @@ describe('StepFlow transitions', () => {
     expect(url).toMatch(/\/groepsplan\/new\?(.+&)?step=scratch/);
   });
 });
+
+
+
+

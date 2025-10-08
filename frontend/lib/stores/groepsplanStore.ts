@@ -28,6 +28,12 @@ let selectedVak: string | null = null;
 let summaryPeriode: string | null = null;
 let summaryAantalLeerlingen: string | null = null; // keep as string for easy input handling
 let summaryGroepsindeling: string | null = null; // 'basis' | 'intensief' | 'meer'
+// Path B specific
+let bTotalStudents: number = 28;
+let bPercBasis: number = 70;
+let bPercSupport: number = 15;
+let bPercMore: number = 15;
+let bUnknown: boolean = false;
 
 export function setCurrentPath(p: PathKey) { currentPath = p; }
 export function getCurrentPath(): PathKey { return currentPath; }
@@ -47,3 +53,19 @@ export function setSummaryAantalLeerlingen(val: string | null) { summaryAantalLe
 export function getSummaryAantalLeerlingen(): string | null { return summaryAantalLeerlingen; }
 export function setSummaryGroepsindeling(val: string | null) { summaryGroepsindeling = val; }
 export function getSummaryGroepsindeling(): string | null { return summaryGroepsindeling; }
+
+// Path B getters/setters
+export function getBTotalStudents(): number { return bTotalStudents; }
+export function setBTotalStudents(n: number) { bTotalStudents = Math.min(35, Math.max(15, Math.round(n))); }
+export function getBComposition(): { basis: number; support: number; more: number } { return { basis: bPercBasis, support: bPercSupport, more: bPercMore }; }
+export function setBComposition(next: { basis: number; support: number; more: number }) {
+  const sum = Math.round(next.basis) + Math.round(next.support) + Math.round(next.more);
+  if (sum !== 100) {
+    // normalize rudimentarily; trust caller to ensure sum=100
+  }
+  bPercBasis = Math.round(next.basis);
+  bPercSupport = Math.round(next.support);
+  bPercMore = Math.round(next.more);
+}
+export function getBUnknown(): boolean { return bUnknown; }
+export function setBUnknown(v: boolean) { bUnknown = v; }
