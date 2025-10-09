@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { applyRateHeaders } from "@/lib/api/rate-limit";
+import { ok, err, HTTP } from "@/lib/api/respond";
 
 export async function POST(request: Request) {
-  // Proxy to existing route to avoid breaking behavior (Phase 0)
+  // Phase 1: proxy to existing route, then reshape to spec envelope
   const url = new URL(request.url);
   const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || url.host;
   const proto = request.headers.get("x-forwarded-proto") || (url.protocol.replace(":", "") || "http");
@@ -17,14 +18,45 @@ export async function POST(request: Request) {
   if (bypass) headers["x-vercel-protection-bypass"] = bypass as string;
 
   const resp = await fetch(target, { method: "POST", headers, body: request.body as any });
-  const text = await resp.text();
-  const outHeaders = new Headers({ "content-type": resp.headers.get("content-type") || "application/json", ...applyRateHeaders() });
+  const outHeaders = new Headers({ ...applyRateHeaders() });
   const retryAfter = resp.headers.get("retry-after");
   if (retryAfter) outHeaders.set("retry-after", retryAfter);
-  return new NextResponse(text, { status: resp.status, headers: outHeaders });
+
+  let json: any = null;
+  try { json = await resp.json(); } catch {}
+
+  if (!resp.ok || !json?.ok) {
+    const msg = String(json?.error || "Upload mislukt");
+    if (resp.status === 413 || /te groot|too large/i.test(msg)) {
+      return err({ code: "FILE_TOO_LARGE", message: "Het bestand is te groot (max 10MB)", details: { maxSize: 10 * 1024 * 1024 } }, HTTP.PAYLOAD_TOO_LARGE, { headers: outHeaders });
+    }
+    if (resp.status === 400 || /ongeldig bestandstype|invalid/i.test(msg)) {
+      return err({ code: "INVALID_FILE_TYPE", message: "Dit bestandstype wordt niet ondersteund", details: { acceptedTypes: ["application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/msword","image/jpeg","image/png"] } }, HTTP.BAD_REQUEST, { headers: outHeaders });
+    }
+    return err({ code: "EXTRACTION_FAILED", message: msg || "Kon geen bruikbare informatie uit het document halen" }, resp.status || HTTP.UNPROCESSABLE, { headers: outHeaders });
+  }
+
+  const now = new Date().toISOString();
+  const data = {
+    uploadId: json.id || crypto.randomUUID?.() || `upl_${Math.random().toString(36).slice(2, 10)}`,
+    extractedData: json.extractedData || {
+      groep: null,
+      vakgebied: null,
+      periode: null,
+      aantalLeerlingen: null,
+      groepsindeling: null,
+      previousGoals: [],
+      previousResults: null,
+      schoolFormat: null,
+      confidence: {},
+    },
+    originalFileName: json.filename || "upload",
+    fileSize: json.size ?? null,
+    processedAt: now,
+  };
+  return ok(data, { headers: outHeaders });
 }
 
 export function GET() {
   return NextResponse.json({ error: { code: "METHOD_NOT_ALLOWED", message: "Method Not Allowed" } }, { status: 405 });
 }
-
