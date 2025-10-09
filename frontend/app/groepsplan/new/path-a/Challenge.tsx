@@ -1,6 +1,9 @@
 "use client";
 import React from "react";
+import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
+import { useGroepsplanStore } from "@/lib/stores/groepsplanStore";
 import { getSelectedChallenge, setSelectedChallenge } from "@/lib/stores/groepsplanStore";
+import { track } from "@/lib/utils/analytics";
 
 const OPTIONS: string[] = [
   "Enorme niveauverschillen (meer dan 3 jaar spreiding)",
@@ -19,12 +22,31 @@ interface ChallengeProps {
 }
 
 export default function Challenge({ onBack, onNext }: ChallengeProps) {
+  const { ref, bind, thresholdReached } = useSwipeBack(onBack);
+  const setChallengeZ = useGroepsplanStore((s) => s.setChallenge);
+  const saveDraft = useGroepsplanStore((s) => s.saveDraft);
+  const saveTimer = React.useRef<any>(null);
+  const scheduleSave = () => { if (saveTimer.current) clearTimeout(saveTimer.current); saveTimer.current = setTimeout(() => { saveDraft().catch(()=>{}); }, 500); };
   const initial = getSelectedChallenge() || "";
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string>(initial);
   const [highlight, setHighlight] = React.useState<number>(() => (initial ? Math.max(0, OPTIONS.indexOf(initial)) : -1));
   const btnRef = React.useRef<HTMLButtonElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
+  const headingRef = React.useRef<HTMLHeadingElement | null>(null);
+  React.useEffect(() => { headingRef.current?.focus(); }, []);
+
+  function onRootKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (open) setOpen(false); else onBack();
+      return;
+    }
+    if (e.key === 'Enter') {
+      const canContinue = Boolean(value);
+      if (!open && canContinue) { e.preventDefault(); onNext(value); }
+    }
+  }
 
   React.useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -47,6 +69,9 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
     setValue(v);
     setSelectedChallenge(v);
     setOpen(false);
+    try { setChallengeZ(v); } catch {}
+    try { track('groepsplan_question_answered', { step: 'a3', field: 'challenge', value: v }); } catch {}
+    scheduleSave();
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -78,9 +103,9 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
   const canContinue = Boolean(value);
 
   return (
-    <div className="space-y-6" aria-labelledby="challenge-title">
+    <div className="space-y-6" aria-labelledby="challenge-title" ref={ref} {...bind} onKeyDown={onRootKeyDown}>
       <div>
-        <h2 id="challenge-title">Wat is de grootste uitdaging voor dit blok?</h2>
+        <h2 id="challenge-title" ref={headingRef} tabIndex={-1}>Wat is de grootste uitdaging voor dit blok?</h2>
       </div>
 
       <div className="relative" onKeyDown={onKeyDown}>
@@ -127,7 +152,7 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
       </div>
 
       <div className="flex items-center justify-end gap-3">
-        <button className="border border-border px-4 py-2 rounded-md" onClick={onBack} aria-label="Vorige">
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">
           ← Vorige
         </button>
         <button
@@ -142,4 +167,3 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
     </div>
   );
 }
-

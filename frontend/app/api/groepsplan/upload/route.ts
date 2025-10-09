@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient, getUserFromToken } from "@/lib/supabase.js";
 
 const ACCEPT = new Set([".pdf", ".docx", ".jpg", ".jpeg", ".png"]);
+const MAX_BYTES = 10 * 1024 * 1024; // 10MB
 
 function validExt(name: string) {
   const lower = name.toLowerCase();
@@ -22,10 +23,14 @@ export async function POST(request: Request) {
     }
     const name = file.name || "upload";
     if (!validExt(name)) {
-      return NextResponse.json({ ok: false, error: "Ongeldig bestandstype" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Ongeldig bestandstype", code: "invalid_format" }, { status: 400 });
+    }
+    // Size check
+    const size = file.size || 0;
+    if (size > MAX_BYTES) {
+      return NextResponse.json({ ok: false, error: "Bestand te groot", code: "too_large" }, { status: 413 });
     }
     const id = `doc_${Math.random().toString(36).slice(2, 10)}`;
-    const size = file.size || 0;
     const mime = file.type || "application/octet-stream";
 
     // Attempt persistence to Supabase (storage + documents table)
@@ -77,7 +82,15 @@ export async function POST(request: Request) {
       stored = false;
     }
 
-    return NextResponse.json({ ok: true, id, filename: name, size, mime, storagePath, stored }, { status: 200 });
+    // Placeholder extraction (mock)
+    const extractedData = (() => {
+      // naive guess group number from filename e.g., groep5, g5, groep-5
+      const m = /groep[^0-9]?([1-8])/i.exec(name) || /g([1-8])/i.exec(name);
+      const groep = m ? Number(m[1]) : null;
+      return { groep };
+    })();
+
+    return NextResponse.json({ ok: true, id, filename: name, size, mime, storagePath, stored, extractedData }, { status: 200 });
   } catch (e) {
     return NextResponse.json({ ok: false, error: "Upload mislukt" }, { status: 500 });
   }

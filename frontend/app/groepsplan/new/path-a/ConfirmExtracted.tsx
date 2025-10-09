@@ -1,5 +1,7 @@
 "use client";
 import React from "react";
+import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
+import { useGroepsplanStore } from "@/lib/stores/groepsplanStore";
 
 type Extracted = { groep?: number | null } | null | undefined;
 
@@ -20,6 +22,7 @@ const VAK_OPTIONS = [
 ] as const;
 
 export default function ConfirmExtracted({ extractedData, onBack, onNext }: ConfirmExtractedProps) {
+  const { ref, bind, thresholdReached } = useSwipeBack(onBack);
   const extractedGroep = Number(extractedData?.groep ?? NaN);
   const hasExtracted = Number.isInteger(extractedGroep) && extractedGroep >= 1 && extractedGroep <= 8;
 
@@ -31,6 +34,12 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
   const vak = vakIndex >= 0 ? VAK_OPTIONS[vakIndex] : "";
 
   const listRef = React.useRef<HTMLDivElement | null>(null);
+  const headingRef = React.useRef<HTMLHeadingElement | null>(null);
+  React.useEffect(() => { headingRef.current?.focus(); }, []);
+  const setGroepZ = useGroepsplanStore((s) => s.setGroep);
+  const saveDraft = useGroepsplanStore((s) => s.saveDraft);
+  const saveTimer = React.useRef<any>(null);
+  const scheduleSave = () => { if (saveTimer.current) clearTimeout(saveTimer.current); saveTimer.current = setTimeout(() => { saveDraft().catch(()=>{}); }, 500); };
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -66,10 +75,14 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
 
   const canContinue = Number.isInteger(groep) && groep! >= 1 && groep! <= 8 && vakIndex >= 0;
 
+  function onRootKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && canContinue) { e.preventDefault(); onNext({ groep: groep!, vak }); }
+  }
+
   return (
-    <div className="space-y-6" aria-labelledby="confirm-title">
+    <div className="space-y-6" aria-labelledby="confirm-title" ref={ref} {...bind} onKeyDown={onRootKeyDown}>
       <div>
-        <h2 id="confirm-title">Ik zie dat dit voor {hasExtracted ? `Groep ${extractedGroep}` : "een groep"} was</h2>
+        <h2 id="confirm-title" ref={headingRef} tabIndex={-1}>Ik zie dat dit voor {hasExtracted ? `Groep ${extractedGroep}` : "een groep"} was</h2>
         <p className="text-muted">Klopt dat?</p>
       </div>
 
@@ -82,8 +95,9 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
               value="yes"
               checked={mode === "yes"}
               onChange={() => {
-                setMode("yes");
-                setGroep(extractedGroep);
+                setMode("yes"); setGroep(extractedGroep); try { (require("@/lib/stores/groepsplanStore").useGroepsplanStore as any).getState().setGroep(extractedGroep); } catch {}
+                try { setGroepZ(extractedGroep); } catch {}
+                scheduleSave();
               }}
             />
             <span>Ja, nog steeds Groep {extractedGroep}</span>
@@ -102,7 +116,7 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
                 className="border border-border rounded-md px-2 py-1"
                 disabled={mode !== "no"}
                 value={groep ?? ""}
-                onChange={(e) => setGroep(Number(e.target.value))}
+                onChange={(e) => { const n = Number(e.target.value); setGroep(n); try { setGroepZ(n); } catch {}; scheduleSave(); }}
               >
                 <option value="" disabled>
                   Kies groep
@@ -122,7 +136,7 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
           <select
             className="border border-border rounded-md px-2 py-2"
             value={groep ?? ""}
-            onChange={(e) => setGroep(Number(e.target.value))}
+            onChange={(e) => { const n = Number(e.target.value); setGroep(n); try { (require("@/lib/stores/groepsplanStore").useGroepsplanStore as any).getState().setGroep(n); } catch {} }}
           >
             <option value="" disabled>
               Kies groep
@@ -171,7 +185,7 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
       </div>
 
       <div className="flex items-center justify-end gap-3">
-        <button className="border border-border px-4 py-2 rounded-md" onClick={onBack} aria-label="Vorige">
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">
           ← Vorige
         </button>
         <button
@@ -186,4 +200,3 @@ export default function ConfirmExtracted({ extractedData, onBack, onNext }: Conf
     </div>
   );
 }
-

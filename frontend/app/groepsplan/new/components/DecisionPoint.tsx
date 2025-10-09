@@ -2,7 +2,10 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import UploadProcessing from "../path-a/UploadProcessing";
+import { track } from "@/lib/utils/analytics";
 import { setSelectedFileName } from "@/lib/stores/groepsplanStore";
 
 const ACCEPT = [
@@ -31,6 +34,7 @@ export default function DecisionPoint() {
   function onOpenPicker() {
     setError("");
     setWarning("");
+    track('groepsplan_path_selected', { path: 'upload' });
     fileInputRef.current?.click();
   }
 
@@ -38,17 +42,22 @@ export default function DecisionPoint() {
     const fd = new FormData();
     fd.append("file", file);
     const resp = await fetch("/api/groepsplan/upload", { method: "POST", body: fd });
-    const json = await resp.json();
+    const json = await resp.json().catch(() => ({}));
     if (!resp.ok || !json?.ok) {
-      const err = new Error(String(json?.error || "Upload mislukt"));
-      // @ts-ignore
-      err.code = "UPLOAD_FAILED";
+      const err: any = new Error(String(json?.error || "Upload mislukt"));
+      // tag code based on status or server-provided code
+      if (json?.code) err.code = json.code;
+      else if (resp.status === 413) err.code = "too_large";
+      else if (resp.status === 400) err.code = "invalid_format";
+      else if (resp.status === 429) err.code = "rate_limited";
+      else err.code = "network";
       throw err;
     }
     return json;
   }
 
   function toScratch() {
+    track('groepsplan_path_selected', { path: 'scratch' });
     router.push("/groepsplan/new?flow=scratch");
   }
 
@@ -112,7 +121,7 @@ export default function DecisionPoint() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* Upload */}
-        <div
+        <Card
           role="button"
           tabIndex={0}
           aria-label="Upload een document"
@@ -135,10 +144,10 @@ export default function DecisionPoint() {
             multiple={false}
             onChange={onInputChange}
           />
-        </div>
+        </Card>
 
         {/* Scratch */}
-        <div
+        <Card
           role="button"
           tabIndex={0}
           aria-label="Start vanaf nul"
@@ -150,10 +159,10 @@ export default function DecisionPoint() {
         >
           <h2 className="mb-2">Start vanaf nul</h2>
           <p className="text-sm text-muted">Begin met een leeg groepsplan en vul stap voor stap in.</p>
-        </div>
+        </Card>
 
         {/* Sample */}
-        <div
+        <Card
           role="button"
           tabIndex={0}
           aria-label="Bekijk eerst een voorbeeld"
@@ -165,7 +174,7 @@ export default function DecisionPoint() {
         >
           <h2 className="mb-2">Bekijk eerst een voorbeeld</h2>
           <p className="text-sm text-muted">Zie een korte, statische preview van een groepsplan.</p>
-        </div>
+        </Card>
       </div>
 
       {/* Inline messages */}
@@ -198,9 +207,7 @@ export default function DecisionPoint() {
           <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-md" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold">Voorbeeld</h3>
-              <button className="text-sm text-blue-600 hover:underline" onClick={() => setShowSample(false)}>
-                Sluiten
-              </button>
+              <Button variant="ghost" onClick={() => setShowSample(false)}>Sluiten</Button>
             </div>
             <div className="prose max-w-none">
               <h1>Groepsplan rekenen — Groep 5 — Periode Q2</h1>
@@ -229,16 +236,17 @@ export default function DecisionPoint() {
       {processing && pendingFile ? (
         <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-center justify-center">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-md">
-            <UploadProcessing
-              start={() => startUploadRequest(pendingFile)}
-              onDone={(res) => {
-                setProcessing(false);
-                // Continue into Path A flow (A2 confirm)
-                router.push(`/groepsplan/new?step=a2`);
-              }}
+              <UploadProcessing
+                start={() => startUploadRequest(pendingFile)}
+                onDone={(res) => {
+                  setProcessing(false);
+                  // Continue into Path A flow (A2 confirm)
+                  router.push(`/groepsplan/new?step=a2`);
+                }}
               onRetry={() => {
+                // Preserve previously chosen file and retry in-place
                 setProcessing(false);
-                setPendingFile(null);
+                setTimeout(() => setProcessing(true), 0);
               }}
               onStartFromScratch={() => {
                 setProcessing(false);

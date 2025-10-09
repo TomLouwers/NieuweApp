@@ -1,5 +1,8 @@
 "use client";
 import React from "react";
+import ErrorPanel from "@/app/groepsplan/new/components/ErrorPanel";
+import { Progress } from "@/components/ui/progress";
+import { track } from "@/lib/utils/analytics";
 import { setCurrentPath } from "@/lib/stores/groepsplanStore";
 
 interface UploadProcessingProps {
@@ -14,7 +17,7 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
   const [status, setStatus] = React.useState("Bestand uploaden…");
   const [startedAt] = React.useState(() => Date.now());
   const [longHint, setLongHint] = React.useState(false);
-  const [error, setError] = React.useState<string>("");
+  const [error, setError] = React.useState<{ code?: string | null; message?: string | null } | null>(null);
   const doneRef = React.useRef(false);
 
   React.useEffect(() => { setCurrentPath('upload'); }, []);
@@ -50,6 +53,7 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
     }
 
     scheduleProgress();
+    try { track('upload_started'); } catch {}
     scheduleHint();
 
     // Start async work
@@ -59,11 +63,16 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
         // animate to 100 after server complete
         setProgress((prev) => (prev >= 100 ? prev : 100));
         setStatus("Klaar");
+        try { track('upload_succeeded'); } catch {}
         setTimeout(() => onDone(result), 300);
       })
-      .catch(() => {
+      .catch((e) => {
         doneRef.current = true;
-        setError("Dit bestand kan ik niet lezen");
+        const msg = (e && (e.message || e.toString())) || "Upload mislukt";
+        // try attach a coarse code if present
+        const code = (e && (e.code || e.name)) || null;
+        setError({ code, message: String(msg) });
+        try { track('upload_failed', { code, message: String(msg) }); } catch {}
       })
       .finally(() => {
         if (tick) clearInterval(tick);
@@ -75,14 +84,15 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
 
   if (error) {
     return (
-      <div className="space-y-4" role="alert" aria-live="assertive">
-        <h2>Dit bestand kan ik niet lezen</h2>
-        <p className="text-muted">Controleer of het bestand niet corrupt is en probeer het opnieuw, of start vanaf nul.</p>
-        <div className="flex items-center gap-3">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md" onClick={onRetry}>Probeer opnieuw</button>
-          <button className="border border-border px-4 py-2 rounded-md" onClick={onStartFromScratch}>Start toch vanaf nul</button>
-        </div>
-      </div>
+      <ErrorPanel
+        domain="upload"
+        code={error.code}
+        message={error.message}
+        onPrimary={onRetry}
+        onSecondary={onStartFromScratch}
+        primaryLabel="Probeer opnieuw"
+        secondaryLabel="Start toch vanaf nul"
+      />
     );
   }
 
@@ -91,18 +101,8 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
       <h2>We verwerken je upload…</h2>
       <div aria-live="polite" role="status">{status}</div>
 
-      <div
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={progress}
-        className="w-full rounded-md border border-border p-2"
-      >
-        <div className="h-2 w-full rounded bg-gray-100">
-          <div className="h-2 rounded bg-blue-600 transition-[width] duration-300 ease-out" style={{ width: `${progress}%` }} />
-        </div>
-        <div className="mt-2 text-sm text-muted">{progress}%</div>
-      </div>
+      <Progress value={progress} label="Upload voortgang" />
+      <div className="mt-2 text-sm text-muted">{progress}%</div>
 
       {longHint ? (
         <div className="text-sm text-muted">Dit duurt iets langer dan verwacht, nog ~15 sec…</div>
@@ -110,4 +110,3 @@ export default function UploadProcessing({ start, onDone, onRetry, onStartFromSc
     </div>
   );
 }
-

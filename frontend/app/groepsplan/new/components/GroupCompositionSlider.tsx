@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Slider } from "@/components/ui/slider";
 
 interface GroupCompositionSliderProps {
   label: string;
@@ -14,15 +15,14 @@ export default function GroupCompositionSlider({ label, value, onChange, total, 
   return (
     <div className="space-y-1">
       <div className="text-sm">{label}</div>
-      <input
-        type="range"
+      <Slider
         min={0}
         max={100}
         step={1}
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number((e.target as HTMLInputElement).value))}
         disabled={disabled}
-        className="w-full composition-range"
+        className="composition-range"
         aria-label={`${label} percentage`}
       />
       <div className="text-sm text-muted">{value}% → {count} leerlingen</div>
@@ -37,4 +37,3 @@ export default function GroupCompositionSlider({ label, value, onChange, total, 
     </div>
   );
 }
-

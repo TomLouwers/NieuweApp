@@ -1,0 +1,1914 @@
+# API Specification: Groepsplan Service
+**Document Version:** 1.0  
+**Date:** October 2025  
+**For:** Backend Developer  
+**Base URL:** `https://api.yourapp.nl/v1`
+
+---
+
+## 1. Overview
+
+### Purpose
+This API enables the creation, editing, and management of groepsplannen (group education plans) for Dutch primary school teachers. It provides endpoints for:
+- Document upload and intelligent extraction
+- AI-powered groepsplan generation
+- Document storage and retrieval
+- Export in multiple formats
+
+### Architecture Principles
+- **RESTful design** with predictable resource paths
+- **Stateless** - no server-side session management
+- **Idempotent** - safe to retry failed requests
+- **Fail-fast** - validate early, return clear errors
+- **EU-only** - all data processed and stored in EU (GDPR)
+
+### Authentication
+All endpoints require Bearer token authentication (JWT):
+
+```
+Authorization: Bearer <token>
+```
+
+**Exception:** Demo endpoints allow anonymous access with rate limiting.
+
+---
+
+## 2. Common Patterns
+
+### Request Headers
+```http
+Content-Type: application/json
+Authorization: Bearer <jwt_token>
+Accept: application/json
+X-Request-ID: <uuid>  # Optional, for tracing
+```
+
+### Response Format
+All responses follow this structure:
+
+**Success (200-299):**
+```json
+{
+  "data": { ... },
+  "meta": {
+    "requestId": "uuid",
+    "timestamp": "2025-10-04T14:30:00Z"
+  }
+}
+```
+
+**Error (400-599):**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Het vakgebied is verplicht",
+    "details": {
+      "field": "vakgebied",
+      "constraint": "required"
+    }
+  },
+  "meta": {
+    "requestId": "uuid",
+    "timestamp": "2025-10-04T14:30:00Z"
+  }
+}
+```
+
+### Standard Error Codes
+
+| HTTP Status | Error Code | Meaning |
+|------------|------------|---------|
+| 400 | `VALIDATION_ERROR` | Invalid input data |
+| 400 | `INVALID_FILE_TYPE` | Unsupported file format |
+| 401 | `UNAUTHORIZED` | Missing/invalid auth token |
+| 403 | `FORBIDDEN` | Insufficient permissions |
+| 404 | `NOT_FOUND` | Resource doesn't exist |
+| 409 | `CONFLICT` | Resource state conflict |
+| 413 | `FILE_TOO_LARGE` | Uploaded file exceeds limit |
+| 422 | `EXTRACTION_FAILED` | Could not parse uploaded document |
+| 429 | `RATE_LIMIT_EXCEEDED` | Too many requests |
+| 500 | `INTERNAL_ERROR` | Server error |
+| 503 | `SERVICE_UNAVAILABLE` | AI service timeout/unavailable |
+
+### Rate Limiting
+Response headers indicate rate limit status:
+
+```http
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1696435200
+```
+
+**Limits:**
+- **Authenticated users:** 100 requests/hour
+- **Anonymous (demo):** 10 requests/hour
+- **Generation endpoint:** 20 requests/hour (per user)
+
+When limit exceeded:
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 3600
+
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Je hebt de limiet bereikt. Probeer het over 1 uur opnieuw.",
+    "details": {
+      "resetAt": "2025-10-04T15:00:00Z"
+    }
+  }
+}
+```
+
+---
+
+## 3. Endpoints
+
+### 3.1 Upload & Extract Document
+
+**Purpose:** Upload existing groepsplan or toetsoverzicht, extract structured data
+
+**Endpoint:** `POST /groepsplan/upload`
+
+**Authentication:** Required (or demo token)
+
+**Request:**
+```http
+POST /groepsplan/upload HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="groepsplan_vorig_blok.pdf"
+Content-Type: application/pdf
+
+[binary file content]
+------WebKitFormBoundary--
+```
+
+**Form Data:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `file` | File | Yes | PDF, DOCX, JPG, or PNG (max 10MB) |
+
+**Accepted File Types:**
+- `application/pdf`
+- `application/vnd.openxmlformats-officedocument.wordprocessingml.document` (.docx)
+- `application/msword` (.doc)
+- `image/jpeg`, `image/jpg`
+- `image/png`
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "uploadId": "uuid-v4",
+    "extractedData": {
+      "groep": 5,
+      "vakgebied": "spelling",
+      "periode": {
+        "label": "Blok 2",
+        "startDatum": "2024-11-01",
+        "eindDatum": "2025-01-31"
+      },
+      "aantalLeerlingen": 28,
+      "groepsindeling": {
+        "basis": 18,
+        "intensief": 5,
+        "meer": 5
+      },
+      "previousGoals": [
+        "Werkwoordspelling beheersen op D-niveau",
+        "Klankgroepenregel toepassen in eigen teksten"
+      ],
+      "previousResults": "80% van de basisgroep behaalde de doelen",
+      "schoolFormat": "mickey_mouse_model",
+      "confidence": {
+        "groep": 0.95,
+        "vakgebied": 0.88,
+        "groepsindeling": 0.72
+      }
+    },
+    "originalFileName": "groepsplan_vorig_blok.pdf",
+    "fileSize": 245678,
+    "processedAt": "2025-10-04T14:30:15Z"
+  },
+  "meta": {
+    "requestId": "req-123",
+    "timestamp": "2025-10-04T14:30:15Z"
+  }
+}
+```
+
+**Response Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `uploadId` | string | Unique identifier for this upload (use in generation) |
+| `extractedData` | object | Structured data extracted from document |
+| `extractedData.groep` | integer | Detected groep (1-8), null if uncertain |
+| `extractedData.vakgebied` | string | Detected subject, null if uncertain |
+| `extractedData.confidence` | object | Confidence scores (0-1) for extracted fields |
+| `originalFileName` | string | Original filename |
+| `fileSize` | integer | File size in bytes |
+| `processedAt` | string | ISO 8601 timestamp |
+
+**Error Responses:**
+
+**400 - Invalid File Type:**
+```json
+{
+  "error": {
+    "code": "INVALID_FILE_TYPE",
+    "message": "Dit bestandstype wordt niet ondersteund",
+    "details": {
+      "uploadedType": "text/plain",
+      "acceptedTypes": ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"]
+    }
+  }
+}
+```
+
+**413 - File Too Large:**
+```json
+{
+  "error": {
+    "code": "FILE_TOO_LARGE",
+    "message": "Het bestand is te groot (max 10MB)",
+    "details": {
+      "uploadedSize": 12582912,
+      "maxSize": 10485760
+    }
+  }
+}
+```
+
+**422 - Extraction Failed:**
+```json
+{
+  "error": {
+    "code": "EXTRACTION_FAILED",
+    "message": "Kon geen bruikbare informatie uit het document halen",
+    "details": {
+      "reason": "Document is mogelijk beschadigd of bevat alleen afbeeldingen zonder tekst"
+    }
+  }
+}
+```
+
+**Processing Time:** Target 5-10 seconds (95th percentile)
+
+**Implementation Notes:**
+- Store original file temporarily (24 hours) for potential re-processing
+- Extract text using OCR if image/PDF is scanned
+- Use Claude API for intelligent extraction with structured output
+- Return partial data with low confidence scores rather than failing completely
+- Log extraction failures for manual review/improvement
+
+---
+
+### 3.2 Generate Groepsplan
+
+**Purpose:** Generate a complete groepsplan based on user inputs
+
+**Endpoint:** `POST /groepsplan/generate`
+
+**Authentication:** Required (or demo token)
+
+**Request:**
+```http
+POST /groepsplan/generate HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "groep": 5,
+  "vakgebied": "spelling",
+  "challenge": "enorme_niveauverschillen",
+  "aantalLeerlingen": 28,
+  "groepsindeling": {
+    "basis": 18,
+    "intensief": 5,
+    "meer": 5
+  },
+  "startingPoint": "midden",
+  "toetsScores": {
+    "basis": "D",
+    "intensief": "E"
+  },
+  "uploadId": "uuid-v4",
+  "customizations": {
+    "periode": "Blok 2 (nov-jan)",
+    "focusSubdoelen": ["werkwoordspelling", "klankgroepenregel"]
+  }
+}
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `groep` | integer | Yes | Groep level (1-8) |
+| `vakgebied` | string | Yes | Subject area (see enum below) |
+| `challenge` | string | Yes | Primary challenge (see enum below) |
+| `aantalLeerlingen` | integer | Yes | Total number of students (1-40) |
+| `groepsindeling` | object | Yes | Distribution across levels |
+| `groepsindeling.basis` | integer | Yes | Number in basis group |
+| `groepsindeling.intensief` | integer | Yes | Number needing extra support |
+| `groepsindeling.meer` | integer | Yes | Number needing enrichment |
+| `startingPoint` | string | Yes | Where in year: `begin`, `midden`, `toetsgegevens` |
+| `toetsScores` | object | Conditional | Required if `startingPoint === 'toetsgegevens'` |
+| `toetsScores.basis` | string | Conditional | Level: `F`, `E`, `D`, `C`, `B`, `A` |
+| `toetsScores.intensief` | string | Conditional | Level: `F`, `E`, `D`, `C`, `B`, `A` |
+| `uploadId` | string | No | If Path A (upload), reference to uploaded document |
+| `customizations` | object | No | Optional overrides |
+
+**Enums:**
+
+**`vakgebied`:**
+- `rekenen_automatiseren`
+- `rekenen_begrip`
+- `spelling`
+- `technisch_lezen`
+- `begrijpend_lezen`
+- `schrijven`
+
+**`challenge`:**
+- `enorme_niveauverschillen`
+- `veel_dyslexie_dyscalculie`
+- `weinig_instructietijd`
+- `ondersteuning_werkte_niet`
+- `nieuw_in_groep`
+- `grote_groep_weinig_ruimte`
+- `moeite_zelfstandig_werken`
+- `gaat_prima_continuiteit`
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "title": "Groepsplan Groep 5 - Spelling",
+    "content": {
+      "sections": [
+        {
+          "id": "basisinformatie",
+          "title": "1. Basisinformatie en Context",
+          "content": "...",
+          "subsections": [...]
+        },
+        {
+          "id": "groepsanalyse",
+          "title": "2. Groepsanalyse & Onderwijsbehoeften",
+          "content": "...",
+          "subsections": [...]
+        }
+      ],
+      "metadata": {
+        "periode": "Blok 2 (nov-jan 2025)",
+        "groep": 5,
+        "vakgebied": "Spelling",
+        "aantalLeerlingen": 28,
+        "leerkracht": "[Naam Leerkracht]",
+        "ibEer": "[Naam IB'er]"
+      }
+    },
+    "complianceScore": {
+      "overall": 9,
+      "checks": {
+        "beginsituatie": true,
+        "smartiDoelen": true,
+        "interventies": true,
+        "evaluatie": true,
+        "betrokkenen": true,
+        "handelingsgericht": true
+      },
+      "warnings": []
+    },
+    "estimatedSavedTime": 135,
+    "generatedAt": "2025-10-04T14:35:42Z",
+    "expiresAt": "2025-11-04T14:35:42Z"
+  },
+  "meta": {
+    "requestId": "req-124",
+    "timestamp": "2025-10-04T14:35:42Z",
+    "generationTime": 18.7
+  }
+}
+```
+
+**Response Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `documentId` | string | Unique identifier for generated document |
+| `title` | string | Generated title |
+| `content` | object | Structured document content |
+| `content.sections[]` | array | Main sections of the groepsplan |
+| `complianceScore` | object | Passend Onderwijs compliance validation |
+| `complianceScore.overall` | integer | Score 0-10 |
+| `complianceScore.checks` | object | Boolean checks for required elements |
+| `complianceScore.warnings` | array | Non-critical issues found |
+| `estimatedSavedTime` | integer | Minutes saved vs. manual creation |
+| `generatedAt` | string | ISO 8601 timestamp |
+| `expiresAt` | string | When document will be auto-deleted |
+
+**Content Structure:**
+
+Each section object:
+```json
+{
+  "id": "unique_section_id",
+  "title": "Section Title",
+  "content": "Markdown or HTML content",
+  "subsections": [
+    {
+      "id": "subsection_id",
+      "title": "Subsection Title",
+      "content": "...",
+      "editable": true,
+      "type": "text" | "table" | "list"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+**400 - Validation Error:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Ongeldige groepsindeling",
+    "details": {
+      "field": "groepsindeling",
+      "constraint": "sum_must_equal_total",
+      "provided": {
+        "basis": 18,
+        "intensief": 5,
+        "meer": 5,
+        "sum": 28
+      },
+      "expected": {
+        "aantalLeerlingen": 30
+      }
+    }
+  }
+}
+```
+
+**503 - AI Service Unavailable:**
+```json
+{
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "message": "De generatie service is tijdelijk niet beschikbaar",
+    "details": {
+      "reason": "ai_service_timeout",
+      "retryAfter": 60
+    }
+  }
+}
+```
+
+**Processing Time:** Target 15-30 seconds (95th percentile)
+
+**Implementation Notes:**
+- Use Claude API (Sonnet 4.5) for generation
+- Stream progress updates via Server-Sent Events (optional enhancement)
+- Cache common patterns to reduce generation time
+- Store document in database immediately after generation
+- Set auto-delete after 30 days (configurable per user tier)
+- Log all generations for quality monitoring
+
+---
+
+### 3.3 Get Groepsplan Details
+
+**Purpose:** Retrieve a previously generated groepsplan
+
+**Endpoint:** `GET /groepsplan/{documentId}`
+
+**Authentication:** Required
+
+**Request:**
+```http
+GET /groepsplan/doc-uuid-v4 HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `documentId` | string | UUID of the document |
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "title": "Groepsplan Groep 5 - Spelling",
+    "content": {
+      "sections": [...]
+    },
+    "metadata": {
+      "groep": 5,
+      "vakgebied": "Spelling",
+      "periode": "Blok 2 (nov-jan 2025)",
+      "createdAt": "2025-10-04T14:35:42Z",
+      "updatedAt": "2025-10-04T15:20:10Z",
+      "version": 3
+    },
+    "complianceScore": {...},
+    "status": "draft" | "final",
+    "expiresAt": "2025-11-04T14:35:42Z"
+  },
+  "meta": {
+    "requestId": "req-125",
+    "timestamp": "2025-10-04T15:45:00Z"
+  }
+}
+```
+
+**Error Responses:**
+
+**404 - Not Found:**
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Dit groepsplan bestaat niet of is verlopen",
+    "details": {
+      "documentId": "doc-uuid-v4"
+    }
+  }
+}
+```
+
+**403 - Forbidden:**
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Je hebt geen toegang tot dit groepsplan",
+    "details": {
+      "reason": "not_owner"
+    }
+  }
+}
+```
+
+---
+
+### 3.4 Update Groepsplan Content
+
+**Purpose:** Edit sections of a generated groepsplan
+
+**Endpoint:** `PATCH /groepsplan/{documentId}`
+
+**Authentication:** Required
+
+**Request:**
+```http
+PATCH /groepsplan/doc-uuid-v4 HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "updates": [
+    {
+      "sectionId": "groepsanalyse",
+      "subsectionId": "onderwijsbehoeften",
+      "content": "Updated content here...",
+      "operation": "replace"
+    },
+    {
+      "sectionId": "smarti_doelen",
+      "content": "Completely new content for entire section",
+      "operation": "replace"
+    }
+  ],
+  "metadata": {
+    "periode": "Blok 3 (feb-apr)"
+  }
+}
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `updates[]` | array | Yes | Array of content updates |
+| `updates[].sectionId` | string | Yes | ID of section to update |
+| `updates[].subsectionId` | string | No | ID of subsection (if updating part of section) |
+| `updates[].content` | string | Yes | New content (Markdown or HTML) |
+| `updates[].operation` | string | No | `replace` (default) or `append` |
+| `metadata` | object | No | Update metadata fields |
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "version": 4,
+    "updatedSections": ["groepsanalyse", "smarti_doelen"],
+    "updatedAt": "2025-10-04T15:50:22Z",
+    "complianceScore": {
+      "overall": 9,
+      "checks": {...}
+    }
+  },
+  "meta": {
+    "requestId": "req-126",
+    "timestamp": "2025-10-04T15:50:22Z"
+  }
+}
+```
+
+**Error Responses:**
+
+**409 - Conflict:**
+```json
+{
+  "error": {
+    "code": "CONFLICT",
+    "message": "Dit document is door iemand anders aangepast",
+    "details": {
+      "yourVersion": 3,
+      "currentVersion": 4,
+      "lastUpdatedBy": "other_user_id",
+      "lastUpdatedAt": "2025-10-04T15:48:00Z"
+    }
+  }
+}
+```
+
+**Implementation Notes:**
+- Implement optimistic locking (version numbers)
+- Store edit history (last 10 versions)
+- Re-validate compliance after edits
+- Auto-save every 30 seconds (client-side debouncing)
+
+---
+
+### 3.5 Download Groepsplan
+
+**Purpose:** Export groepsplan in Word or PDF format
+
+**Endpoint:** `GET /groepsplan/{documentId}/download`
+
+**Authentication:** Required
+
+**Request:**
+```http
+GET /groepsplan/doc-uuid-v4/download?format=docx&template=default HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Accept: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+```
+
+**Request Body:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `strictMode` | boolean | No | `false` | If true, enforce all optional best practices |
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "isCompliant": true,
+    "score": 9,
+    "checks": {
+      "required": {
+        "beginsituatie": {
+          "present": true,
+          "quality": "good",
+          "message": "Beginsituatie duidelijk beschreven"
+        },
+        "smartiDoelen": {
+          "present": true,
+          "quality": "excellent",
+          "message": "Doelen zijn SMARTI geformuleerd"
+        },
+        "interventies": {
+          "present": true,
+          "quality": "good",
+          "message": "Concrete interventies beschreven"
+        },
+        "evaluatie": {
+          "present": true,
+          "quality": "good",
+          "message": "Evaluatiemomenten gepland"
+        },
+        "betrokkenen": {
+          "present": true,
+          "quality": "good",
+          "message": "Samenwerking met IB'er en ouders benoemd"
+        }
+      },
+      "bestPractices": {
+        "handelingsgerichtTaalgebruik": {
+          "score": 0.85,
+          "message": "Grotendeels handelingsgericht geformuleerd",
+          "suggestions": ["Vervang 'deze leerlingen zijn zwak' door 'deze leerlingen hebben behoefte aan...'"]
+        },
+        "positieveFraming": {
+          "score": 0.90,
+          "message": "Positieve benadering zichtbaar"
+        },
+        "concreetAanpak": {
+          "score": 0.95,
+          "message": "Aanpak is concreet en praktisch uitvoerbaar"
+        }
+      }
+    },
+    "warnings": [
+      {
+        "severity": "minor",
+        "section": "groepsanalyse",
+        "message": "Overweeg meer detail toe te voegen over de onderwijsbehoeften",
+        "suggestion": "Beschrijf specifiek welke ondersteuning elke groep nodig heeft"
+      }
+    ],
+    "errors": [],
+    "inspectieProof": true,
+    "validatedAt": "2025-10-04T16:15:00Z"
+  },
+  "meta": {
+    "requestId": "req-129",
+    "timestamp": "2025-10-04T16:15:00Z"
+  }
+}
+```
+
+**Response Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `isCompliant` | boolean | Meets minimum Passend Onderwijs requirements |
+| `score` | integer | Overall quality score (0-10) |
+| `checks.required` | object | Mandatory elements check |
+| `checks.bestPractices` | object | Optional quality indicators |
+| `warnings[]` | array | Non-blocking issues |
+| `errors[]` | array | Blocking issues (prevents compliance) |
+| `inspectieProof` | boolean | Recommended for official use |
+
+**Quality Levels:**
+- `excellent` (95-100%): Outstanding quality
+- `good` (80-94%): Acceptable quality
+- `adequate` (60-79%): Meets minimum, could improve
+- `poor` (<60%): Needs significant improvement
+
+---
+
+### 3.10 Get Template Suggestions
+
+**Purpose:** Get smart suggestions based on context (e.g., common goals for groep/vak)
+
+**Endpoint:** `GET /groepsplan/suggestions`
+
+**Authentication:** Required
+
+**Request:**
+```http
+GET /groepsplan/suggestions?groep=5&vakgebied=spelling&type=goals HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `groep` | integer | Yes | Groep level (1-8) |
+| `vakgebied` | string | Yes | Subject area |
+| `type` | string | Yes | `goals`, `interventions`, `challenges` |
+| `challenge` | string | No | Refine suggestions based on challenge |
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "suggestions": [
+      {
+        "id": "goal-1",
+        "text": "90% van de basisgroep beheerst werkwoordspelling (tegenwoordige tijd) op D-niveau eind blok 2",
+        "popularity": 0.87,
+        "usedBy": 245,
+        "tags": ["SMARTI", "werkwoordspelling", "groep5"]
+      },
+      {
+        "id": "goal-2",
+        "text": "80% van de intensieve groep past de klankgroepenregel correct toe in korte zinnen",
+        "popularity": 0.72,
+        "usedBy": 189,
+        "tags": ["SMARTI", "klankgroepen", "groep5"]
+      }
+    ],
+    "context": {
+      "groep": 5,
+      "vakgebied": "spelling",
+      "type": "goals",
+      "totalSuggestions": 12
+    }
+  },
+  "meta": {
+    "requestId": "req-130",
+    "timestamp": "2025-10-04T16:20:00Z"
+  }
+}
+```
+
+**Implementation Notes:**
+- Curate suggestions from successful groepsplannen
+- Anonymize and aggregate from user data
+- Update monthly based on usage patterns
+- Return 5-10 most relevant suggestions
+
+---
+
+## 4. Webhook Events (Optional Future Enhancement)
+
+**Purpose:** Notify external systems of events
+
+**Configuration:** Set webhook URL in user settings
+
+**Events:**
+
+### 4.1 Document Generated
+```json
+{
+  "event": "groepsplan.generated",
+  "timestamp": "2025-10-04T14:35:42Z",
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "userId": "user-uuid",
+    "groep": 5,
+    "vakgebied": "spelling"
+  }
+}
+```
+
+### 4.2 Document Updated
+```json
+{
+  "event": "groepsplan.updated",
+  "timestamp": "2025-10-04T15:50:22Z",
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "userId": "user-uuid",
+    "version": 4,
+    "updatedSections": ["groepsanalyse"]
+  }
+}
+```
+
+### 4.3 Document Downloaded
+```json
+{
+  "event": "groepsplan.downloaded",
+  "timestamp": "2025-10-04T16:00:00Z",
+  "data": {
+    "documentId": "doc-uuid-v4",
+    "userId": "user-uuid",
+    "format": "docx"
+  }
+}
+```
+
+---
+
+## 5. Data Models
+
+### 5.1 Groepsplan Document
+
+```typescript
+interface GroepsplanDocument {
+  documentId: string;          // UUID
+  userId: string;              // Owner UUID
+  title: string;
+  status: 'draft' | 'final';
+  
+  content: {
+    sections: Section[];
+    metadata: DocumentMetadata;
+  };
+  
+  complianceScore: ComplianceScore;
+  
+  createdAt: string;           // ISO 8601
+  updatedAt: string;           // ISO 8601
+  version: number;
+  expiresAt: string;           // ISO 8601
+  
+  // Upload path specific
+  uploadId?: string;
+  extractedData?: ExtractedData;
+  
+  // Analytics
+  viewCount: number;
+  downloadCount: number;
+  editCount: number;
+  estimatedTimeSaved: number;  // minutes
+}
+```
+
+### 5.2 Section
+
+```typescript
+interface Section {
+  id: string;
+  title: string;
+  content: string;             // Markdown or HTML
+  subsections?: Subsection[];
+  order: number;
+  editable: boolean;
+  type: 'text' | 'table' | 'list';
+}
+
+interface Subsection {
+  id: string;
+  title: string;
+  content: string;
+  editable: boolean;
+  type: 'text' | 'table' | 'list';
+}
+```
+
+### 5.3 Document Metadata
+
+```typescript
+interface DocumentMetadata {
+  groep: number;               // 1-8
+  vakgebied: string;
+  periode: string;
+  aantalLeerlingen: number;
+  groepsindeling: {
+    basis: number;
+    intensief: number;
+    meer: number;
+  };
+  leerkracht?: string;
+  ibEer?: string;
+  schoolNaam?: string;
+}
+```
+
+### 5.4 Extracted Data (Upload Path)
+
+```typescript
+interface ExtractedData {
+  groep?: number;
+  vakgebied?: string;
+  periode?: {
+    label: string;
+    startDatum: string;
+    eindDatum: string;
+  };
+  aantalLeerlingen?: number;
+  groepsindeling?: {
+    basis: number;
+    intensief: number;
+    meer: number;
+  };
+  previousGoals?: string[];
+  previousResults?: string;
+  schoolFormat?: string;
+  confidence: {
+    [key: string]: number;     // 0-1 confidence scores
+  };
+}
+```
+
+### 5.5 Compliance Score
+
+```typescript
+interface ComplianceScore {
+  overall: number;             // 0-10
+  checks: {
+    beginsituatie: boolean;
+    smartiDoelen: boolean;
+    interventies: boolean;
+    evaluatie: boolean;
+    betrokkenen: boolean;
+    handelingsgericht: boolean;
+  };
+  warnings: Warning[];
+  errors: Error[];
+  inspectieProof: boolean;
+}
+
+interface Warning {
+  severity: 'minor' | 'moderate';
+  section: string;
+  message: string;
+  suggestion?: string;
+}
+```
+
+---
+
+## 6. Database Schema (PostgreSQL)
+
+### 6.1 Tables
+
+```sql
+-- Users table (managed by auth service)
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  subscription_tier VARCHAR(50) DEFAULT 'free',
+  trial_ends_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Groepsplan documents
+CREATE TABLE groepsplan_documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  
+  content JSONB NOT NULL,
+  metadata JSONB NOT NULL,
+  compliance_score JSONB,
+  
+  upload_id UUID REFERENCES uploads(id) ON DELETE SET NULL,
+  extracted_data JSONB,
+  
+  version INTEGER NOT NULL DEFAULT 1,
+  
+  view_count INTEGER DEFAULT 0,
+  download_count INTEGER DEFAULT 0,
+  edit_count INTEGER DEFAULT 0,
+  estimated_time_saved INTEGER DEFAULT 0,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  expires_at TIMESTAMP WITH TIME ZONE,
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  
+  CONSTRAINT valid_status CHECK (status IN ('draft', 'final'))
+);
+
+CREATE INDEX idx_groepsplan_user_id ON groepsplan_documents(user_id);
+CREATE INDEX idx_groepsplan_created_at ON groepsplan_documents(created_at DESC);
+CREATE INDEX idx_groepsplan_metadata ON groepsplan_documents USING GIN (metadata);
+
+-- Uploads table
+CREATE TABLE uploads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  
+  original_filename VARCHAR(255) NOT NULL,
+  file_size INTEGER NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  storage_path VARCHAR(500) NOT NULL,
+  
+  extracted_data JSONB,
+  processing_status VARCHAR(50) NOT NULL DEFAULT 'pending',
+  processing_error TEXT,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  expires_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() + INTERVAL '24 hours',
+  
+  CONSTRAINT valid_processing_status CHECK (
+    processing_status IN ('pending', 'processing', 'completed', 'failed')
+  )
+);
+
+CREATE INDEX idx_uploads_user_id ON uploads(user_id);
+CREATE INDEX idx_uploads_created_at ON uploads(created_at);
+
+-- Document versions (for edit history)
+CREATE TABLE document_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id UUID NOT NULL REFERENCES groepsplan_documents(id) ON DELETE CASCADE,
+  version INTEGER NOT NULL,
+  
+  content JSONB NOT NULL,
+  metadata JSONB NOT NULL,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  
+  UNIQUE(document_id, version)
+);
+
+CREATE INDEX idx_document_versions_document_id ON document_versions(document_id);
+
+-- Analytics events
+CREATE TABLE analytics_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  document_id UUID REFERENCES groepsplan_documents(id) ON DELETE SET NULL,
+  
+  event_type VARCHAR(100) NOT NULL,
+  event_data JSONB,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_analytics_events_type ON analytics_events(event_type);
+CREATE INDEX idx_analytics_events_created_at ON analytics_events(created_at);
+CREATE INDEX idx_analytics_events_user_id ON analytics_events(user_id);
+
+-- Suggestions cache
+CREATE TABLE suggestion_cache (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  groep INTEGER NOT NULL,
+  vakgebied VARCHAR(100) NOT NULL,
+  suggestion_type VARCHAR(50) NOT NULL,
+  
+  suggestions JSONB NOT NULL,
+  
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  
+  UNIQUE(groep, vakgebied, suggestion_type)
+);
+```
+
+### 6.2 Indexes for Performance
+
+```sql
+-- Composite indexes for common queries
+CREATE INDEX idx_documents_user_status ON groepsplan_documents(user_id, status);
+CREATE INDEX idx_documents_metadata_groep ON groepsplan_documents((metadata->>'groep'));
+CREATE INDEX idx_documents_metadata_vakgebied ON groepsplan_documents((metadata->>'vakgebied'));
+
+-- Full-text search on document content
+CREATE INDEX idx_documents_content_search ON groepsplan_documents 
+  USING GIN (to_tsvector('dutch', content::text));
+```
+
+---
+
+## 7. Security Requirements
+
+### 7.1 Authentication
+
+**JWT Token Structure:**
+```json
+{
+  "sub": "user-uuid",
+  "email": "leerkracht@school.nl",
+  "tier": "premium",
+  "iat": 1696435200,
+  "exp": 1696438800,
+  "scope": ["groepsplan:read", "groepsplan:write", "groepsplan:delete"]
+}
+```
+
+**Token Validation:**
+- Verify signature using public key
+- Check expiration
+- Validate scopes for requested endpoint
+- Rate limit by user ID
+
+### 7.2 Authorization
+
+**Access Rules:**
+- Users can only access their own documents
+- School admins can access all documents from their school (future)
+- Support staff can view (not edit) any document with user consent
+
+**Row-Level Security (RLS) in PostgreSQL:**
+```sql
+ALTER TABLE groepsplan_documents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY documents_user_access ON groepsplan_documents
+  FOR ALL
+  USING (user_id = current_setting('app.current_user_id')::UUID);
+```
+
+### 7.3 Data Protection
+
+**Encryption:**
+- TLS 1.3 for all API communications
+- AES-256 encryption at rest for database
+- Customer-managed keys (future enhancement)
+
+**PII Handling:**
+- No student names stored (reject uploads containing names in detected fields)
+- Leerkracht/IB'er names stored as `[Naam Leerkracht]` placeholders
+- School name optional, never required
+
+**GDPR Compliance:**
+- Data stored only on EU servers
+- 30-day soft delete period
+- User can export all data (JSON format)
+- User can permanently delete account and all data
+
+### 7.4 Input Validation
+
+**All endpoints must validate:**
+- Maximum request size: 10MB (uploads), 1MB (JSON)
+- String lengths match database constraints
+- Enums match allowed values
+- Numbers within reasonable ranges (e.g., groep 1-8, not 999)
+- File types match MIME type and magic bytes
+
+**Sanitization:**
+- Strip HTML tags from user input (except in content fields)
+- Escape special characters in SQL queries (use parameterized queries)
+- Validate URLs if accepting external links
+
+---
+
+## 8. Performance Requirements
+
+### 8.1 Response Time Targets
+
+| Endpoint | Target (p95) | Maximum (p99) |
+|----------|--------------|---------------|
+| GET /groepsplan/{id} | 200ms | 500ms |
+| GET /groepsplan (list) | 300ms | 800ms |
+| POST /groepsplan/upload | 10s | 20s |
+| POST /groepsplan/generate | 25s | 45s |
+| PATCH /groepsplan/{id} | 500ms | 1s |
+| GET /groepsplan/{id}/download | 3s | 8s |
+| POST /groepsplan/{id}/refine | 5s | 12s |
+
+### 8.2 Scalability Targets
+
+**Year 1:**
+- 500 active users
+- 5,000 documents generated/month
+- 10,000 API requests/day
+- 100GB storage
+
+**Year 3:**
+- 5,000 active users
+- 50,000 documents generated/month
+- 100,000 API requests/day
+- 1TB storage
+
+### 8.3 Availability
+
+- **Uptime SLA:** 99.5% (43.8 hours downtime/year)
+- **Planned maintenance:** Off-peak hours (03:00-05:00 CET), max 2 hours/month
+- **Incident response:** <15 minutes to acknowledge, <4 hours to resolve critical issues
+
+### 8.4 Caching Strategy
+
+**Cache Layers:**
+
+1. **CDN (CloudFlare):**
+   - Static assets (JS, CSS, images)
+   - Public documentation pages
+   - TTL: 7 days
+
+2. **Application Cache (Redis):**
+   - User sessions: TTL 24 hours
+   - Document metadata: TTL 1 hour
+   - Suggestions: TTL 1 week
+   - Rate limit counters: TTL 1 hour
+
+3. **Database Query Cache:**
+   - Frequently accessed documents: TTL 15 minutes
+   - User document lists: TTL 5 minutes
+
+**Cache Invalidation:**
+- On document update: Invalidate document cache
+- On user logout: Invalidate session
+- On data change: Invalidate related queries
+
+---
+
+## 9. Monitoring & Observability
+
+### 9.1 Health Check Endpoint
+
+**Endpoint:** `GET /health`
+
+**Response (200 OK):**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-10-04T16:30:00Z",
+  "services": {
+    "database": "healthy",
+    "aiService": "healthy",
+    "storage": "healthy"
+  },
+  "version": "1.2.3"
+}
+```
+
+**Response (503 Service Unavailable):**
+```json
+{
+  "status": "unhealthy",
+  "timestamp": "2025-10-04T16:30:00Z",
+  "services": {
+    "database": "healthy",
+    "aiService": "degraded",
+    "storage": "healthy"
+  },
+  "version": "1.2.3"
+}
+```
+
+### 9.2 Metrics to Track
+
+**Application Metrics:**
+- Request rate (requests/second)
+- Response time (p50, p95, p99)
+- Error rate (%)
+- Generation success rate (%)
+- Upload success rate (%)
+
+**Business Metrics:**
+- Documents generated per day
+- Active users (DAU, WAU, MAU)
+- Average time saved per document
+- Conversion rate (trial → paid)
+- Feature usage (upload vs. scratch)
+
+**Infrastructure Metrics:**
+- CPU utilization
+- Memory usage
+- Disk I/O
+- Network bandwidth
+- Database connection pool
+
+### 9.3 Logging
+
+**Log Format (JSON):**
+```json
+{
+  "timestamp": "2025-10-04T16:30:00Z",
+  "level": "INFO",
+  "service": "groepsplan-api",
+  "requestId": "req-131",
+  "userId": "user-uuid",
+  "endpoint": "POST /groepsplan/generate",
+  "duration": 18700,
+  "status": 200,
+  "metadata": {
+    "groep": 5,
+    "vakgebied": "spelling"
+  }
+}
+```
+
+**Log Levels:**
+- `DEBUG`: Detailed diagnostic info
+- `INFO`: General informational messages
+- `WARN`: Warning messages (non-critical issues)
+- `ERROR`: Error messages (recoverable)
+- `FATAL`: Critical errors (service down)
+
+**Structured Logging Fields:**
+- Always include: `timestamp`, `level`, `requestId`
+- Include when available: `userId`, `documentId`, `endpoint`
+- Never log: passwords, tokens, PII
+
+### 9.4 Alerting
+
+**Critical Alerts (Page immediately):**
+- Error rate > 5% for 5 minutes
+- API response time p95 > 10s for 5 minutes
+- Database connection failures
+- AI service completely unavailable
+- Disk space < 10%
+
+**Warning Alerts (Email/Slack):**
+- Error rate > 2% for 15 minutes
+- Generation success rate < 90% for 30 minutes
+- Upload processing time > 15s for 15 minutes
+- Disk space < 20%
+
+---
+
+## 10. Testing Requirements
+
+### 10.1 Unit Tests
+
+**Coverage Target:** 80% for critical paths
+
+**Test Cases:**
+- Input validation for all endpoints
+- Error handling for edge cases
+- Data transformations (extraction, generation)
+- Authentication/authorization logic
+
+### 10.2 Integration Tests
+
+**Test Scenarios:**
+1. **Upload → Extract → Generate → Download**
+   - Upload valid PDF
+   - Verify extraction accuracy
+   - Generate document
+   - Download DOCX
+   - Validate Word file structure
+
+2. **Scratch → Generate → Edit → Validate**
+   - Generate from scratch inputs
+   - Update content via PATCH
+   - Validate compliance
+   - Verify version history
+
+3. **Error Recovery**
+   - Upload invalid file → Proper error
+   - Generation timeout → Retry logic
+   - Concurrent edits → Conflict resolution
+
+### 10.3 Load Tests
+
+**Scenarios:**
+- 100 concurrent document generations
+- 1,000 requests/minute to list endpoint
+- 50 concurrent file uploads
+- Database query performance under load
+
+**Tools:** JMeter, k6, or Artillery
+
+---
+
+## 11. Deployment
+
+### 11.1 Environment Configuration
+
+**Environments:**
+1. **Development** (`dev.api.yourapp.nl`)
+2. **Staging** (`staging.api.yourapp.nl`)
+3. **Production** (`api.yourapp.nl`)
+
+**Environment Variables:**
+```bash
+# Application
+NODE_ENV=production
+API_VERSION=1.0
+PORT=3000
+
+# Database
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+DATABASE_POOL_SIZE=20
+
+# AI Service
+ANTHROPIC_API_KEY=sk-ant-xxx
+ANTHROPIC_MODEL=claude-sonnet-4-5-20250929
+
+# Storage
+S3_BUCKET=yourapp-documents-prod
+S3_REGION=eu-west-1
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xxx
+
+# Authentication
+JWT_PUBLIC_KEY=<public-key>
+JWT_ISSUER=https://auth.yourapp.nl
+
+# Rate Limiting
+REDIS_URL=redis://localhost:6379
+
+# Monitoring
+SENTRY_DSN=https://xxx@sentry.io/xxx
+LOG_LEVEL=info
+```
+
+### 11.2 Deployment Strategy
+
+**Blue-Green Deployment:**
+1. Deploy new version to "green" environment
+2. Run smoke tests
+3. Switch traffic from "blue" to "green"
+4. Monitor for 15 minutes
+5. If issues: Instant rollback to "blue"
+6. If stable: Decommission "blue"
+
+**Database Migrations:**
+- Use migration tool (e.g., Flyway, Liquibase)
+- Always backward-compatible (no breaking changes)
+- Run migrations before deploying new code
+- Test migrations on staging first
+
+---
+
+## 12. API Versioning
+
+### 12.1 Versioning Strategy
+
+**URL-based versioning:**
+```
+https://api.yourapp.nl/v1/groepsplan
+https://api.yourapp.nl/v2/groepsplan  (future)
+```
+
+**Version Support:**
+- Current version (v1): Fully supported
+- Previous version (v0): Deprecated, 6-month sunset period
+- Future versions: Beta access via header `X-API-Version: v2-beta`
+
+### 12.2 Breaking vs. Non-Breaking Changes
+
+**Non-Breaking (can deploy without version bump):**
+- Adding new optional fields
+- Adding new endpoints
+- Adding new enum values (if clients handle unknowns)
+- Performance improvements
+- Bug fixes
+
+**Breaking (requires new version):**
+- Removing fields
+- Renaming fields
+- Changing field types
+- Removing endpoints
+- Changing authentication method
+- Changing error response format
+
+---
+
+## 13. Implementation Checklist
+
+### Phase 1: Core Endpoints (Week 1-2)
+- [ ] Set up project structure (Next.js API routes or Express)
+- [ ] Configure PostgreSQL database
+- [ ] Implement authentication middleware
+- [ ] Build `/upload` endpoint with file validation
+- [ ] Build `/generate` endpoint with Claude API integration
+- [ ] Build `/groepsplan/{id}` GET endpoint
+- [ ] Build `/groepsplan/{id}/download` endpoint
+- [ ] Add basic error handling
+
+### Phase 2: Document Management (Week 2-3)
+- [ ] Build `/groepsplan` LIST endpoint
+- [ ] Build `/groepsplan/{id}` PATCH endpoint
+- [ ] Implement version history tracking
+- [ ] Build `/groepsplan/{id}` DELETE endpoint
+- [ ] Add soft delete logic
+- [ ] Implement rate limiting (Redis)
+
+### Phase 3: Advanced Features (Week 3-4)
+- [ ] Build `/refine` endpoint for AI editing
+- [ ] Build `/validate` compliance checker
+- [ ] Build `/suggestions` endpoint
+- [ ] Add file export (DOCX, PDF) generation
+- [ ] Implement caching layer
+- [ ] Add analytics event tracking
+
+### Phase 4: Polish & Production (Week 4-5)
+- [ ] Write unit tests (80% coverage)
+- [ ] Write integration tests
+- [ ] Set up monitoring (Sentry, logging)
+- [ ] Configure health check endpoint
+- [ ] Load testing and optimization
+- [ ] Security audit
+- [ ] Documentation review
+- [ ] Deploy to staging
+- [ ] Deploy to production
+
+---
+
+## 14. Support & Maintenance
+
+### 14.1 API Documentation
+
+**Public Documentation:** `https://docs.yourapp.nl/api`
+
+**Include:**
+- Interactive API explorer (Swagger/OpenAPI)
+- Code examples (curl, JavaScript, Python)
+- Authentication guide
+- Rate limiting explained
+- Error codes reference
+- Changelog
+
+### 14.2 Developer Support
+
+**Channels:**
+- Email: `dev-support@yourapp.nl`
+- Slack: `#api-support` (for partners)
+- GitHub Issues: For bug reports
+
+**SLA:**
+- Critical issues: Response within 4 hours
+- Non-critical: Response within 24 hours
+
+---
+
+## Document Status
+**Version:** 1.0  
+**Status:** Final - Ready for Implementation  
+**Last Updated:** October 4, 2025  
+**Approved By:** Technical Lead  
+
+**Questions/Feedback:** dev-support@yourapp.nl Default | Description |
+|-----------|------|----------|---------|-------------|
+| `format` | string | No | `docx` | Export format: `docx`, `pdf`, `html` |
+| `template` | string | No | `default` | Template style: `default`, `school_custom` |
+| `includeMetadata` | boolean | No | `false` | Include generation metadata in footer |
+
+**Response (200 OK):**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+Content-Disposition: attachment; filename="Groepsplan_Groep5_Spelling_Blok2_2025.docx"
+Content-Length: 45678
+
+[binary file content]
+```
+
+**Filename Convention:**
+```
+Groepsplan_Groep{N}_{Vakgebied}_{Periode}_{Year}.{extension}
+```
+
+Examples:
+- `Groepsplan_Groep5_Spelling_Blok2_2025.docx`
+- `Groepsplan_Groep3_Rekenen_Q1_2025.pdf`
+
+**PDF Response:**
+```http
+Content-Type: application/pdf
+Content-Disposition: attachment; filename="Groepsplan_Groep5_Spelling_Blok2_2025.pdf"
+```
+
+**HTML Response:**
+```http
+Content-Type: text/html; charset=utf-8
+Content-Disposition: attachment; filename="Groepsplan_Groep5_Spelling_Blok2_2025.html"
+```
+
+**Error Responses:**
+
+**404 - Not Found:**
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Dit groepsplan bestaat niet",
+    "details": {
+      "documentId": "doc-uuid-v4"
+    }
+  }
+}
+```
+
+**500 - Export Failed:**
+```json
+{
+  "error": {
+    "code": "EXPORT_FAILED",
+    "message": "Er ging iets mis bij het exporteren",
+    "details": {
+      "format": "docx",
+      "reason": "template_rendering_error"
+    }
+  }
+}
+```
+
+**Processing Time:** Target <5 seconds
+
+**Implementation Notes:**
+- Use docxtemplater or python-docx for Word generation
+- Use wkhtmltopdf or Puppeteer for PDF generation
+- Cache generated files for 1 hour (same params = same file)
+- Stream large files to avoid memory issues
+- Track downloads for analytics
+
+---
+
+### 3.6 List User's Groepsplannen
+
+**Purpose:** Get all groepsplannen created by the authenticated user
+
+**Endpoint:** `GET /groepsplan`
+
+**Authentication:** Required
+
+**Request:**
+```http
+GET /groepsplan?limit=20&offset=0&sort=createdAt&order=desc HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `limit` | integer | No | `20` | Number of results (1-100) |
+| `offset` | integer | No | `0` | Pagination offset |
+| `sort` | string | No | `createdAt` | Sort by: `createdAt`, `updatedAt`, `title` |
+| `order` | string | No | `desc` | Order: `asc`, `desc` |
+| `groep` | integer | No | - | Filter by groep (1-8) |
+| `vakgebied` | string | No | - | Filter by subject |
+| `status` | string | No | - | Filter by: `draft`, `final` |
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "items": [
+      {
+        "documentId": "doc-uuid-1",
+        "title": "Groepsplan Groep 5 - Spelling",
+        "metadata": {
+          "groep": 5,
+          "vakgebied": "Spelling",
+          "periode": "Blok 2 (nov-jan 2025)"
+        },
+        "status": "final",
+        "createdAt": "2025-10-04T14:35:42Z",
+        "updatedAt": "2025-10-04T15:50:22Z",
+        "version": 4
+      },
+      {
+        "documentId": "doc-uuid-2",
+        "title": "Groepsplan Groep 5 - Rekenen",
+        "metadata": {
+          "groep": 5,
+          "vakgebied": "Rekenen (automatiseren)",
+          "periode": "Blok 1 (sept-nov 2024)"
+        },
+        "status": "draft",
+        "createdAt": "2025-09-15T10:20:00Z",
+        "updatedAt": "2025-09-15T10:20:00Z",
+        "version": 1
+      }
+    ],
+    "pagination": {
+      "total": 12,
+      "limit": 20,
+      "offset": 0,
+      "hasMore": false
+    }
+  },
+  "meta": {
+    "requestId": "req-127",
+    "timestamp": "2025-10-04T16:00:00Z"
+  }
+}
+```
+
+---
+
+### 3.7 Delete Groepsplan
+
+**Purpose:** Permanently delete a groepsplan
+
+**Endpoint:** `DELETE /groepsplan/{documentId}`
+
+**Authentication:** Required
+
+**Request:**
+```http
+DELETE /groepsplan/doc-uuid-v4 HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+```
+
+**Response (204 No Content):**
+```http
+HTTP/1.1 204 No Content
+```
+
+**Error Responses:**
+
+**404 - Not Found:**
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Dit groepsplan bestaat niet",
+    "details": {
+      "documentId": "doc-uuid-v4"
+    }
+  }
+}
+```
+
+**Implementation Notes:**
+- Soft delete (mark as deleted, actually delete after 30 days)
+- Allow undelete within 30 days via support
+- Clean up associated files (uploads, exports)
+
+---
+
+### 3.8 AI-Assisted Refinement
+
+**Purpose:** Request AI to modify specific parts of the groepsplan
+
+**Endpoint:** `POST /groepsplan/{documentId}/refine`
+
+**Authentication:** Required
+
+**Request:**
+```http
+POST /groepsplan/doc-uuid-v4/refine HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "sectionId": "interventies",
+  "instruction": "Maak de interventies voor de intensieve groep specifieker met concrete tijdsindicaties",
+  "context": {
+    "preserveTone": true,
+    "maxLength": 500
+  }
+}
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sectionId` | string | No | Specific section to refine (or entire document if omitted) |
+| `instruction` | string | Yes | Natural language instruction (max 200 chars) |
+| `context` | object | No | Additional constraints |
+| `context.preserveTone` | boolean | No | Keep original writing style |
+| `context.maxLength` | integer | No | Maximum words for output |
+
+**Common Instructions Examples:**
+- "Maak korter"
+- "Voeg meer differentiatie toe"
+- "Formeler toon"
+- "Voeg concrete voorbeelden toe"
+- "Maak het toegankelijker voor ouders"
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "refinedContent": "...",
+    "sectionId": "interventies",
+    "originalContent": "...",
+    "changes": [
+      {
+        "type": "addition",
+        "description": "Toegevoegd: specifieke tijdsindicaties (15 min, 2x per week)"
+      },
+      {
+        "type": "modification",
+        "description": "Aangepast: algemene beschrijving naar concrete aanpak"
+      }
+    ],
+    "applied": false
+  },
+  "meta": {
+    "requestId": "req-128",
+    "timestamp": "2025-10-04T16:10:00Z",
+    "processingTime": 4.2
+  }
+}
+```
+
+**Response Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `refinedContent` | string | AI-generated refined content |
+| `originalContent` | string | Original content for comparison |
+| `changes[]` | array | Summary of what changed |
+| `applied` | boolean | Whether changes were auto-applied (always false, user must confirm) |
+
+**Frontend Flow:**
+1. User requests refinement
+2. API returns preview (not yet saved)
+3. User sees side-by-side comparison
+4. User clicks "Toepassen" → Frontend calls PATCH endpoint
+5. User clicks "Ongedaan maken" → Discards refinement
+
+**Processing Time:** Target 3-8 seconds
+
+---
+
+### 3.9 Validate Compliance
+
+**Purpose:** Check if a groepsplan meets Passend Onderwijs 2024 requirements
+
+**Endpoint:** `POST /groepsplan/{documentId}/validate`
+
+**Authentication:** Required
+
+**Request:**
+```http
+POST /groepsplan/doc-uuid-v4/validate HTTP/1.1
+Host: api.yourapp.nl
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "strictMode": false
+}
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required |

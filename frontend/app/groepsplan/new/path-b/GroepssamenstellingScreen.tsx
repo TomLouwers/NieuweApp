@@ -1,8 +1,11 @@
 "use client";
 import React from "react";
+import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
 import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 import GroupCompositionSlider from "@/app/groepsplan/new/components/GroupCompositionSlider";
-import { getBTotalStudents, setBTotalStudents, getBComposition, setBComposition, getBUnknown, setBUnknown } from "@/lib/stores/groepsplanStore";
+import { getBTotalStudents, setBTotalStudents, getBComposition, setBComposition, getBUnknown, setBUnknown, useGroepsplanStore } from "@/lib/stores/groepsplanStore";
+import { track } from "@/lib/utils/analytics";
+import { Slider } from "@/components/ui/slider";
 
 interface Props {
   onBack: () => void;
@@ -10,6 +13,13 @@ interface Props {
 }
 
 export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
+  const { ref, bind, thresholdReached } = useSwipeBack(onBack);
+  const updateCompZ = useGroepsplanStore((s) => s.updateGroepsindeling);
+  const saveDraft = useGroepsplanStore((s) => s.saveDraft);
+  const saveTimer = React.useRef<any>(null);
+  const scheduleSave = () => { if (saveTimer.current) clearTimeout(saveTimer.current); saveTimer.current = setTimeout(() => { saveDraft().catch(()=>{}); }, 500); };
+  const headingRef = React.useRef<HTMLHeadingElement | null>(null);
+  React.useEffect(() => { headingRef.current?.focus(); }, []);
   const [total, setTotal] = React.useState<number>(getBTotalStudents());
   const compInit = getBComposition();
   const [perc, setPerc] = React.useState<{ basis: number; support: number; more: number }>(compInit);
@@ -22,6 +32,7 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
       setBTotalStudents(total);
       setBComposition(perc);
       setBUnknown(unknown);
+      try { updateCompZ({ total, basis: perc.basis, support: perc.support, more: perc.more, unknown }); } catch {}
     }, 100);
     return () => clearTimeout(t);
   }, [total, perc, unknown]);
@@ -33,6 +44,8 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
     if (v) {
       setPerc({ basis: 70, support: 15, more: 15 });
     }
+    try { track('groepsplan_question_answered', { step: 'b2', field: 'unknown', value: v }); } catch {}
+    scheduleSave();
   }
 
   function updateIndex(idx: 0 | 1 | 2, v: number) {
@@ -67,28 +80,33 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
       }
     }
     setPerc({ basis: next[0], support: next[1], more: next[2] });
+    scheduleSave();
+  }
+
+  function onRootKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') { e.preventDefault(); onBack(); }
+    if (e.key === 'Enter') { e.preventDefault(); onNext(); }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={ref} {...bind} onKeyDown={onRootKeyDown}>
       <div className="flex items-center justify-end">
         <ProgressDots total={5} current={2} />
       </div>
 
       <div>
-        <h2>Hoe ziet je groep eruit?</h2>
+        <h2 ref={headingRef} tabIndex={-1}>Hoe ziet je groep eruit?</h2>
       </div>
 
       <div className="space-y-2">
         <div className="text-sm">Jouw groep heeft ongeveer:</div>
-        <input
-          type="range"
+        <Slider
           min={15}
           max={35}
           step={1}
           value={total}
-          onChange={(e) => setTotal(Number(e.target.value))}
-          className="w-full total-range"
+          onChange={(e) => setTotal(Number((e.target as HTMLInputElement).value))}
+          className="total-range"
           aria-label="Totaal aantal leerlingen"
         />
         <div className="text-base">{total} leerlingen</div>
@@ -107,7 +125,7 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
       </label>
 
       <div className="flex items-center justify-end gap-3 pt-2">
-        <button className="border border-border px-4 py-2 rounded-md" onClick={onBack} aria-label="Vorige">← Vorige</button>
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">← Vorige</button>
         <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={onNext} aria-label="Volgende">Volgende →</button>
       </div>
 
@@ -122,4 +140,3 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
     </div>
   );
 }
-

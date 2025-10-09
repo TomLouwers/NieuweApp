@@ -1,5 +1,7 @@
 "use client";
 import React from "react";
+import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
+import { useGroepsplanStore } from "@/lib/stores/groepsplanStore";
 import {
   getSelectedGroep,
   getSelectedVak,
@@ -17,8 +19,11 @@ interface SummaryScreenProps {
 }
 
 export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps) {
+  const { ref, bind, thresholdReached } = useSwipeBack(onBack);
   const groep = getSelectedGroep();
   const vak = getSelectedVak();
+  const headingRef = React.useRef<HTMLHeadingElement | null>(null);
+  React.useEffect(() => { headingRef.current?.focus(); }, []);
 
   const [periode, setPeriode] = React.useState<string>(getSummaryPeriode() || "");
   const [aantal, setAantal] = React.useState<string>(getSummaryAantalLeerlingen() || "");
@@ -27,6 +32,9 @@ export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps
   const [editPeriode, setEditPeriode] = React.useState(false);
   const [editAantal, setEditAantal] = React.useState(false);
   const [editIndeling, setEditIndeling] = React.useState(false);
+  const saveDraft = useGroepsplanStore((s) => s.saveDraft);
+  const saveTimer = React.useRef<any>(null);
+  const scheduleSave = () => { if (saveTimer.current) clearTimeout(saveTimer.current); saveTimer.current = setTimeout(() => { saveDraft().catch(()=>{}); }, 500); };
 
   const [announce, setAnnounce] = React.useState("Klaar!");
   React.useEffect(() => {
@@ -34,9 +42,9 @@ export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps
     return () => clearTimeout(t);
   }, []);
 
-  React.useEffect(() => { setSummaryPeriode(periode || null); }, [periode]);
-  React.useEffect(() => { setSummaryAantalLeerlingen(aantal || null); }, [aantal]);
-  React.useEffect(() => { setSummaryGroepsindeling(indeling || null); }, [indeling]);
+  React.useEffect(() => { setSummaryPeriode(periode || null); scheduleSave(); }, [periode]);
+  React.useEffect(() => { setSummaryAantalLeerlingen(aantal || null); scheduleSave(); }, [aantal]);
+  React.useEffect(() => { setSummaryGroepsindeling(indeling || null); scheduleSave(); }, [indeling]);
 
   const canGenerate = Boolean((periode || "").trim()) && Boolean(parseInt(aantal)) && Boolean(indeling);
 
@@ -48,11 +56,17 @@ export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps
     { label: "Groepsindeling", value: indeling || "-", edit: "indeling" },
   ];
 
+  function onRootKeyDown(e: React.KeyboardEvent) {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (e.key === 'Escape') { e.preventDefault(); onBack(); }
+    if (e.key === 'Enter' && canGenerate && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') { e.preventDefault(); onGenerate(); }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={ref} {...bind} onKeyDown={onRootKeyDown}>
       <div role="status" aria-live="polite" className="sr-only">{announce}</div>
 
-      <h2>Samenvatting</h2>
+      <h2 ref={headingRef} tabIndex={-1}>Samenvatting</h2>
 
       <ul className="space-y-2">
         {items.map((it, i) => (
@@ -121,7 +135,7 @@ export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps
       )}
 
       <div className="flex items-center justify-end gap-3">
-        <button className="border border-border px-4 py-2 rounded-md" onClick={onBack} aria-label="Vorige">← Vorige</button>
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">← Vorige</button>
         <button
           className={`px-4 py-2 rounded-md ${canGenerate ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}
           disabled={!canGenerate}
@@ -134,4 +148,3 @@ export default function SummaryScreen({ onBack, onGenerate }: SummaryScreenProps
     </div>
   );
 }
-
