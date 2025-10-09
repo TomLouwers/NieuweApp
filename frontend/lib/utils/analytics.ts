@@ -75,11 +75,10 @@ export function track(event: string, props?: Props) {
       navigator.sendBeacon(url, blob);
       return;
     }
-    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {});
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload as any, keepalive: true }).catch(() => {});
   } catch {
     // swallow
   }
 }
 
 export default { track, markStepStart, msSinceStepStart, currentStep };
-
