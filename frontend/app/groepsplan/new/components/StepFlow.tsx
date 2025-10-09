@@ -108,6 +108,9 @@ export default function StepFlow() {
 
   const [showLoading, setShowLoading] = React.useState(false);
   const [resultData, setResultData] = React.useState<any | null>(null);
+  const handleGenerate = React.useCallback(() => {
+    setShowLoading(true);
+  }, []);
 
   async function startGenerate() {
     const groep = getSelectedGroep();
