@@ -1,0 +1,42 @@
+{
+  "share": {
+    "title": "Groepsplan delen",
+    "subtitle": "{{documentTitle}}",
+    "method": { "email": "Via e-mail", "link": "Kopieer link", "whatsapp": "WhatsApp", "teams": "Microsoft Teams" },
+    "email": { "to": "Naar:", "to_placeholder": "naam@school.nl", "message": "Bericht (optioneel):", "message_placeholder": "Hier is het groepsplan...", "send": "Versturen", "sending": "Versturen...", "sent": "✓ Verstuurd" },
+    "link": { "copied": "✓ Link gekopieerd", "copy": "Kopieer link", "expires": "Link verloopt over 7 dagen" },
+    "whatsapp": { "message": "Ik deel een groepsplan met je: {{title}}" },
+    "permissions": { "view": "Alleen bekijken", "edit": "Mag bewerken" },
+    "cancel": "Annuleren"
+  },
+  "mobile": {
+    "upload": { "camera": "📷 Maak foto", "gallery": "📁 Kies bestand" },
+    "portrait": { "message": "Voor de beste ervaring, gebruik je telefoon rechtop" },
+    "offline": { "title": "Je bent offline", "message": "Wijzigingen worden opgeslagen zodra je weer online bent" },
+    "installApp": { "title": "Installeer Pebble", "message": "Voeg toe aan je startscherm voor snelle toegang", "install": "Installeren", "later": "Misschien later" }
+  },
+  "emptyState": {
+    "documents": { "title": "Nog geen documenten", "message": "Maak je eerste groepsplan om te beginnen", "action": "Maak Groepsplan", "image": { "alt": "Lege map illustratie" } },
+    "search": { "title": "Geen resultaten gevonden", "message": "Probeer een andere zoekterm", "clear": "Wis zoekopdracht" },
+    "offline": { "title": "Geen internetverbinding", "message": "Controleer je verbinding en probeer opnieuw", "retry": "Opnieuw proberen" }
+  },
+  "date": {
+    "format": { "short": "{{day}}-{{month}}-{{year}}", "long": "{{day}} {{monthName}} {{year}}", "relative": { "justNow": "Zojuist", "minutesAgo": "{{count}} minuten geleden", "hoursAgo": "{{count}} uur geleden", "yesterday": "Gisteren", "daysAgo": "{{count}} dagen geleden", "weeksAgo": "{{count}} weken geleden", "monthsAgo": "{{count}} maanden geleden" } },
+    "month": { "1": "januari", "2": "februari", "3": "maart", "4": "april", "5": "mei", "6": "juni", "7": "juli", "8": "augustus", "9": "september", "10": "oktober", "11": "november", "12": "december" },
+    "day": { "monday": "maandag", "tuesday": "dinsdag", "wednesday": "woensdag", "thursday": "donderdag", "friday": "vrijdag", "saturday": "zaterdag", "sunday": "zondag" }
+  },
+  "timeSaved": { "minutes": "{{count}} minuten", "hours": "{{count}} uur", "hoursMinutes": "{{hours}} uur {{minutes}} min", "thisWeek": "Deze week bespaard: {{time}}", "thisMonth": "Deze maand bespaard: {{time}}", "total": "Totaal bespaard: {{time}}" },
+  "loading": { "default": "Laden...", "documents": "Documenten laden...", "upload": "Uploaden...", "generating": "Genereren...", "saving": "Opslaan...", "deleting": "Verwijderen...", "downloading": "Downloaden...", "please_wait": "Even geduld...", "almost_done": "Bijna klaar...", "taking_longer": "Dit duurt iets langer...", "skeleton": { "title": "Document aan het laden", "list": "Lijst aan het laden" } },
+  "confirm": {
+    "unsavedChanges": { "title": "Niet-opgeslagen wijzigingen", "message": "Je hebt wijzigingen die nog niet zijn opgeslagen. Weet je zeker dat je wilt vertrekken?", "leave": "Ja, vertrekken", "stay": "Nee, blijven" },
+    "cancelEdit": { "title": "Bewerken annuleren?", "message": "Je wijzigingen worden niet opgeslagen", "confirm": "Ja, annuleren", "cancel": "Verder bewerken" },
+    "deleteDocument": { "title": "Document verwijderen?", "message": "Weet je zeker dat je '{{title}}' wilt verwijderen? Dit kan niet ongedaan gemaakt worden.", "confirm": "Ja, verwijderen", "cancel": "Annuleren" }
+  },
+  "a11y": {
+    "skipToContent": "Spring naar inhoud", "mainNavigation": "Hoofdnavigatie", "closeMenu": "Menu sluiten", "openMenu": "Menu openen",
+    "progressBar": "Voortgang: {{percentage}}%", "progressDots": "Stap {{current}} van {{total}}",
+    "button": { "edit": "Bewerk document", "delete": "Verwijder document", "download": "Download document", "share": "Deel document" },
+    "loading": "Bezig met laden", "error": "Foutmelding", "success": "Actie succesvol",
+    "image": { "decorative": "Decoratieve afbeelding", "logo": "Pebble logo" }
+  }
+}

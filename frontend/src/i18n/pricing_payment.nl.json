@@ -1,0 +1,49 @@
+{
+  "trial": {
+    "banner": {
+      "message": "Je proefperiode eindigt over {{days}} dagen",
+      "action": "Activeer nu",
+      "dismiss": "Later"
+    },
+    "expired": {
+      "title": "Je proefperiode is verlopen",
+      "message": "Activeer een abonnement om door te gaan met het maken van groepsplannen",
+      "action": "Kies een plan",
+      "cancel": "Account verwijderen"
+    }
+  },
+  "pricing": {
+    "title": "Kies je plan",
+    "subtitle": "Betaal maandelijks of bespaar met een jaar",
+    "plan": {
+      "free": { "name": "Proefperiode", "price": "Gratis", "duration": "14 dagen", "feature1": "Onbeperkt groepsplannen", "feature2": "Alle functies", "feature3": "Download als Word/PDF", "cta": "Start gratis" },
+      "monthly": { "name": "Maandelijks", "price": "€9,99", "duration": "per maand", "feature1": "Onbeperkt documenten", "feature2": "AI-hulp bij bewerken", "feature3": "Prioriteit support", "cta": "Kies maandelijks", "cancel": "Opzeggen wanneer je wilt" },
+      "yearly": { "name": "Jaarlijks", "price": "€99", "duration": "per jaar", "savings": "2 maanden gratis!", "feature1": "Alles van maandelijks", "feature2": "20% korting", "feature3": "Factuur voor school", "cta": "Kies jaarlijks" },
+      "school": { "name": "School licentie", "price": "€7", "duration": "per leerkracht/maand", "minimum": "Minimaal 5 leerkrachten", "feature1": "Gedeelde templates", "feature2": "School-specifieke formats", "feature3": "Factuur op school", "cta": "Contact opnemen" }
+    },
+    "moneyBack": "30 dagen geld-terug-garantie",
+    "secure": "Veilig betalen met iDEAL of creditcard"
+  },
+  "payment": {
+    "title": "Betaling",
+    "plan": "Je kiest: {{planName}}",
+    "price": "{{amount}} {{period}}",
+    "taxIncluded": "Inclusief BTW",
+    "method": { "title": "Betaalmethode", "ideal": "iDEAL", "card": "Creditcard", "paypal": "PayPal" },
+    "details": { "name": "Naam", "email": "E-mailadres", "school": "School (optioneel, voor factuur)" },
+    "button": "Betaal {{amount}}",
+    "processing": "Betaling verwerken...",
+    "cancel": "Annuleren",
+    "success": { "title": "Betaling geslaagd! 🎉", "message": "Je bent nu actief. Je kunt direct verder met je groepsplannen.", "receipt": "Een bevestiging is verstuurd naar {{email}}", "action": "Terug naar dashboard" },
+    "error": { "title": "Betaling mislukt", "message": "Er ging iets mis met de betaling", "declined": "Je betaling is geweigerd. Controleer je gegevens.", "retry": "Probeer opnieuw", "support": "Hulp nodig? Mail naar help@yourapp.nl" }
+  },
+  "subscription": {
+    "manage": { "title": "Abonnement beheren" },
+    "status": { "active": "✓ Actief", "trialing": "🎉 Proefperiode", "canceled": "⚠️ Opgezegd", "expired": "❌ Verlopen" },
+    "details": { "plan": "Plan: {{planName}}", "price": "{{amount}}/{{period}}", "nextBilling": "Volgende betaling: {{date}}", "cancelDate": "Eindigt op: {{date}}" },
+    "invoice": { "title": "Facturen", "download": "Download", "date": "{{date}}", "amount": "{{amount}}", "paid": "✓ Betaald" },
+    "upgrade": { "title": "Upgraden", "message": "Upgrade naar jaarlijks en bespaar 20%", "action": "Nu upgraden" },
+    "cancel": { "title": "Abonnement opzeggen", "message": "Weet je zeker dat je wilt opzeggen?", "willExpire": "Je abonnement blijft actief tot {{date}}", "reason": "Waarom zeg je op? (optioneel)", "reasons": { "tooExpensive": "Te duur", "notUsing": "Gebruik het niet genoeg", "notWorking": "Werkt niet zoals verwacht", "foundAlternative": "Ander product gevonden", "other": "Andere reden" }, "confirm": "Ja, opzeggen", "keep": "Toch maar niet" },
+    "canceled": { "title": "Abonnement opgezegd", "message": "Je kunt Pebble blijven gebruiken tot {{date}}", "reactivate": "Toch weer activeren" }
+  }
+}

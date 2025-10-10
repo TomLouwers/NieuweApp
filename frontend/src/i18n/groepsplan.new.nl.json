@@ -1,0 +1,53 @@
+{
+  "groepsplan": {
+    "new": {
+      "title": "Nieuw Groepsplan",
+      "subtitle": "Hoe wil je beginnen?",
+      "uploadOption": {
+        "title": "Upload oud groepsplan",
+        "description": "Ik heb een groepsplan van vorig blok of een toetsoverzicht",
+        "dragDrop": "Sleep hier of klik om te uploaden",
+        "formats": "PDF, Word, of foto - max 10MB"
+      },
+      "scratchOption": {
+        "title": "Start vanaf nul",
+        "description": "Ik ga de vragen beantwoorden"
+      },
+      "exampleOption": {
+        "title": "Bekijk eerst een voorbeeld",
+        "description": "Zie hoe een groepsplan eruitziet"
+      },
+      "back": "← Terug naar dashboard"
+    },
+    "upload": {
+      "processing": {
+        "title": "Bezig met analyseren...",
+        "stage1": "Bestand uploaden...",
+        "stage2": "Document analyseren...",
+        "stage3": "Informatie ophalen...",
+        "slow": "Dit duurt iets langer dan verwacht, nog ~15 sec..."
+      },
+      "error": {
+        "title": "Dit bestand kan ik niet lezen",
+        "subtitle": "Probeer:",
+        "hint1": "Een PDF of Word bestand",
+        "hint2": "Een duidelijke foto",
+        "hint3": "Een kleiner bestand (<10MB)",
+        "retry": "Probeer opnieuw",
+        "switchPath": "Start toch vanaf nul"
+      }
+    },
+    "confirm": {
+      "title": "Klopt dit?",
+      "groep": {
+        "label": "Ik zie dat dit voor Groep {{groep}} was. Klopt dat?",
+        "yes": "✓ Ja, nog steeds Groep {{groep}}",
+        "no": "✗ Nee, nu Groep",
+        "dropdown": { "placeholder": "Kies groep" }
+      },
+      "vak": { "title": "Waar ga je dit blok mee aan de slag?" },
+      "next": "Volgende →",
+      "back": "← Vorige"
+    }
+  }
+}

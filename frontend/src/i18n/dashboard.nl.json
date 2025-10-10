@@ -1,0 +1,22 @@
+{
+  "dashboard": {
+    "welcome": "Welkom terug, {{teacherName}}",
+    "welcomeAnonymous": "Welkom",
+    "subtitle": "Wat wil je vandaag maken?",
+    "cta": {
+      "groepsplan": "Maak Groepsplan",
+      "opp": "Maak OPP",
+      "gespreksverslag": "Maak Gespreksverslag"
+    },
+    "recentDocuments": {
+      "title": "Recente documenten",
+      "empty": "Je hebt nog geen documenten gemaakt",
+      "emptyAction": "Maak je eerste groepsplan",
+      "viewAll": "Bekijk alle documenten"
+    },
+    "stats": {
+      "timeSaved": "Je hebt {{hours}} uur bespaard deze maand",
+      "documentsCreated": "{{count}} documenten gemaakt"
+    }
+  }
+}

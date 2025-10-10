@@ -1,0 +1,27 @@
+{
+  "emailTemplates": {
+    "welcome": {
+      "subject": "Welkom bij Pebble! 🎉",
+      "body": "Hoi {{name}},\n\nFijn dat je Pebble probeert! \n\nJe proefperiode van 14 dagen is nu actief. In die tijd kun je:\n• Onbeperkt groepsplannen maken\n• Alles downloaden als Word of PDF\n• AI-hulp gebruiken bij bewerken\n\n**Eerste stap:** Maak je eerste groepsplan in 2 minuten\n→ https://app.yourapp.nl/groepsplan/new\n\nKom je er niet uit? Mail gerust naar help@yourapp.nl\n\nVeel succes met je administratie!\n\nHet Pebble team"
+    },
+    "trialEnding": {
+      "subject": "Je proefperiode eindigt binnenkort",
+      "body": "Hoi {{name}},\n\nJe proefperiode eindigt over {{daysLeft}} dagen (op {{endDate}}).\n\nJe hebt tot nu toe {{documentsCreated}} documenten gemaakt en ongeveer {{hoursSaved}} uur bespaard. Geweldig! 🎉\n\n**Wil je doorgaan?**\nKies een abonnement voor slechts €9,99/maand:\n→ https://app.yourapp.nl/pricing\n\n**Niet tevreden?**\nJe hoeft niets te doen. Je account wordt automatisch stopgezet.\n\nVragen? Mail naar help@yourapp.nl\n\nGroet,\nHet Pebble team"
+    },
+    "paymentSuccessful": {
+      "subject": "Betaling ontvangen ✓",
+      "body": "Hoi {{name}},\n\nBedankt! Je betaling van {{amount}} is ontvangen.\n\n**Je abonnement:**\nPlan: {{planName}}\nVolgende betaling: {{nextBillingDate}}\n\n**Factuur:**\nDownload je factuur hier: {{invoiceUrl}}\n\nJe kunt nu onbeperkt door met het maken van groepsplannen.\n\nVragen? Mail naar help@yourapp.nl\n\nGroet,\nHet Pebble team"
+    },
+    "documentShared": {
+      "subject": "{{senderName}} heeft een groepsplan met je gedeeld",
+      "body": "Hoi,\n\n{{senderName}} heeft een groepsplan met je gedeeld:\n\n**{{documentTitle}}**\n\n{{#if message}}\nBericht van {{senderName}}:\n\"{{message}}\"\n{{/if}}\n\nBekijk het document:\n→ {{shareLink}}\n\n(Deze link is 7 dagen geldig)\n\n---\nDeze e-mail is verstuurd via Pebble"
+    }
+  },
+  "maintenance": { "title": "Even onderhoud", "message": "Pebble is even offline voor onderhoud. We zijn zo terug!", "eta": "Verwachte tijd: {{time}}", "status": "Status bekijken →" },
+  "degraded": { "banner": "⚠️ Sommige functies werken langzamer dan normaal. We werken aan een oplossing.", "affected": "Getroffen functies: {{features}}", "updates": "Updates →" },
+  "cookies": { "message": "We gebruiken cookies om je ervaring te verbeteren. Door verder te gaan, ga je hiermee akkoord.", "accept": "Accepteren", "decline": "Weigeren", "settings": "Instellingen", "learnMore": "Meer info" },
+  "privacy": { "title": "Privacy", "intro": "We slaan je documenten veilig op in de EU. We verkopen geen data.", "dataStored": { "title": "Wat we opslaan:", "documents": "Je groepsplannen en uploads", "account": "Je e-mailadres en naam", "usage": "Hoe je de app gebruikt (anoniem)" }, "dataNotStored": { "title": "Wat we NIET opslaan:", "students": "Namen van leerlingen", "personal": "Persoonlijke gegevens van leerlingen" }, "delete": "Je kunt je account en alle data altijd verwijderen", "fullPolicy": "Lees volledige privacy policy →" },
+  "terms": { "title": "Voorwaarden", "summary": "Samenvatting:", "point1": "Je mag Pebble gebruiken voor professioneel gebruik", "point2": "Je bent verantwoordelijk voor je eigen content", "point3": "We garanderen geen 100% uptime (maar streven ernaar)", "point4": "Je kunt op elk moment opzeggen", "fullTerms": "Lees volledige voorwaarden →" },
+  "seasonal": { "summer": { "banner": "☀️ Fijne zomervakantie! We zijn er weer in september." }, "christmas": { "banner": "🎄 Fijne feestdagen! We zijn weer bereikbaar op 2 januari." }, "backToSchool": "Welkom terug! Klaar voor een nieuw schooljaar?", "endOfYear": "Bijna vakantie! Nog even je laatste groepsplannen afmaken?" },
+  "plural": { "documents": { "count": { "zero": "Geen documenten", "one": "1 document", "other": "{{count}} documenten" } } }
+}

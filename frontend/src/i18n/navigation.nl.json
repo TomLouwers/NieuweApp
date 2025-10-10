@@ -1,0 +1,19 @@
+{
+  "header": {
+    "appName": "Pebble",
+    "nav": {
+      "dashboard": "Dashboard",
+      "documents": "Mijn Documenten",
+      "help": "Help",
+      "account": "Account",
+      "logout": "Uitloggen"
+    }
+  },
+  "footer": {
+    "support": "Hulp nodig?",
+    "supportEmail": "help@yourapp.nl",
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "madeWith": "Gemaakt voor Nederlandse leerkrachten"
+  }
+}

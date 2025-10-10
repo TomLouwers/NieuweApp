@@ -1,0 +1,96 @@
+{
+  "groepsplan": {
+    "q1": {
+      "progress": "Vraag 1/5",
+      "groep": { "label": "Voor welke groep?" },
+      "vak": { "label": "Welk vakgebied?" },
+      "next": "Volgende →",
+      "back": "← Terug naar begin"
+    },
+    "vak": {
+      "rekenen_automatiseren": "Rekenen (automatiseren)",
+      "rekenen_begrip": "Rekenen (begrip/strategie)",
+      "spelling": "Spelling",
+      "technisch_lezen": "Technisch lezen",
+      "begrijpend_lezen": "Begrijpend lezen",
+      "schrijven": "Schrijven",
+      "andere": "Andere..."
+    },
+    "q2": {
+      "progress": "Vraag 2/5",
+      "title": "Hoe ziet je groep eruit?",
+      "total": {
+        "label": "Jouw groep heeft ongeveer:",
+        "value": "{{count}} leerlingen"
+      },
+      "distribution": {
+        "label": "Daarvan zitten op dit moment ongeveer:",
+        "basis": "Basisniveau",
+        "intensief": "Meer ondersteuning",
+        "meer": "Uitdaging/Meer",
+        "percentage": "~{{percentage}}%",
+        "count": "→ {{count}} leerlingen"
+      },
+      "unknown": "Weet ik niet precies",
+      "next": "Volgende →",
+      "back": "← Vorige"
+    },
+    "q3": {
+      "progress": "Vraag 3/5",
+      "title": "Wat is de grootste uitdaging voor dit blok?",
+      "placeholder": "Selecteer...",
+      "next": "Volgende →",
+      "back": "← Vorige"
+    },
+    "challenge": {
+      "enorme_niveauverschillen": "Enorme niveauverschillen (meer dan 3 jaar spreiding)",
+      "veel_dyslexie_dyscalculie": "Veel leerlingen met dyslexie/dyscalculie",
+      "weinig_instructietijd": "Weinig instructietijd (veel uitval/gedrag)",
+      "ondersteuning_werkte_niet": "Ondersteuning van vorig blok werkte niet goed genoeg",
+      "nieuw_in_groep": "Nieuw in deze groep, ken de leerlingen nog niet goed",
+      "grote_groep_weinig_ruimte": "Grote groep (28+), weinig ruimte voor differentiatie",
+      "moeite_zelfstandig_werken": "Leerlingen hebben moeite met zelfstandig werken",
+      "gaat_prima_continuiteit": "Het gaat eigenlijk prima, gewoon continuïteit"
+    },
+    "q4": {
+      "progress": "Vraag 4/5",
+      "title": "Waar start je vanaf?",
+      "start": {
+        "begin": "Begin van het schooljaar",
+        "begin_description": "We starten net met een nieuw blok, ik heb geen recente toetsgegevens",
+        "midden": "Midden in het jaar",
+        "midden_description": "Ik heb wel idee van niveaus, maar geen exacte toetsscores bij de hand",
+        "toetsgegevens": "Ik heb recente toetsgegevens"
+      },
+      "scores": {
+        "label": "Wat waren de gemiddelde scores?",
+        "basis": "Basisgroep:",
+        "intensief": "Intensieve groep:",
+        "help": "Dit helpt me realistische doelen te maken. Je kunt het straks nog aanpassen."
+      },
+      "niveau": {
+        "F": "F niveau (veel moeite)",
+        "E": "E niveau (moeite)",
+        "D": "D niveau (net voldoende)",
+        "C": "C niveau (voldoende)",
+        "B": "B niveau (goed)",
+        "A": "A niveau (zeer goed)"
+      },
+      "next": "Volgende →",
+      "back": "← Vorige"
+    },
+    "summary": {
+      "progress": "Klaar!",
+      "title": "Ik ga nu een groepsplan maken met:",
+      "groep": "Groep {{groep}}",
+      "vak": "{{vakgebied}}",
+      "leerlingen": "{{count}} leerlingen ({{basis}}/{{intensief}}/{{meer}})",
+      "challenge": "Focus: {{challenge}}",
+      "startpoint": "Startpunt: {{startpoint}}",
+      "upload": "Op basis van je document",
+      "edit": "✏️ Aanpassen",
+      "generate": "✓ Genereer groepsplan",
+      "back": "← Vorige"
+    }
+  }
+}

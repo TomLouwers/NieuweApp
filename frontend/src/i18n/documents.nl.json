@@ -1,0 +1,36 @@
+{
+  "documents": {
+    "title": "Mijn Documenten",
+    "subtitle": "{{count}} documenten",
+    "filter": {
+      "all": "Alles",
+      "groepsplannen": "Groepsplannen",
+      "opps": "OPP's",
+      "gesprekken": "Gespreksverslagen"
+    },
+    "sort": {
+      "label": "Sorteer op:",
+      "newest": "Nieuwste eerst",
+      "oldest": "Oudste eerst",
+      "name": "Naam (A-Z)",
+      "updated": "Laatst bewerkt"
+    },
+    "search": { "placeholder": "Zoek in documenten..." },
+    "empty": {
+      "title": "Nog geen documenten",
+      "message": "Maak je eerste groepsplan om te beginnen",
+      "action": "Maak Groepsplan"
+    },
+    "item": {
+      "groep": "Groep {{groep}}",
+      "created": "{{date}}",
+      "view": "Bekijken",
+      "menu": "Meer"
+    },
+    "pagination": {
+      "previous": "← Vorige",
+      "next": "Volgende →",
+      "page": "Pagina {{current}} van {{total}}"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "groepsplan": {
+    "generating": {
+      "title": "Bezig met genereren...",
+      "subtitle": "Nog ~{{seconds}} seconden",
+      "stage1": "Groepsplan structuur opzetten...",
+      "stage2": "SMARTI doelen formuleren...",
+      "stage3": "Interventies en aanpak beschrijven...",
+      "stage4": "Document genereren...",
+      "coffee": "Even koffie pakken? Dit duurt ~{{seconds}} sec",
+      "error": {
+        "title": "Er ging iets mis",
+        "message": "Het lukte niet om je groepsplan te genereren",
+        "retry": "Probeer opnieuw",
+        "support": "Contact met support"
+      }
+    },
+    "result": {
+      "title": "✅ Groepsplan klaar!",
+      "documentTitle": "Groepsplan Groep {{groep}} - {{vakgebied}}",
+      "period": "{{period}}",
+      "preview": "Voorbeeld",
+      "edit": "📝 Bewerken",
+      "download": "📥 Downloaden",
+      "share": "Delen",
+      "stats": {
+        "timeSaved": "Geschatte tijdsbesparing: {{minutes}} minuten",
+        "compliant": "Passend Onderwijs compliant"
+      },
+      "back": "← Terug naar dashboard",
+      "firstTime": {
+        "title": "Dit is je eerste groepsplan! 🎉",
+        "message": "Je kunt het nu bewerken of direct downloaden. Het staat ook in je dashboard.",
+        "dismiss": "Begrepen"
+      }
+    }
+  }
+}

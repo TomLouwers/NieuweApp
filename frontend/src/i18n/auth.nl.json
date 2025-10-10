@@ -1,0 +1,71 @@
+{
+  "auth": {
+    "login": {
+      "title": "Inloggen",
+      "subtitle": "Welkom terug",
+      "email": { "label": "E-mailadres", "placeholder": "jouw@school.nl" },
+      "password": { "label": "Wachtwoord", "placeholder": "Je wachtwoord" },
+      "button": "Inloggen",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "noAccount": "Nog geen account?",
+      "signup": "Account aanmaken",
+      "error": {
+        "invalidCredentials": "E-mail of wachtwoord incorrect",
+        "tooManyAttempts": "Te veel inlogpogingen. Probeer over 15 minuten opnieuw.",
+        "accountLocked": "Account tijdelijk geblokkeerd. Check je e-mail."
+      }
+    },
+    "signup": {
+      "title": "Account aanmaken",
+      "subtitle": "Probeer 14 dagen gratis",
+      "email": { "label": "E-mailadres", "placeholder": "jouw@school.nl" },
+      "password": { "label": "Wachtwoord", "placeholder": "Minimaal 8 tekens", "hint": "Gebruik letters, cijfers en symbolen" },
+      "terms": "Door je te registreren ga je akkoord met onze <a>voorwaarden</a> en <a>privacy policy</a>",
+      "button": "Account aanmaken",
+      "hasAccount": "Heb je al een account?",
+      "login": "Inloggen",
+      "error": {
+        "emailExists": "Dit e-mailadres is al in gebruik",
+        "weakPassword": "Wachtwoord te zwak. Gebruik minimaal 8 tekens.",
+        "invalidEmail": "Ongeldig e-mailadres"
+      },
+      "success": {
+        "title": "Account aangemaakt! 🎉",
+        "message": "Je kunt nu direct beginnen. Je proefperiode eindigt op {{date}}.",
+        "action": "Start met eerste groepsplan"
+      }
+    },
+    "account": {
+      "title": "Account instellingen",
+      "profile": {
+        "title": "Profiel",
+        "name": { "label": "Naam" },
+        "email": { "label": "E-mailadres" },
+        "school": { "label": "School (optioneel)" },
+        "save": "Opslaan",
+        "saved": "✓ Opgeslagen"
+      },
+      "subscription": {
+        "title": "Abonnement",
+        "plan": "Je zit op het {{planName}} plan",
+        "trial": "Proefperiode eindigt op {{date}}",
+        "renews": "Verlengt op {{date}}",
+        "upgrade": "Upgraden",
+        "cancel": "Opzeggen"
+      },
+      "password": {
+        "title": "Wachtwoord wijzigen",
+        "current": "Huidig wachtwoord",
+        "new": "Nieuw wachtwoord",
+        "confirm": "Bevestig nieuw wachtwoord",
+        "save": "Wachtwoord wijzigen"
+      },
+      "danger": {
+        "title": "Account verwijderen",
+        "warning": "Let op: dit verwijdert al je documenten permanent",
+        "button": "Account verwijderen"
+      },
+      "logout": "Uitloggen"
+    }
+  }
+}

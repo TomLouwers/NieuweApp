@@ -1,0 +1,47 @@
+{
+  "compliance": {
+    "title": "Passend Onderwijs check",
+    "score": "Score: {{score}}/10",
+    "status": { "excellent": "✓ Uitstekend", "good": "✓ Goed", "adequate": "⚠️ Voldoende", "needsWork": "❌ Verbetering nodig" },
+    "checks": {
+      "title": "Verplichte onderdelen",
+      "beginsituatie": "Beginsituatie beschreven",
+      "smartiDoelen": "SMARTI doelen geformuleerd",
+      "interventies": "Concrete interventies",
+      "evaluatie": "Evaluatiemomenten gepland",
+      "betrokkenen": "Samenwerking benoemd",
+      "handelingsgericht": "Handelingsgericht taalgebruik",
+      "passed": "✓ Voldoet",
+      "failed": "✗ Ontbreekt",
+      "warning": "⚠️ Kan beter"
+    },
+    "warnings": { "title": "Aandachtspunten", "noTimeIndication": "Interventies bevatten geen tijdsindicaties", "vague": "Sommige interventies zijn nog vaag", "noPercentages": "Doelen bevatten geen meetbare criteria" },
+    "inspectieProof": {
+      "yes": "✓ Inspectie-proof",
+      "yes_message": "Dit groepsplan voldoet aan alle richtlijnen van Passend Onderwijs 2024",
+      "no": "⚠️ Niet inspectie-proof",
+      "no_message": "Dit groepsplan heeft enkele aandachtspunten. Los deze op voor officieel gebruik."
+    },
+    "autoFix": "Automatisch verbeteren",
+    "close": "Sluiten"
+  },
+  "quality": {
+    "title": "Kwaliteitsverbeteringen",
+    "subtitle": "Hoe kun je dit groepsplan nog beter maken?",
+    "suggestion": {
+      "moreSpecific": "Maak interventies specifieker",
+      "moreSpecific_detail": "Voeg concrete tijden en materialen toe",
+      "moreSpecific_example": "Bijvoorbeeld: '15 minuten extra instructie met MAB-blokken'",
+      "moreSpecific_apply": "Toepassen",
+      "addDifferentiation": "Voeg meer differentiatie toe",
+      "addDifferentiation_detail": "Beschrijf verschillen tussen de 3 groepen duidelijker",
+      "shortenText": "Maak compacter",
+      "shortenText_detail": "Je groepsplan is vrij lang. Korter is vaak praktischer.",
+      "morePositive": "Positievere toon",
+      "morePositive_detail": "Focus op wat leerlingen nodig hebben, niet op tekortkomingen"
+    },
+    "applied": "✓ Toegepast",
+    "applying": "Toepassen...",
+    "dismiss": "Negeren"
+  }
+}

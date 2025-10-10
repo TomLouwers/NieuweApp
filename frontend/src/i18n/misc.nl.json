@@ -1,0 +1,72 @@
+{
+  "toast": {
+    "success": {
+      "documentCreated": "✓ Groepsplan gemaakt",
+      "documentSaved": "✓ Wijzigingen opgeslagen",
+      "documentDeleted": "✓ Document verwijderd",
+      "documentDownloaded": "✓ Download gestart",
+      "settingsSaved": "✓ Instellingen opgeslagen",
+      "passwordChanged": "✓ Wachtwoord gewijzigd"
+    },
+    "info": {
+      "saving": "Opslaan...",
+      "uploading": "Uploaden...",
+      "processing": "Verwerken...",
+      "copying": "Kopiëren naar klembord...",
+      "copied": "✓ Gekopieerd"
+    },
+    "warning": {
+      "unsavedChanges": "⚠️ Je hebt niet-opgeslagen wijzigingen",
+      "trialEnding": "⚠️ Je proefperiode eindigt over {{days}} dagen",
+      "slowConnection": "⚠️ Trage verbinding gedetecteerd",
+      "offlineMode": "⚠️ Je bent offline. Wijzigingen worden opgeslagen zodra je online bent."
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welkom bij Pebble! 👋",
+      "subtitle": "We helpen je administratie minder vervelend te maken",
+      "step1": "Maak een groepsplan in 2 minuten",
+      "step2": "Bewerk en download als Word",
+      "step3": "Bespaar 2+ uur per week",
+      "start": "Aan de slag",
+      "skip": "Overslaan"
+    },
+    "upload": {
+      "title": "Heb je een oud groepsplan?",
+      "message": "Upload het, dan leren we van je vorige aanpak",
+      "yes": "Ja, uploaden",
+      "no": "Nee, ik begin vanaf nul"
+    },
+    "demo": {
+      "title": "Wil je eerst een voorbeeld zien?",
+      "message": "We laten je een voorbeeldgroepsplan zien voor Groep 5 Spelling",
+      "show": "Ja, laat zien",
+      "skip": "Nee, ik maak direct mijn eigen"
+    }
+  },
+  "help": {
+    "tooltip": {
+      "groepsindeling": "Verdeel je leerlingen in 3 groepen: basis (meeste leerlingen), intensief (extra ondersteuning), en meer (uitdaging)",
+      "challenge": "Wat maakt dit blok lastig? Dit helpt ons concrete adviezen te geven",
+      "toetsgegevens": "Als je recente Cito- of methodetoetsen hebt, geef dan het gemiddelde niveau. Anders laat je dit leeg",
+      "compliance": "Passend Onderwijs vereist bepaalde onderdelen in een groepsplan. We checken automatisch of alles er is",
+      "aiAssist": "Typ wat je wilt aanpassen, bijvoorbeeld: 'Maak korter' of 'Voeg meer differentiatie toe'"
+    },
+    "contextual": {
+      "uploadHelp": "Je kunt een PDF, Word-document of foto uploaden. We lezen de tekst en halen er informatie uit",
+      "groepsindelingHelp": "Niet precies weten? Schat maar. Je kunt dit later nog aanpassen",
+      "vakgebiedHelp": "Kies waar je de komende 8-12 weken mee aan de slag gaat"
+    },
+    "center": { "title": "Hulp nodig?", "search": "Zoek in help artikelen..." },
+    "articles": {
+      "gettingStarted": "Hoe maak ik mijn eerste groepsplan?",
+      "uploadDocument": "Een document uploaden",
+      "editDocument": "Document bewerken",
+      "compliance": "Wat is Passend Onderwijs compliance?",
+      "export": "Downloaden als Word of PDF",
+      "pricing": "Prijzen en abonnementen"
+    },
+    "contact": { "title": "Kom je er niet uit?", "email": "Mail ons: help@yourapp.nl", "response": "We reageren binnen 24 uur" }
+  }
+}

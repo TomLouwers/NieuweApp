@@ -1,0 +1,81 @@
+{
+  "error": {
+    "general": {
+      "title": "Er ging iets mis",
+      "message": "Probeer het opnieuw. Als het probleem blijft, neem contact met ons op.",
+      "retry": "Probeer opnieuw",
+      "support": "Contact met support"
+    },
+    "network": {
+      "title": "Geen internetverbinding",
+      "message": "Controleer je internetverbinding en probeer opnieuw"
+    },
+    "unauthorized": {
+      "title": "Niet ingelogd",
+      "message": "Je moet ingelogd zijn om dit te doen",
+      "login": "Inloggen"
+    },
+    "notFound": {
+      "title": "Niet gevonden",
+      "message": "Dit document bestaat niet of is verwijderd",
+      "home": "Terug naar dashboard"
+    },
+    "rateLimit": {
+      "title": "Te veel verzoeken",
+      "message": "Je hebt de limiet bereikt. Probeer het over {{minutes}} minuten opnieuw"
+    },
+    "serverError": {
+      "title": "Server fout",
+      "message": "Er is iets misgegaan aan onze kant. We werken eraan.",
+      "status": "Bekijk status"
+    },
+    "upload": {
+      "tooLarge": {
+        "title": "Bestand te groot",
+        "message": "Het bestand is te groot (max 10MB)",
+        "hint": "Probeer een kleiner bestand of maak een foto van een deel van het document"
+      },
+      "invalidType": {
+        "title": "Bestandstype niet ondersteund",
+        "message": "Upload een PDF, Word-document of foto"
+      },
+      "corrupted": {
+        "title": "Bestand beschadigd",
+        "message": "Dit bestand is beschadigd of kan niet gelezen worden"
+      },
+      "noText": {
+        "title": "Geen tekst gevonden",
+        "message": "We kunnen geen tekst uit dit document halen. Probeer een beter leesbare foto of scan."
+      }
+    },
+    "generation": {
+      "timeout": {
+        "title": "Genereren duurt te lang",
+        "message": "Het lukt niet om je groepsplan te maken. Dit kan liggen aan een te complex document of tijdelijke storing.",
+        "retry": "Probeer opnieuw",
+        "simplify": "Probeer zonder upload"
+      },
+      "failed": {
+        "title": "Genereren mislukt",
+        "message": "Er ging iets mis bij het maken van je groepsplan",
+        "support": "Contact met support (vermeld code: {{errorCode}})"
+      },
+      "qualityLow": {
+        "title": "Kwaliteit check mislukt",
+        "message": "Het groepsplan voldoet niet aan onze kwaliteitseisen. We proberen het opnieuw.",
+        "retry": "Opnieuw genereren"
+      }
+    },
+    "validation": {
+      "required": "Dit veld is verplicht",
+      "email": "Ongeldig e-mailadres",
+      "password": {
+        "tooShort": "Minimaal 8 tekens",
+        "tooWeak": "Gebruik letters, cijfers en symbolen"
+      },
+      "groep": { "invalid": "Kies een groep tussen 1 en 8" },
+      "leerlingen": { "tooMany": "Maximaal 40 leerlingen" },
+      "groepsindeling": { "invalid": "De aantallen kloppen niet ({{basis}} + {{intensief}} + {{meer}} ≠ {{total}})" }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "document": {
+    "view": {
+      "title": "{{documentTitle}}",
+      "metadata": {
+        "created": "Gemaakt op {{date}}",
+        "updated": "Laatst bewerkt {{date}}",
+        "version": "Versie {{version}}"
+      },
+      "actions": {
+        "edit": "Bewerken",
+        "download": "Downloaden",
+        "duplicate": "Kopiëren",
+        "delete": "Verwijderen",
+        "share": "Delen"
+      },
+      "compliance": {
+        "title": "Compliantie check",
+        "score": "{{score}}/10",
+        "inspectieProof": "✓ Inspectie-proof",
+        "needsWork": "⚠️ Aandachtspunten",
+        "seeDetails": "Bekijk details"
+      }
+    },
+    "edit": {
+      "title": "Bewerken: {{documentTitle}}",
+      "saving": "Opslaan...",
+      "saved": "✓ Opgeslagen",
+      "unsavedChanges": "Je hebt niet-opgeslagen wijzigingen",
+      "toolbar": {
+        "bold": "Vet",
+        "italic": "Cursief",
+        "underline": "Onderstrepen",
+        "bullets": "Opsomming",
+        "numbering": "Nummering",
+        "undo": "Ongedaan maken",
+        "redo": "Opnieuw"
+      },
+      "aiAssist": {
+        "button": "AI-hulp",
+        "placeholder": "Wat wil je aanpassen?",
+        "examples": "Bijvoorbeeld: 'Maak korter', 'Voeg meer differentiatie toe'",
+        "apply": "Toepassen",
+        "cancel": "Annuleren",
+        "loading": "Aanpassen..."
+      },
+      "sections": {
+        "basisinformatie": "Basisinformatie",
+        "groepsanalyse": "Groepsanalyse",
+        "doelen": "SMARTI Doelen",
+        "aanpak": "Aanpak",
+        "samenwerking": "Samenwerking",
+        "evaluatie": "Evaluatie"
+      },
+      "done": "Klaar met bewerken",
+      "cancel": "Annuleren"
+    },
+    "download": {
+      "title": "Downloaden",
+      "format": {
+        "label": "Kies format:",
+        "docx": "Word (.docx)",
+        "pdf": "PDF (.pdf)",
+        "html": "HTML (.html)"
+      },
+      "options": { "includeMetadata": "Inclusief metadata (datum, versie)" },
+      "button": "Downloaden",
+      "cancel": "Annuleren",
+      "generating": "Document voorbereiden...",
+      "success": "✓ Download gestart",
+      "error": "Download mislukt. Probeer opnieuw."
+    },
+    "delete": {
+      "title": "Groepsplan verwijderen?",
+      "message": "Weet je zeker dat je '{{documentTitle}}' wilt verwijderen?",
+      "warning": "Dit kan niet ongedaan gemaakt worden.",
+      "confirm": "Ja, verwijderen",
+      "cancel": "Annuleren",
+      "success": "✓ Groepsplan verwijderd",
+      "error": "Verwijderen mislukt. Probeer opnieuw."
+    }
+  }
+}
