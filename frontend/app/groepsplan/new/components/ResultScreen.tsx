@@ -10,9 +10,10 @@ interface ResultScreenProps {
   onEdit?: (id: string | null) => void;
   onDownload?: () => void;
   onClose?: () => void;
+  downloadPriceEUR?: number;
 }
 
-export default function ResultScreen({ title, period, content, docId, onEdit, onDownload, onClose }: ResultScreenProps) {
+export default function ResultScreen({ title, period, content, docId, onEdit, onDownload, onClose, downloadPriceEUR }: ResultScreenProps) {
   const t = useTranslations('groepsplan.result');
   const [announce, setAnnounce] = React.useState(t('title'));
   React.useEffect(() => { const t = setTimeout(() => setAnnounce(""), 1500); return () => clearTimeout(t); }, []);
@@ -37,7 +38,9 @@ export default function ResultScreen({ title, period, content, docId, onEdit, on
 
       <div className="mt-4 flex items-center gap-3">
         <button className="px-4 py-2 rounded-md border" onClick={() => onEdit && onEdit(docId || null)} disabled={!docId}>{t('edit')}</button>
-        <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={onDownload}>{t('download')}</button>
+        <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={onDownload}>
+          {downloadPriceEUR ? `${t('download')} (€${downloadPriceEUR.toFixed(2)})` : t('download')}
+        </button>
         <a href="/dashboard" className="ml-auto text-blue-600 hover:underline">{t('back')}</a>
       </div>
     </div>

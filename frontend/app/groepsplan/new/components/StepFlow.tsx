@@ -16,6 +16,7 @@ const Challenge = dynamic(() => import("../path-a/Challenge"));
 const SummaryScreen = dynamic(() => import("../components/SummaryScreen"));
 import LoadingScreen from "../components/LoadingScreen";
 import ResultScreen from "../components/ResultScreen";
+import PaywallModal from "@/components/PaywallModal";
 import AutoSaveToast from "../components/AutoSaveToast";
 import { setSelectedGroep, setSelectedVak, getSelectedGroep, getSelectedVak, getSummaryPeriode } from "@/lib/stores/groepsplanStore";
 import { track, markStepStart } from "@/lib/utils/analytics";
@@ -108,6 +109,23 @@ export default function StepFlow() {
 
   const [showLoading, setShowLoading] = React.useState(false);
   const [resultData, setResultData] = React.useState<any | null>(null);
+  const [showPaywall, setShowPaywall] = React.useState(false);
+  const pricingPhase = (process?.env?.NEXT_PUBLIC_PRICING_PHASE as string) || 'ppd_only';
+  const ppdPrice = Number(process?.env?.NEXT_PUBLIC_PPD_PRICE_EUR || '3.99');
+
+  async function doDownload() {
+    try {
+      if (!resultData) return;
+      track('groepsplan_downloaded', { groep: resultData.groep, vak: resultData.vak, periode: resultData.periode, priced: true, phase: pricingPhase });
+      const body = { content: String(resultData?.json?.content || ""), metadata: { groep: resultData.groep, vak: resultData.vak, periode: resultData.periode } };
+      const resp = await fetch('/api/export-word', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `Groepsplan_G${resultData.groep}_${resultData.vak}_${resultData.periode}.docx`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    } catch {}
+  }
   const handleGenerate = React.useCallback(() => {
     setShowLoading(true);
   }, []);
@@ -248,19 +266,32 @@ export default function StepFlow() {
           onEdit={(id) => { const target = id || `draft_${Date.now()}`; track('groepsplan_edited', { id: target }); location.href = `/groepsplan/edit/${target}`; }}
           onDownload={async () => {
             try {
-              track('groepsplan_downloaded', { groep: resultData.groep, vak: resultData.vak, periode: resultData.periode });
-              const body = { content: String(resultData?.json?.content || ""), metadata: { groep: resultData.groep, vak: resultData.vak, periode: resultData.periode } };
-              const resp = await fetch('/api/export-word', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-              const blob = await resp.blob();
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url; a.download = `Groepsplan_G${resultData.groep}_${resultData.vak}_${resultData.periode}.docx`;
-              document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+              const requirePay = pricingPhase === 'ppd_only' || pricingPhase === 'hybrid';
+              if (requirePay) { setShowPaywall(true); return; }
+              await doDownload();
             } catch (_) {}
           }}
           onClose={() => { track('groepsplan_abandoned'); setResultData(null); }}
+          downloadPriceEUR={ppdPrice}
+        />
+      )}
+      {showPaywall && (
+        <PaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          onPaid={async () => { await doDownload(); }}
+          priceEUR={ppdPrice}
+          phase={(pricingPhase === 'hybrid' ? 'hybrid' : 'ppd_only') as any}
+          subMonthlyEUR={Number(process?.env?.NEXT_PUBLIC_SUB_MONTHLY_EUR || '9.99')}
+          subAnnualEUR={Number(process?.env?.NEXT_PUBLIC_SUB_ANNUAL_EUR || '89')}
         />
       )}
     </>
   );
+}
+
+async function doDownload() {
+  try {
+    // This function expects to run within StepFlow scope, but we keep it here for clarity; callers bind resultData.
+  } catch {}
 }
