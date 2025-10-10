@@ -22,7 +22,8 @@ try {
 }
 
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
-const CLAUDE_MODEL = "claude-3-5-sonnet-20241022";
+// Allow overriding the Anthropic model by env; default to stable Sonnet 3.5
+const CLAUDE_MODEL = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const MODEL = OPENAI_KEY ? OPENAI_MODEL : CLAUDE_MODEL;
 const MAX_TOKENS = 4000;
@@ -51,62 +52,51 @@ function parseGroep(input) {
 }
 
 function buildSystemPrompt({ groep, vak, periode, allowedSLO, previousSnippet }) {
+  // System prompt aligned with the Prompt Engineering Guide while preserving legacy H2 structure
   return (
-    "Je bent een ervaren Nederlandse leerkracht die compacte, duidelijke en direct toepasbare groepsplannen opstelt voor het basisonderwijs. " +
-    "Respecteer privacy: noem nooit leerlingen bij naam en gebruik geen herleidbare voorbeelden. " +
-    "Lever uitsluitend geldige Markdown zonder codeblokken, gericht op groep " +
-    groep +
-    " voor het vak \"" +
-    vak +
-    "\" in de periode \"" +
-    periode +
-    "\". Gebruik toegankelijke taal, korte alinea's en waar passend bullet points. " +
-    "Houd het beknopt maar volledig (ongeveer 600–900 woorden). " +
-    "Structuur is verplicht en exact als volgt met H2-koppen: \n\n" +
+    "Je bent een expert onderwijsadviseur (Passend Onderwijs, HGW) voor het Nederlandse basisonderwijs. " +
+    "Je schrijft concreet en praktisch in natuurlijk Nederlands (geen AI-taal), met handelingsgericht taalgebruik. " +
+    "Noem nooit leerlingen bij naam; gebruik geen herleidbare voorbeelden. " +
+    "Werk voor groep " + groep + " voor het vak \"" + vak + "\" in periode \"" + periode + "\". " +
+    "Wat je NOOIT doet: geen vage frasen (bijv. 'maatwerk bieden', 'gedifferentieerd lesgeven') zonder concrete uitwerking; geen onrealistische doelen; geen theoretische uitwijdingen. " +
+    "Wat je WEL doet: concrete tijden (bijv. 15 minuten, 3x per week), specifieke materialen (stappenplan, rekenrek, MAB), realistische percentages (bijv. 80%). " +
+    "Integreer het Mickey Mouse-model (basis, intensief, meer) en SMARTI-doelen waar passend binnen de structuur. " +
+    "Structuur is verplicht en exact als volgt met H2-koppen (behoud deze koppen):\n\n" +
     "## Beginsituatie\n" +
     "## Doelen (SLO)\n" +
     "## Aanpak\n" +
     "## Differentiatie\n" +
     "## Evaluatie\n\n" +
-    "In 'Doelen (SLO)' verwijs je inhoudelijk naar relevante SLO-doelen passend bij groep " +
-    groep +
-    " en het vak " +
-    vak +
-    ", zonder externe links. Sluit af zonder extra secties.\n\n" +
-    "Gebruik expliciet 2–4 SLO-codes in het exacte formaat 'XXX-G<groep>-<n>' uit de whitelist hieronder. " +
-    "Gebruik GEEN andere SLO-codes dan deze whitelist.\n" +
-    "ONLY use these SLO codes (whitelist):\n" +
-    (Array.isArray(allowedSLO) ? allowedSLO.join(", ") : "") +
-    "\n" +
+    "In 'Doelen (SLO)': formuleer SMARTI (Specifiek, Meetbaar, Acceptabel, Realistisch, Tijdgebonden, Inspirerend) en verwijs inhoudelijk naar relevante SLO-doelen passend bij groep " + groep + " en vak " + vak + ". " +
+    "Gebruik expliciet 2–4 SLO-codes uitsluitend uit de whitelist hieronder in het exacte formaat 'XXX-G<groep>-<n>'.\n" +
+    "ONLY use these SLO codes (whitelist):\n" + (Array.isArray(allowedSLO) ? allowedSLO.join(", ") : "") + "\n" +
     "Als er geen passende codes zijn, laat ze weg in plaats van nieuwe te verzinnen. " +
-    (previousSnippet
-      ? "Gebruik de meegegeven context alleen ter inspiratie: verwijs ernaar in 'Beginsituatie', herformuleer en kopieer geen zinnen letterlijk."
-      : "")
+    (previousSnippet ? "Gebruik de meegegeven context alleen ter inspiratie (verwijs ernaar in 'Beginsituatie'); herformuleer, kopieer geen zinnen letterlijk." : "")
   );
 }
 
-function buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet }) {
+function buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet, extraEmphasis = "" }) {
   return (
-    "Genereer een groepsplan in Markdown met de voorgeschreven secties en opbouw. " +
-    "Voeg indien relevant korte voorbeelden van werkvormen toe voor Nederlandse klassenpraktijk. " +
+    "Genereer een volledig groepsplan in Markdown met de voorgeschreven H2-secties. " +
+    "Gebruik concreet taalgebruik en vermijd generieke frasen; voeg specifieke tijden, aantallen en materialen toe. " +
+    "Benadruk het Mickey Mouse-model in de analyse en differentiatie (basis, intensief, meer). " +
     "Begin met een H1-titel in dit format: \n\n" +
     `# Groepsplan ${vak} — Groep ${groep} — Periode ${periode}\n\n` +
     "Schrijf daarna direct de vereiste secties (H2) in de opgegeven volgorde.\n" +
     "In 'Doelen (SLO)': gebruik uitsluitend SLO-codes uit de whitelist. Geen andere codes.\n" +
     "Whitelist: " + (Array.isArray(allowedSLO) ? allowedSLO.join(", ") : "") + ".\n" +
-    (previousSnippet
-      ? "Vorig groepsplan (context):\n" + previousSnippet
-      : "")
+    (previousSnippet ? "Vorig groepsplan (context):\n" + previousSnippet + "\n" : "") +
+    (extraEmphasis ? "\n\n" + extraEmphasis.trim() + "\n" : "")
   );
 }
 
 // Provider-agnostic generator with fallback between OpenAI and Anthropic
-async function generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal }) {
+async function generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal, extraEmphasis }) {
   const haveOpenAI = !!OPENAI_KEY;
   const haveAnthropic = !!process.env.ANTHROPIC_API_KEY && !!AnthropicClient;
 
   const system = buildSystemPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
-  const user = buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
+  const user = buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet, extraEmphasis });
 
   function isRecoverable(err) {
     const status = err?.status || err?.statusCode || err?.response?.status;
@@ -272,7 +262,7 @@ async function callClaude({ groep, vak, periode, allowedSLO, previousSnippet, si
       },
     });
 
-    const anthropic = makeOpenAIShim(OPENAI_KEY);
+  const anthropic = makeOpenAIShim(OPENAI_KEY);
     const system = buildSystemPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
     const user = buildUserPrompt({ groep, vak, periode, allowedSLO, previousSnippet });
     const params = {
@@ -446,6 +436,59 @@ async function getBody(req) {
   return {};
 }
 
+// Prompt Engineering Guide: quality helpers
+function peQualityChecks(text) {
+  const checks = { warnings: [], errors: [], flags: {} };
+  const full = String(text || "");
+  // 1) Generic phrases
+  const generic = [
+    "maatwerk bieden",
+    "gedifferentieerd lesgeven",
+    "passend onderwijs",
+    "alle leerlingen",
+    "optimaal leerklimaat",
+    "talenten ontwikkelen",
+    "extra aandacht",
+    "individuele begeleiding",
+  ];
+  const foundGeneric = generic.filter((g) => full.toLowerCase().includes(g));
+  if (foundGeneric.length > 2) {
+    checks.warnings.push(`Te veel generieke frasen: ${foundGeneric.join(", ")}`);
+    checks.flags.tooGeneric = true;
+  }
+  // 2) Numbers presence
+  const nums = full.match(/\d+/g) || [];
+  if (nums.length < 10) {
+    checks.warnings.push("Weinig concrete getallen aangetroffen. Voeg aantallen/percentages/tijden toe.");
+  }
+  // 3) Mickey Mouse mention
+  if (!/mickey\s*mouse/i.test(full)) {
+    checks.warnings.push("Mickey Mouse-model niet expliciet genoemd in de tekst.");
+  }
+  // 4) Placeholders
+  const placeholders = ["[naam leerkracht]", "[naam ib'", "[vul in]", "xxx", "..."]; // simple set
+  const foundPH = placeholders.filter((p) => full.toLowerCase().includes(p.replace(/\$/,'').toLowerCase()));
+  if (foundPH.length > 3) {
+    checks.warnings.push(`Veel placeholders: ${foundPH.join(", ")}`);
+  }
+  // 5) Incomplete (abrupt end or missing Evaluatie)
+  const endsAbrupt = !/[\.!?]\s*$/.test(full.trim()) && full.length > 1000;
+  if (!/##\s*Evaluatie/i.test(full) || endsAbrupt) {
+    checks.errors.push("Document lijkt niet volledig (Evaluatie ontbreekt of abrupt einde).");
+    checks.flags.incomplete = true;
+  }
+  // 6) Language heuristic
+  const enWords = [" the ", " and ", " students ", " learning ", " goals ", " assessment "];
+  const nlWords = [" de ", " het ", " en ", " van ", " leerlingen ", " doelen ", " evaluatie "];
+  const enCount = enWords.reduce((n, w) => n + (full.toLowerCase().includes(w) ? 1 : 0), 0);
+  const nlCount = nlWords.reduce((n, w) => n + (full.toLowerCase().includes(w) ? 1 : 0), 0);
+  if (enCount > nlCount) {
+    checks.errors.push("Taal lijkt niet Nederlands.");
+    checks.flags.wrongLanguage = true;
+  }
+  return checks;
+}
+
 function getQuery(req) {
   try {
     const url = new URL(req.url || "", "http://localhost");
@@ -539,7 +582,9 @@ async function handler(req, res) {
   }
 
   try {
-    const { text, usage, modelUsed } = await generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal: ctrl?.signal });
+    let attempt = 1;
+    let emphasis = "";
+    let { text, usage, modelUsed } = await generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal: ctrl?.signal, extraEmphasis: emphasis });
 
     const durationMs = Date.now() - started;
 
@@ -555,6 +600,24 @@ async function handler(req, res) {
           slo: { suggested: allowedSLO },
         },
       });
+    }
+
+    // Quick Prompt-Engineering quality pass; try one recovery if needed
+    const pe = peQualityChecks(text);
+    if ((pe.flags?.incomplete || pe.flags?.wrongLanguage || pe.flags?.tooGeneric) && attempt === 1) {
+      emphasis = (
+        "KRITISCH BELANGRIJK:\n" +
+        "- GEEN algemene frasen; WEL concrete tijden/aantallen/materialen.\n" +
+        "- Noem expliciet het Mickey Mouse-model (basis, intensief, meer).\n" +
+        "- Schrijf ALLEEN in het Nederlands.\n" +
+        "- Zorg dat de sectie 'Evaluatie' aanwezig is en de tekst afgerond eindigt.\n"
+      );
+      try {
+        const r2 = await generateWithFallback({ groep, vak, periode, allowedSLO, previousSnippet, signal: ctrl?.signal, extraEmphasis: emphasis });
+        if (r2?.text && r2.text.length >= 200) {
+          text = r2.text;
+        }
+      } catch (_) { /* ignore second attempt errors */ }
     }
 
     // Post-validation of SLO codes
@@ -622,7 +685,9 @@ async function handler(req, res) {
         storage: { saved: storageSaved },
       },
     };
-    if (warnings.length) response.warnings = warnings;
+    // Merge PE warnings
+    const allWarnings = [...warnings, ...(pe?.warnings || [])];
+    if (allWarnings.length) response.warnings = allWarnings;
     if (durationMs > TIMEOUT_MS) response.hint = SLOW_HINT;
     try { console.log(`[generate-groepsplan] done reqId=${reqId} status=200 dur=${durationMs}ms`); } catch (_) {}
     return res.status(200).json(response);
