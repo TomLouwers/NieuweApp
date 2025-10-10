@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp } from 'lucide-react';
 import { track } from "@/lib/utils/analytics";
+import PreviewModal from "@/components/PreviewModal";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
@@ -10,7 +11,18 @@ export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [headlineVariant, setHeadlineVariant] = useState<'a'|'b'>('a');
   const [showVideo, setShowVideo] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showExitIntent, setShowExitIntent] = useState(false);
   const demoUrl = (process?.env?.NEXT_PUBLIC_DEMO_VIDEO_URL as string) || '';
+  const appStartTs = useMemo(() => Date.now(), []);
+
+  const device: 'mobile' | 'desktop' | 'unknown' = useMemo(() => {
+    try {
+      if (typeof window === 'undefined') return 'unknown';
+      const hasTouch = 'ontouchstart' in window || (navigator as any)?.maxTouchPoints > 0;
+      return hasTouch ? 'mobile' : 'desktop';
+    } catch { return 'unknown'; }
+  }, []);
 
   function scrollToId(id: string) {
     try {
@@ -44,6 +56,30 @@ export default function LandingPage() {
 
     return () => observer.disconnect();
   }, []);
+
+  // Page view and testimonials view
+  useEffect(() => {
+    try {
+      const vp = { w: window.innerWidth, h: window.innerHeight };
+      const ref = document.referrer || '';
+      track('page_view', { path: '/', device, vp_w: vp.w, vp_h: vp.h, ref });
+    } catch {}
+
+    try {
+      const el = document.getElementById('testimonials');
+      if (!el) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            track('section_view', { section: 'testimonials' });
+            obs.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      obs.observe(el);
+      return () => obs.disconnect();
+    } catch {}
+  }, [device]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -83,6 +119,220 @@ export default function LandingPage() {
     onDepth();
     return () => window.removeEventListener('scroll', onDepth);
   }, []);
+
+  // Time on page
+  useEffect(() => {
+    let sent = false;
+    function send() {
+      if (sent) return; sent = true;
+      const ms = Math.max(0, Date.now() - appStartTs);
+      track('time_on_page', { ms, device });
+    }
+    const onVis = () => { try { if (document.visibilityState === 'hidden') send(); } catch {} };
+    const onUnload = () => { try { send(); } catch {} };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('beforeunload', onUnload);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('beforeunload', onUnload);
+    };
+  }, [appStartTs, device]);
+
+  // Preview modal is now a separate component; lifecycle/scroll handling is inside it.
+
+  // Exit/scroll intent popup (single use per session, after 20s)
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      if (sessionStorage.getItem('exit_intent_shown') === '1') return;
+
+      const minMs = 20000;
+      const start = appStartTs;
+      let reached80 = false;
+      let lastY = window.scrollY || 0;
+      let triggered = false;
+
+      function canTrigger() { return !triggered && Date.now() - start >= minMs; }
+      function fire(reason: 'desktop_exit' | 'mobile_scroll_up') {
+        if (!canTrigger()) return;
+        triggered = true;
+        sessionStorage.setItem('exit_intent_shown', '1');
+        setShowExitIntent(true);
+        track('exit_intent_shown', { device, reason });
+      }
+
+      const onMouseMove = (e: MouseEvent) => {
+        if (device !== 'desktop') return;
+        if (e.clientY <= 10) fire('desktop_exit');
+      };
+
+      const onScroll = () => {
+        if (device !== 'mobile') return;
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - doc.clientHeight;
+        const y = window.scrollY || 0;
+        const pct = max > 0 ? y / max : 0;
+        if (pct >= 0.8) reached80 = true;
+        if (reached80 && lastY - y > 60) fire('mobile_scroll_up');
+        lastY = y;
+      };
+
+      window.addEventListener('mousemove', onMouseMove, { passive: true } as any);
+      window.addEventListener('scroll', onScroll, { passive: true } as any);
+      return () => {
+        window.removeEventListener('mousemove', onMouseMove as any);
+        window.removeEventListener('scroll', onScroll as any);
+      };
+    } catch {}
+  }, [appStartTs, device]);
+
+  function SamplePlan() {
+    return (
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        {/* Document Header */}
+        <div className="bg-gradient-to-r from-blue-50 to-white p-6 md:p-8 border-b-2 border-blue-700">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Groepsplan Groep 5 - Spelling</h1>
+          <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+            <span><strong>Periode:</strong> Blok 2 (november - januari)</span>
+            <span><strong>Schooljaar:</strong> 2024-2025</span>
+            <span><strong>Aantal leerlingen:</strong> 28</span>
+          </div>
+        </div>
+
+        {/* Document Content */}
+        <div className="p-6 md:p-8 space-y-8 text-gray-800 leading-relaxed">
+          {/* 1. Groepsanalyse */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">1. Groepsanalyse &amp; Onderwijsbehoeften</h2>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3 mt-4">Mickey Mouse Model</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300 text-sm">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 p-3 text-left">Groep</th>
+                    <th className="border border-gray-300 p-3 text-left">Aantal</th>
+                    <th className="border border-gray-300 p-3 text-left">Onderwijsbehoefte</th>
+                    <th className="border border-gray-300 p-3 text-left">Focus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-300 p-3 font-medium">Basisgroep</td>
+                    <td className="border border-gray-300 p-3">18</td>
+                    <td className="border border-gray-300 p-3">Heldere, gestructureerde instructie en voldoende oefentijd</td>
+                    <td className="border border-gray-300 p-3">B-niveau</td>
+                  </tr>
+                  <tr className="bg-blue-50">
+                    <td className="border border-gray-300 p-3 font-medium">Intensief</td>
+                    <td className="border border-gray-300 p-3">5</td>
+                    <td className="border border-gray-300 p-3">Verlengde instructie met visuele ondersteuning en extra herhaling</td>
+                    <td className="border border-gray-300 p-3">O-niveau</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3 font-medium">Meer-groep</td>
+                    <td className="border border-gray-300 p-3">5</td>
+                    <td className="border border-gray-300 p-3">Compacte instructie en verrijking met complexe opdrachten</td>
+                    <td className="border border-gray-300 p-3">M-niveau</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* 2. SMARTI Doelen */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">2. SMARTI Doelen</h2>
+            <div className="space-y-4">
+              <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                <h3 className="font-semibold text-gray-900 mb-2">Basisgroep</h3>
+                <p>Aan het eind van blok 2 beheerst <strong>90%</strong> van de basisgroep de werkwoordspelling (tegenwoordige tijd) op <strong>D-niveau</strong>, gemeten met de methodetoets spelling.</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                <h3 className="font-semibold text-gray-900 mb-2">Intensieve groep</h3>
+                <p>Aan het eind van blok 2 beheerst <strong>80%</strong> van de intensieve groep de klankgroepenregel (open/gesloten lettergrepen) op <strong>E-niveau</strong> door intensieve herhaling en extra instructie met visuele stappenplannen.</p>
+              </div>
+              <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
+                <h3 className="font-semibold text-gray-900 mb-2">Meer-groep</h3>
+                <p><strong>Alle leerlingen</strong> passen aan het eind van de periode de spellingregels van blok 1 en 2 toe in een creatieve tekst (min. 10 regels) met <strong>maximaal 3 fouten</strong> op die regels.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Didactische en Pedagogische Aanpak */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">3. Didactische en Pedagogische Aanpak</h2>
+            <div className="space-y-4">
+              <div className="border border-gray-300 rounded-lg overflow-hidden">
+                <div className="bg-gray-100 p-3 font-semibold">Basisgroep</div>
+                <div className="p-4 space-y-2">
+                  <p><strong>Instructie:</strong> Directe instructie 20 min, 4x/week. Heldere uitleg met voorbeelden.</p>
+                  <p><strong>Verwerking:</strong> Methode blz. 24-28. Leerkracht geeft gerichte feedback tijdens rondes.</p>
+                  <p><strong>Materiaal:</strong> Werkwoordkaarten, basisstappenplan (A4).
+                  </p>
+                </div>
+              </div>
+              <div className="border border-blue-300 rounded-lg overflow-hidden">
+                <div className="bg-blue-100 p-3 font-semibold">Intensieve groep</div>
+                <div className="p-4 space-y-2">
+                  <p><strong>Instructie:</strong> Verlengde instructie <strong>35 min</strong> (20 + 15), ma/wo/vr 8:30-9:05.</p>
+                  <p><strong>Verwerking:</strong> Compacte oefenstof (blz. 24-25); vaste plek bij de leerkracht.</p>
+                  <p><strong>Materiaal:</strong> Visueel stappenplan, kleurgecodeerde woordkaarten, extra oefenbladen.</p>
+                  <p><strong>Herhaling:</strong> Dagelijks 10 min herhaling aan het begin van de dag.</p>
+                </div>
+              </div>
+              <div className="border border-amber-300 rounded-lg overflow-hidden">
+                <div className="bg-amber-100 p-3 font-semibold">Meer-groep</div>
+                <div className="p-4 space-y-2">
+                  <p><strong>Instructie:</strong> Compacte instructie 10 min; check op basisdoelen.</p>
+                  <p><strong>Verwerking:</strong> Verrijkingsopdracht: Spelling Detective (fouten zoeken en verbeteren).</p>
+                  <p><strong>Presentatie:</strong> Eind van blok presenteren bevindingen aan de klas.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4. Samenwerking en Afstemming */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">4. Samenwerking en Afstemming</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">IB'er</h3>
+                <p className="text-sm">Groepsbespreking week 6. Focus: effectiviteit verlengde instructie.</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Ouders</h3>
+                <p className="text-sm">Ouderbrief over spelling-focus. Intensieve groep: kort gesprek in week 3.</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Leerlingen</h3>
+                <p className="text-sm">Klassengesprek week 1; leermeters voor eigen doelen en reflectie.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Evaluatie en Vervolg */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">5. Evaluatie en Vervolg</h2>
+            <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+              <p className="mb-3"><strong>Tussenevaluatie:</strong> Week 6 – korte toets werkwoordspelling. Zijn doelen haalbaar?</p>
+              <p className="mb-3"><strong>Eindevaluatie:</strong> Week 12 – methodetoets spelling blok 2. Analyse: % doelbehaald.</p>
+              <p className="mb-3"><strong>Bij niet-behalen:</strong> Aanpak aanpassen (frequentie/materialen); evt. niveau 2 ondersteuning.</p>
+              <p className="mb-0"><strong>Bij behalen:</strong> Doorgaan; nieuwe uitdaging Meer-groep: complexere regels (samenstellingen).</p>
+            </div>
+          </section>
+
+          {/* Compliance Badge */}
+          <div className="mt-2 p-6 bg-green-50 border-2 border-green-500 rounded-lg text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span role="img" aria-label="check" className="text-green-600">✔</span>
+              <span className="text-lg font-bold text-green-800">Passend Onderwijs 2024 Compliant</span>
+            </div>
+            <p className="text-sm text-green-700">✓ SMARTI doelen • ✓ Handelingsgericht • ✓ Mickey Mouse model • ✓ Evaluatie gepland</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -191,14 +441,14 @@ export default function LandingPage() {
           >
             <a
               href="/groepsplan/new"
-              onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant })}
+              onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant, device })}
               className="group bg-gradient-to-r from-blue-700 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2"
             >
               Maak je groepsplan
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <button
-              onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant }); if (demoUrl) setShowVideo(true); else window.location.href = '/groepsplan/new?flow=scratch'; }}
+              onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }}
               className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-blue-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 text-center"
             >
               Bekijk voorbeeld
@@ -266,6 +516,36 @@ export default function LandingPage() {
               ) : (
                 <video src={demoUrl} controls playsInline className="w-full h-full" preload="metadata" />
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PreviewModal isOpen={showPreview} onClose={() => setShowPreview(false)} />
+
+      {/* Exit-Intent Popup */}
+      {showExitIntent && (
+        <div className="fixed inset-x-0 bottom-0 z-40 p-4 md:left-auto md:right-6 md:bottom-6 md:inset-x-auto">
+          <div className="mx-auto md:mx-0 max-w-xl bg-white border border-gray-200 shadow-xl rounded-2xl p-4 md:p-5 flex items-start gap-4">
+            <div className="hidden md:block text-2xl">👋</div>
+            <div className="flex-1">
+              <div className="font-semibold text-gray-900 mb-1">Wacht! Zie eerst hoe het eruitziet →</div>
+              <div className="text-sm text-gray-600 mb-3">30 seconden: bekijk een voorbeeldgroepsplan voordat je gaat.</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowExitIntent(false); setShowPreview(true); track('exit_intent_cta_click', { action: 'open_preview' }); }}
+                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  Bekijk voorbeeld (30 sec)
+                </button>
+                <button
+                  onClick={() => { setShowExitIntent(false); track('exit_intent_dismiss'); }}
+                  className="px-3 py-2 text-gray-500 hover:text-gray-700"
+                  aria-label="Sluiten"
+                >
+                  Sluiten
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -567,11 +847,19 @@ export default function LandingPage() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes scale-in {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
         .animate-fade-in {
           animation: fade-in 0.6s ease-out;
         }
         .animate-fade-in-up {
           animation: fade-in-up 0.6s ease-out;
+          animation-fill-mode: both;
+        }
+        .animate-scale-in {
+          animation: scale-in 0.2s ease-out;
           animation-fill-mode: both;
         }
       `}</style>

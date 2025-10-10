@@ -14,10 +14,19 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   return (
     <html lang="nl">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {plausibleDomain ? (
+          // Plausible (GDPR-friendly) – only loads when domain is configured
+          <script
+            defer
+            data-domain={plausibleDomain}
+            src="https://plausible.io/js/script.js"
+          />
+        ) : null}
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <IntlProvider>
