@@ -9,6 +9,11 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
   const [progress, setProgress] = useState(0);
   const [completedReported, setCompletedReported] = useState(false);
   const milestonesRef = useRef(new Set<number>());
+  const [teaserOpen, setTeaserOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const device: Device = useMemo(() => {
     try {
@@ -49,15 +54,29 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
 
   if (!isOpen) return null;
 
+  function maybeShowTeaser(source: string) {
+    try {
+      if (!teaserOpen && sessionStorage.getItem("preview_exit_teaser_shown") !== "1") {
+        sessionStorage.setItem("preview_exit_teaser_shown", "1");
+        setTeaserOpen(true);
+        track("preview_modal_exit_teaser_shown", { source });
+        return true;
+      }
+    } catch {}
+    return false;
+  }
   function onBackdrop() {
+    if (maybeShowTeaser("backdrop")) return;
     track("preview_modal_closed", { source: "backdrop" });
     onClose();
   }
   function onHeaderClose() {
+    if (maybeShowTeaser("header")) return;
     track("preview_modal_closed", { source: "header" });
     onClose();
   }
   function onFooterClose() {
+    if (maybeShowTeaser("footer")) return;
     track("preview_modal_closed", { source: "footer" });
     onClose();
   }
@@ -140,6 +159,71 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
           </div>
         </div>
       </div>
+
+      {/* Exit-intent email capture teaser */}
+      {teaserOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setTeaserOpen(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-5">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Wacht! Download dit voorbeeld als PDF?</h3>
+                <p className="text-sm text-gray-600">Vul je e-mailadres in en ontvang direct het voorbeeld (PDF) in je inbox.</p>
+              </div>
+              <button aria-label="Sluiten" onClick={() => setTeaserOpen(false)} className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+                <X size={18} />
+              </button>
+            </div>
+
+            {!submitted ? (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setEmailError("");
+                  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                  if (!ok) { setEmailError("Vul een geldig e-mailadres in"); return; }
+                  setSubmitting(true);
+                  try {
+                    const domain = (() => { try { return email.split("@")[1] || ""; } catch { return ""; } })();
+                    track("preview_modal_exit_teaser_submit", { email_domain: domain });
+                    await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, source: 'preview_modal', intent: 'download_pdf' }) });
+                    setSubmitted(true);
+                  } catch {}
+                  setSubmitting(false);
+                }}
+                className="space-y-3"
+              >
+                <div>
+                  <label htmlFor="lead-email" className="block text-sm font-medium text-gray-700 mb-1">E-mailadres</label>
+                  <input
+                    id="lead-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    placeholder="jij@school.nl"
+                    required
+                  />
+                  {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                  <button type="button" onClick={() => { setTeaserOpen(false); onClose(); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50">Nee, sluit</button>
+                  <button type="submit" disabled={submitting} className="px-5 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white rounded-lg font-semibold">{submitting ? 'Versturen...' : 'Stuur PDF'}</button>
+                </div>
+                <p className="text-xs text-gray-500">Wij respecteren je privacy. Je ontvangt 1 voorbeeld en optioneel tips (uitschrijven kan altijd).</p>
+              </form>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-sm text-gray-700">Dank je! Check je inbox voor het voorbeeld. Wil je nu al iets meenemen?</div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                  <button onClick={() => setTeaserOpen(false)} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50">Terug</button>
+                  <button onClick={downloadDocx} className="px-5 py-2 bg-gray-900 hover:bg-black text-white rounded-lg font-semibold">Download als .docx</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -336,3 +420,24 @@ function SamplePlan() {
   );
 }
 
+// Build a simple markdown version for .docx download
+async function downloadDocx() {
+  try {
+    const md = `# Groepsplan Groep 5 - Spelling\n\n## 1. Groepsanalyse & Onderwijsbehoeften\n\n### Mickey Mouse Model\n| Groep | Aantal | Onderwijsbehoefte | Focus |\n|---|---:|---|---|\n| Basisgroep | 18 | Heldere, gestructureerde instructie en oefentijd | B-niveau |\n| Intensief | 5 | Verlengde instructie, extra herhaling | O-niveau |\n| Meer-groep | 5 | Compacte instructie en verrijking | M-niveau |\n\n## 2. SMARTI Doelen\n- Basisgroep: 90% beheerst werkwoordspelling (TT) op D-niveau aan eind blok 2.\n- Intensief: 80% beheerst klankgroepenregel (open/gesloten) op E-niveau.\n- Meer: Toepassen regels in creatieve tekst (≤3 fouten).\n\n## 3. Didactische en Pedagogische Aanpak\n- Basis: EDI 20m, 4x/week; feedbackrondes; methode blz. 24-28.\n- Intensief: 35m verlengde instructie ma/wo/vr; visuele stappenplannen.\n- Meer: 10m check; verrijking 'Spelling Detective'.\n\n## 4. Samenwerking en Afstemming\n- IB'er: Bespreking week 6.\n- Ouders: Ouderbrief, intensief: gesprek in week 3.\n- Leerlingen: Leermeters en doelen.\n\n## 5. Evaluatie en Vervolg\n- Tussen: Week 6. Einde: Week 12. Aanpak bijstellen indien nodig.\n`;
+    const res = await fetch('/api/export-word', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: md, metadata: { groep: '5', vak: 'Spelling', periode: 'Blok2' } })
+    });
+    if (!res.ok) throw new Error('export failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'groepsplan_voorbeeld.docx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch {}
+}
