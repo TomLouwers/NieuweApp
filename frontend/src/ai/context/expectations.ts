@@ -42,14 +42,18 @@ export const vakgebiedGroepExpectations: MapType = {
     8: 'Groep 8: Eindtoets-niveau, alle strategieën flexibel inzetten. Procesvaardigheden.',
   },
   begrijpend_lezen: {
+    1: 'Groep 1: begrijpend luisteren bij prentenboeken, eenvoudige vragen. Voorbereidend op begrijpend lezen.',
+    2: 'Groep 2: begrijpend luisteren en praten over teksten, begin van strategie-taal.',
     3: 'Groep 3: start begrijpend lezen, heel eenvoudige tekstjes. Eerst decoderen, dan pas begrip.',
     4: 'Groep 4: woordenschat wordt belangrijk, korte informatieve teksten. Strategieën IGDI introduceren.',
     5: 'Groep 5: langere teksten, verschillende tekstsoorten. Strategieën actief gebruiken: voorkennis activeren, vragen stellen.',
     6: 'Groep 6: complexere teksten, figuurlijk taalgebruik. Inferenties maken wordt belangrijk.',
     7: 'Groep 7: studerend lezen, samenvatten, hoofdzaak-bijzaak. Voorbereiding VO.',
     8: 'Groep 8: alle tekstsoorten, kritisch lezen, argumenten herkennen. Eindtoets-niveau.',
-  } as any,
+  },
   technisch_lezen: {
+    1: 'Groep 1: voorbereidend geletterdheid, letterkennis en klanken. Nog geen technisch lezen.',
+    2: 'Groep 2: verdere voorbereiding, letter-klankkoppeling, rijmen. Aanloop naar technisch lezen in groep 3.',
     3: 'Groep 3: AVI-M3 tot E3 is normaal. Veel leerlingen blijven haperen, dat is normaal! Vlotte woordherkenning is het doel.',
     4: 'Groep 4: AVI-E4 tot Plus. Automatiseren, vloeiend lezen zonder klankfouten. Sommige leerlingen hebben nog forse achterstanden.',
     5: 'Groep 5: AVI-Plus tot eind groep 5. Technisch lezen is meestal voldoende, focus verschuift naar begrijpend lezen.',
@@ -74,4 +78,3 @@ export function getExpectations(vak: Vakgebied, groep: Groep): string {
   if (!g) throw new Error(`Geen expectations voor ${vak} groep ${groep}`);
   return g;
 }
-
