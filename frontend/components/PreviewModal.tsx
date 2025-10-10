@@ -129,7 +129,7 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4" onScroll={onContentScroll}>
+          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 cursor-zoom-in" onScroll={onContentScroll}>
             <SamplePlan />
           </div>
 

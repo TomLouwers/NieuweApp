@@ -445,6 +445,7 @@ export default function LandingPage() {
               className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
             >
               Maak je groepsplan
+              <span className="hidden sm:inline group-hover:inline"> (10 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <button
@@ -453,6 +454,18 @@ export default function LandingPage() {
             >
               Bekijk voorbeeld
             </button>
+          </div>
+
+          {/* Hero microcopy + social proof */}
+          <div className="text-center text-sm text-gray-600 space-y-1 mb-8 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
+            <div>Geen account nodig om te starten. Probeer eerst, beslis daarna.</div>
+            <div className="text-gray-500">Gebruikt door 247 leerkrachten • 4.8/5
+              <span className="inline-flex align-middle ml-1 text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>★</span>
+                ))}
+              </span>
+            </div>
           </div>
 
           {/* Trust signals */}
@@ -481,6 +494,24 @@ export default function LandingPage() {
           >
             <ChevronDown size={32} />
           </button>
+        </div>
+      </section>
+
+      {/* Inspectie reassurance */}
+      <section className="py-10 bg-white">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="bg-primary-50 border border-primary-100 rounded-xl p-6 md:p-8">
+            <div className="flex items-start gap-3 mb-3">
+              <span className="text-xl">⚠️</span>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900">Maar de inspectie dan?</h3>
+            </div>
+            <ul className="grid md:grid-cols-2 gap-3 text-sm md:text-base text-gray-700">
+              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> Automatische check op Passend Onderwijs 2024</li>
+              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> SMARTI doelen, handelingsgericht, Mickey Mouse</li>
+              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> 247 leerkrachten gebruiken het – 0 problemen</li>
+              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> Niet goed? We helpen gratis bijschaven</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -766,7 +797,7 @@ export default function LandingPage() {
                     <Star key={i} size="16" className="text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
+                <p className="text-gray-700 mb-6 italic leading-relaxed line-clamp-2-mobile">"{testimonial.text}"</p>
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-12 h-12 ${testimonial.bg} ${testimonial.color} rounded-full flex items-center justify-center font-semibold text-xl`}
@@ -861,6 +892,14 @@ export default function LandingPage() {
         .animate-scale-in {
           animation: scale-in 0.2s ease-out;
           animation-fill-mode: both;
+        }
+        @media (max-width: 640px) {
+          .line-clamp-2-mobile {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
         }
       `}</style>
     </div>
