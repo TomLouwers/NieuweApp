@@ -67,7 +67,7 @@ export async function GET(request: Request, ctx: Ctx) {
   if (cached) {
     const { headers: h } = buildHeadersForFormat(format, `${sanitizeFilename(filenameBase)}.${format}`);
     for (const [k, v] of Object.entries(h)) headers.set(k, v);
-    return new NextResponse(cached, { status: 200, headers });
+    return new NextResponse(new Uint8Array(cached), { status: 200, headers });
   }
 
   // Build export from content
@@ -110,7 +110,7 @@ export async function GET(request: Request, ctx: Ctx) {
 
   const { headers: h } = buildHeadersForFormat(format, `${sanitizeFilename(filenameBase)}.${format}`);
   for (const [k, v] of Object.entries(h)) headers.set(k, v);
-  return new NextResponse(buffer, { status: 200, headers });
+  return new NextResponse(new Uint8Array(buffer), { status: 200, headers });
 }
 
 function buildHeadersForFormat(format: string, filename: string) {
