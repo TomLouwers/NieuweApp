@@ -602,9 +602,10 @@ async function handler(req, res) {
       });
     }
 
-    // Quick Prompt-Engineering quality pass; try one recovery if needed
+    // Quick Prompt-Engineering quality pass (opt-in for legacy via env); try one recovery if needed
     const pe = peQualityChecks(text);
-    if ((pe.flags?.incomplete || pe.flags?.wrongLanguage || pe.flags?.tooGeneric) && attempt === 1) {
+    const includeLegacyPE = String(process.env.AI_PE_WARNINGS_LEGACY || "").toLowerCase() === "1";
+    if ((pe.flags?.incomplete || pe.flags?.wrongLanguage || pe.flags?.tooGeneric) && attempt === 1 && includeLegacyPE) {
       emphasis = (
         "KRITISCH BELANGRIJK:\n" +
         "- GEEN algemene frasen; WEL concrete tijden/aantallen/materialen.\n" +
@@ -686,7 +687,7 @@ async function handler(req, res) {
       },
     };
     // Merge PE warnings
-    const allWarnings = [...warnings, ...(pe?.warnings || [])];
+    const allWarnings = includeLegacyPE ? [...warnings, ...(pe?.warnings || [])] : [...warnings];
     if (allWarnings.length) response.warnings = allWarnings;
     if (durationMs > TIMEOUT_MS) response.hint = SLOW_HINT;
     try { console.log(`[generate-groepsplan] done reqId=${reqId} status=200 dur=${durationMs}ms`); } catch (_) {}
