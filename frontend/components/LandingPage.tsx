@@ -9,6 +9,14 @@ export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   function scrollToId(id: string) {
+    try {
+      if (typeof window !== 'undefined' && window.history && window.location) {
+        const hash = `#${id}`;
+        if (window.location.hash !== hash) {
+          window.history.pushState(null, '', hash);
+        }
+      }
+    } catch {}
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -76,6 +84,15 @@ export default function LandingPage() {
           </div>
         )}
       </header>
+
+      {/* Backdrop for mobile menu */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          aria-hidden
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-16 md:py-24">
