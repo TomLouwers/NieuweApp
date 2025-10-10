@@ -17,9 +17,12 @@ import legalStatus from './legal_status.nl.json';
 export const nl = {
   ...navigation,
   ...dashboard,
-  ...groepsplanNew,
-  ...groepsplanQ,
-  ...groepsplanResult,
+  // Deep-merge groepsplan namespaces
+  groepsplan: {
+    ...((groepsplanNew as any).groepsplan || {}),
+    ...((groepsplanQ as any).groepsplan || {}),
+    ...((groepsplanResult as any).groepsplan || {}),
+  },
   ...documentMessages,
   ...documents,
   ...auth,
@@ -32,4 +35,3 @@ export const nl = {
 };
 
 export const messages = { nl };
-

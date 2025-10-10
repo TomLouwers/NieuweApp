@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
+import { useTranslations } from "next-intl";
 import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 import { getSelectedGroep, getSelectedVak, setSelectedGroep, setSelectedVak, useGroepsplanStore } from "@/lib/stores/groepsplanStore";
 import { track } from "@/lib/utils/analytics";
@@ -20,6 +21,7 @@ const VAKS = [
 ];
 
 export default function GroepVakScreen({ onBack, onNext }: Props) {
+  const t = useTranslations('groepsplan');
   const { ref, bind, thresholdReached } = useSwipeBack(onBack);
   // Use store API without React hook to avoid test env issues
   const saveTimer = React.useRef<any>(null);
@@ -97,10 +99,10 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
       </div>
 
       <div>
-        <h2 ref={headingRef} tabIndex={-1}>Voor welke groep?</h2>
+        <h2 ref={headingRef} tabIndex={-1}>{t('q1.groep.label')}</h2>
       </div>
 
-      <div ref={groepRef} role="radiogroup" aria-label="Kies groep" className="grid grid-cols-4 gap-2" onKeyDown={onGroupKeyDown}>
+      <div ref={groepRef} role="radiogroup" aria-label={t('q1.groep.label')} className="grid grid-cols-4 gap-2" onKeyDown={onGroupKeyDown}>
         {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => {
           const selected = groep === n;
           const cls = selected
@@ -125,10 +127,10 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
       <hr className="my-2 border-border" />
 
       <div>
-        <h2>Welk vakgebied?</h2>
+        <h2>{t('q1.vak.label')}</h2>
       </div>
 
-      <div ref={vakRef} role="radiogroup" aria-label="Kies vak" className="grid grid-cols-1 sm:grid-cols-2 gap-2" onKeyDown={onVakKeyDown}>
+      <div ref={vakRef} role="radiogroup" aria-label={t('q1.vak.label')} className="grid grid-cols-1 sm:grid-cols-2 gap-2" onKeyDown={onVakKeyDown}>
         {VAKS.map((label) => {
           const selected = vak === label;
           const cls = selected
@@ -151,14 +153,14 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-2">
-        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Terug naar begin">← Terug naar begin</button>
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label={t('q1.back')}>← {t('q1.back')}</button>
         <button
           className={`px-4 py-2 rounded-md ${canNext ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}
           disabled={!canNext}
           onClick={onNext}
-          aria-label="Volgende"
+          aria-label={t('q1.next')}
         >
-          Volgende →
+          {t('q1.next')}
         </button>
       </div>
     </div>

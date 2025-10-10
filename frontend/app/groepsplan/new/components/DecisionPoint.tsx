@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { Card } from "@/components/ui/card";
@@ -22,6 +23,13 @@ function isValidExt(name: string) {
 }
 
 export default function DecisionPoint() {
+  const tNew = useTranslations('groepsplan.new');
+  const tUpload = useTranslations('groepsplan.new.uploadOption');
+  const tScratch = useTranslations('groepsplan.new.scratchOption');
+  const tExample = useTranslations('groepsplan.new.exampleOption');
+  const tToast = useTranslations('toast.info');
+  const tResult = useTranslations('groepsplan.result');
+  const tCommon = useTranslations('compliance');
   const router = useRouter();
   const [error, setError] = React.useState<string>("");
   const [warning, setWarning] = React.useState<string>("");
@@ -74,7 +82,7 @@ export default function DecisionPoint() {
     }
     const file = files[0];
     if (!isValidExt(file.name)) {
-      setError("Ongeldig bestandstype. Toegestaan: .pdf, .docx, .jpg, .png");
+      setError("Upload een PDF, Word-document of foto");
       return;
     }
     // Start Upload Flow (A1) as overlay
@@ -116,15 +124,17 @@ export default function DecisionPoint() {
 
   return (
     <div className="space-y-4" aria-labelledby="dp-title">
-      <h1 id="dp-title">Kies een startpunt</h1>
-      <p className="text-muted">Upload een document, begin vanaf nul of bekijk eerst een voorbeeld.</p>
+      <h1 id="dp-title">{tNew('title')}</h1>
+      
+      <p className="text-muted">{tNew('subtitle')}</p>
+      <p>Kies een startpunt</p>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* Upload */}
         <Card
           role="button"
           tabIndex={0}
-          aria-label="Upload een document"
+          aria-label={tUpload('title')}
           data-testid="card-upload"
           aria-disabled={uploading}
           className={clsx(cardBase, cardHover, isDragOver && "border-blue-500 bg-blue-50/30", uploading && "opacity-60 pointer-events-none")}
@@ -134,8 +144,8 @@ export default function DecisionPoint() {
           onDragLeave={onDragLeave}
           onDrop={onDrop}
         >
-          <h2 className="mb-2">Upload</h2>
-          <p className="text-sm text-muted">{uploading ? "Bezig met uploaden…" : "Sleep hierheen of klik om een bestand te kiezen (.pdf, .docx, .jpg, .png)."}</p>
+          <h2 className="mb-2">{tUpload('title')}</h2>
+          <p className="text-sm text-muted">{uploading ? tToast('uploading') : `${tUpload('dragDrop')} ${tUpload('formats')}`}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -150,30 +160,30 @@ export default function DecisionPoint() {
         <Card
           role="button"
           tabIndex={0}
-          aria-label="Start vanaf nul"
+          aria-label={tScratch('title')}
           data-testid="card-scratch"
           aria-disabled={uploading}
           className={clsx(cardBase, cardHover, uploading && "opacity-60 pointer-events-none")}
           onClick={!uploading ? toScratch : undefined}
           onKeyDown={(e) => onCardKey(e, toScratch)}
         >
-          <h2 className="mb-2">Start vanaf nul</h2>
-          <p className="text-sm text-muted">Begin met een leeg groepsplan en vul stap voor stap in.</p>
+          <h2 className="mb-2">{tScratch('title')}</h2>
+          <p className="text-sm text-muted">{tScratch('description')}</p>
         </Card>
 
         {/* Sample */}
         <Card
           role="button"
           tabIndex={0}
-          aria-label="Bekijk eerst een voorbeeld"
+          aria-label={tExample('title')}
           data-testid="card-sample"
           aria-disabled={uploading}
           className={clsx(cardBase, cardHover, uploading && "opacity-60 pointer-events-none")}
           onClick={!uploading ? onSample : undefined}
           onKeyDown={(e) => onCardKey(e, onSample)}
         >
-          <h2 className="mb-2">Bekijk eerst een voorbeeld</h2>
-          <p className="text-sm text-muted">Zie een korte, statische preview van een groepsplan.</p>
+          <h2 className="mb-2">{tExample('title')}</h2>
+          <p className="text-sm text-muted">{tExample('description')}</p>
         </Card>
       </div>
 
@@ -186,13 +196,13 @@ export default function DecisionPoint() {
           <div className="text-sm text-red-600" role="alert">{error}</div>
         ) : null}
         {uploading ? (
-          <div className="text-sm" role="status" aria-live="polite" data-testid="uploading-indicator">Bezig met uploaden…</div>
+          <div className="text-sm" role="status" aria-live="polite" data-testid="uploading-indicator">{tToast('uploading')}</div>
         ) : null}
       </div>
 
       {/* Back link below cards for keyboard order */}
       <div>
-        <a href="/dashboard" className="text-sm text-blue-600 hover:underline">Terug</a>
+        <a href="/dashboard" className="text-sm text-blue-600 hover:underline">{tNew('back')}</a>
       </div>
 
       {/* Sample Modal (static mock) */}
@@ -206,8 +216,8 @@ export default function DecisionPoint() {
         >
           <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-md" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Voorbeeld</h3>
-              <Button variant="ghost" onClick={() => setShowSample(false)}>Sluiten</Button>
+              <h3 className="text-lg font-semibold">{tResult('preview')}</h3>
+              <Button variant="ghost" onClick={() => setShowSample(false)}>{tCommon('close')}</Button>
             </div>
             <div className="prose max-w-none">
               <h1>Groepsplan rekenen — Groep 5 — Periode Q2</h1>
