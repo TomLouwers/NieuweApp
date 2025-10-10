@@ -1,12 +1,16 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp } from 'lucide-react';
+import { track } from "@/lib/utils/analytics";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
   const loginHref = (process?.env?.NEXT_PUBLIC_LOGIN_URL as string) || '/dashboard';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [headlineVariant, setHeadlineVariant] = useState<'a'|'b'>('a');
+  const [showVideo, setShowVideo] = useState(false);
+  const demoUrl = (process?.env?.NEXT_PUBLIC_DEMO_VIDEO_URL as string) || '';
 
   function scrollToId(id: string) {
     try {
@@ -49,6 +53,37 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ab = params.get('ab');
+      let v: 'a'|'b' | null = null;
+      if (ab === 'headline_b') v = 'b';
+      else if (ab === 'headline_a') v = 'a';
+      else v = (localStorage.getItem('ab_headline_variant') as any);
+      if (v !== 'a' && v !== 'b') v = Math.random() < 0.5 ? 'a' : 'b';
+      localStorage.setItem('ab_headline_variant', v);
+      setHeadlineVariant(v);
+      track('ab_assign', { experiment: 'headline', variant: v });
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const fired = new Set<number>();
+    function onDepth() {
+      try {
+        const doc = document.documentElement;
+        const height = doc.scrollHeight - doc.clientHeight;
+        if (height <= 0) return;
+        const pct = Math.min(100, Math.round((window.scrollY / height) * 100));
+        [25, 50, 75, 100].forEach((t) => { if (pct >= t && !fired.has(t)) { fired.add(t); track('scroll_depth', { percent: t }); } });
+      } catch {}
+    }
+    window.addEventListener('scroll', onDepth, { passive: true });
+    onDepth();
+    return () => window.removeEventListener('scroll', onDepth);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -77,8 +112,8 @@ export default function LandingPage() {
         {mobileOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 py-3 grid gap-2">
-              <button onClick={() => { scrollToId('features'); setMobileOpen(false); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Features</button>
-              <button onClick={() => { scrollToId('testimonials'); setMobileOpen(false); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Ervaringen</button>
+            <button onClick={() => { scrollToId('features'); setMobileOpen(false); track('nav_click', { target: 'features' }); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Features</button>
+            <button onClick={() => { scrollToId('testimonials'); setMobileOpen(false); track('nav_click', { target: 'testimonials' }); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Ervaringen</button>
               <a onClick={() => setMobileOpen(false)} href={loginHref} className="py-2 px-2 rounded-md hover:bg-blue-50">Inloggen</a>
             </div>
           </div>
@@ -120,11 +155,23 @@ export default function LandingPage() {
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight animate-fade-in-up"
             style={{ animationDelay: '0.1s' }}
           >
-            Het is woensdag.
-            <br />
-            Je groepsplan moet vrijdag klaar.
-            <br />
-            Je hebt er nog geen letter van geschreven.
+            {headlineVariant === 'a' ? (
+              <>
+                Het is woensdag.
+                <br />
+                Je groepsplan moet vrijdag klaar.
+                <br />
+                Je hebt er nog geen letter van geschreven.
+              </>
+            ) : (
+              <>
+                Morgen inspectie.
+                <br />
+                10 minuten voor een goed groepsplan.
+                <br />
+                Kan dat? Met Pebble wel.
+              </>
+            )}
           </h1>
 
           {/* Subheadline */}
@@ -132,7 +179,9 @@ export default function LandingPage() {
             className="text-xl md:text-2xl text-gray-700 mb-10 leading-relaxed animate-fade-in-up"
             style={{ animationDelay: '0.2s' }}
           >
-            Pebble maakt je groepsplan in 10 minuten. Upload je oude plan, of beantwoord 5 vragen. Download als Word. Klaar.
+            {headlineVariant === 'a'
+              ? 'Pebble maakt je groepsplan in 10 minuten. Upload je oude plan, of beantwoord 5 vragen. Download als Word. Klaar.'
+              : 'Upload je oude plan of beantwoord 5 vragen. Jij checkt, downloadt en bent klaar. Minder gedoe, meer tijd.'}
           </p>
 
           {/* CTAs */}
@@ -142,17 +191,18 @@ export default function LandingPage() {
           >
             <a
               href="/groepsplan/new"
+              onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant })}
               className="group bg-gradient-to-r from-blue-700 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2"
             >
               Maak je groepsplan
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
-            <a
-              href="/groepsplan/new?flow=scratch"
+            <button
+              onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant }); if (demoUrl) setShowVideo(true); else window.location.href = '/groepsplan/new?flow=scratch'; }}
               className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-blue-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 text-center"
             >
               Bekijk voorbeeld
-            </a>
+            </button>
           </div>
 
           {/* Trust signals */}
@@ -176,7 +226,7 @@ export default function LandingPage() {
           {/* Scroll chevron */}
           <button
             aria-label="Scroll naar features"
-            onClick={() => scrollToId('features')}
+            onClick={() => { scrollToId('features'); track('nav_scroll', { target: 'features' }); }}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 text-blue-700 hover:text-blue-800 transition-transform hover:translate-y-0.5"
           >
             <ChevronDown size={32} />
@@ -188,11 +238,37 @@ export default function LandingPage() {
       {showBackToTop && (
         <button
           aria-label="Terug naar boven"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); track('nav_scroll', { target: 'top' }); }}
           className="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-blue-700 hover:text-blue-800 hover:shadow-xl transition-all"
         >
           <ChevronUp size={22} />
         </button>
+      )}
+
+      {/* Video Modal */}
+      {showVideo && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true" onClick={() => setShowVideo(false)}>
+          <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h3 className="font-semibold">Voorbeeldvideo</h3>
+              <button onClick={() => setShowVideo(false)} className="text-gray-500 hover:text-gray-700">Sluiten</button>
+            </div>
+            <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+              {demoUrl.includes('youtube.com') || demoUrl.includes('youtu.be') ? (
+                <iframe
+                  title="Demo Video"
+                  src={demoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+                  className="w-full h-full"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video src={demoUrl} controls playsInline className="w-full h-full" preload="metadata" />
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Stats Bar */}
