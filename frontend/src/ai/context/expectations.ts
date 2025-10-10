@@ -62,6 +62,8 @@ export const vakgebiedGroepExpectations: MapType = {
     8: 'Groep 8: Idem groep 7. Snelheid onder druk (Eindtoets) wordt belangrijker.',
   },
   schrijven: {
+    1: 'Groep 1: voorbereidend schrijven (motoriek, potloodgreep), tekenen en krabbelen met betekenis.',
+    2: 'Groep 2: letters en woorden overschrijven, korte zinnen naschrijven. Focus op plezier en motoriek.',
     3: 'Groep 3: korte zinnen, persoonlijke verhalen. Eerst INHOUD, dan pas spelling. Motivatie is alles.',
     4: 'Groep 4: langere teksten (10+ zinnen), verschillende tekstsoorten. Structuur wordt belangrijk (begin-midden-eind).',
     5: 'Groep 5: schrijven met een doel (brief, verslag, verhaal). Revisie en verbeteren introduceren.',
