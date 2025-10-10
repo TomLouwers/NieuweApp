@@ -1,9 +1,15 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Users, Zap, Smartphone, Clock } from 'lucide-react';
+import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown } from 'lucide-react';
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
+  const loginHref = (process?.env?.NEXT_PUBLIC_LOGIN_URL as string) || '/dashboard';
+
+  function scrollToId(id: string) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,9 +42,12 @@ export default function LandingPage() {
             </div>
             <span className="text-2xl font-bold text-gray-900">Pebble</span>
           </div>
-          <a href="/dashboard" className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">
-            Inloggen
-          </a>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <button onClick={() => scrollToId('features')} className="text-gray-700 hover:text-blue-700 transition-colors">Features</button>
+            <button onClick={() => scrollToId('testimonials')} className="text-gray-700 hover:text-blue-700 transition-colors">Ervaringen</button>
+            <a href={loginHref} className="text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
+          </nav>
+          <a href={loginHref} className="md:hidden text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
         </div>
       </header>
 
@@ -121,6 +130,14 @@ export default function LandingPage() {
               Inspectie-OK
             </span>
           </div>
+          {/* Scroll chevron */}
+          <button
+            aria-label="Scroll naar features"
+            onClick={() => scrollToId('features')}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 text-blue-700 hover:text-blue-800 transition-transform hover:translate-y-0.5"
+          >
+            <ChevronDown size={32} />
+          </button>
         </div>
       </section>
 
@@ -233,7 +250,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-16 md:py-20 bg-gray-50">
+      <section id="features" className="py-16 md:py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Waarom leerkrachten voor Pebble kiezen</h2>
@@ -290,7 +307,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 md:py-20 bg-white">
+      <section id="testimonials" className="py-16 md:py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Wat andere leerkrachten zeggen</h2>
@@ -431,4 +448,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
