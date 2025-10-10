@@ -26,9 +26,15 @@ const config: Config = {
           600: "var(--warm-600)",
         },
         success: {
+          50: "var(--success-50)",
           100: "var(--success-100)",
           500: "var(--success-500)",
           600: "var(--success-600)",
+        },
+        amber: {
+          50: "var(--amber-50)",
+          100: "var(--amber-100)",
+          600: "var(--amber-600)",
         },
       },
       borderColor: {

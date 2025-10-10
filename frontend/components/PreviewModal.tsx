@@ -123,7 +123,7 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
           {/* Progress bar with percent label */}
           <div className="sticky top-[52px] md:top-[62px] z-10 bg-white px-4 md:px-6 py-2 flex items-center gap-2 border-b border-gray-100">
             <div className="h-1 bg-gray-200 rounded w-full overflow-hidden">
-              <div className="h-full bg-blue-700 transition-all duration-200" style={{ width: `${progress}%` }} />
+              <div className="h-full bg-primary-700 transition-all duration-200" style={{ width: `${progress}%` }} />
             </div>
             <span className="text-xs text-gray-600 w-8 text-right">{progress}%</span>
           </div>
@@ -134,7 +134,7 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
           </div>
 
           {/* Footer CTA */}
-          <div className="px-4 md:px-6 py-4 border-t border-gray-200 bg-gradient-to-r from-blue-50 to-white sticky bottom-0">
+          <div className="px-4 md:px-6 py-4 border-t border-gray-200 bg-gradient-to-r from-primary-50 to-white sticky bottom-0">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="text-center sm:text-left">
                 <p className="font-semibold text-gray-900">Dit is een voorbeeld voor Groep 5 Spelling</p>
@@ -149,7 +149,7 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
                   onClick={() => {
                     track("preview_cta_click", { source: "modal", device });
                   }}
-                  className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-blue-700 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-primary-700 to-primary-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
                 >
                   Maak jouw eigen
                   <ArrowRight size={20} />
@@ -208,7 +208,7 @@ export default function PreviewModal({ isOpen, onClose }: { isOpen: boolean; onC
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
                   <button type="button" onClick={() => { setTeaserOpen(false); onClose(); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50">Nee, sluit</button>
-                  <button type="submit" disabled={submitting} className="px-5 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white rounded-lg font-semibold">{submitting ? 'Versturen...' : 'Stuur PDF'}</button>
+                  <button type="submit" disabled={submitting} className="px-5 py-2 bg-primary-700 hover:bg-primary-900 disabled:opacity-60 text-white rounded-lg font-semibold">{submitting ? 'Versturen...' : 'Stuur PDF'}</button>
                 </div>
                 <p className="text-xs text-gray-500">Wij respecteren je privacy. Je ontvangt 1 voorbeeld en optioneel tips (uitschrijven kan altijd).</p>
               </form>
@@ -232,7 +232,7 @@ function SamplePlan() {
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
       {/* Document Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-white p-6 md:p-8 border-b-2 border-blue-700">
+      <div className="bg-gradient-to-r from-primary-50 to-white p-6 md:p-8 border-b-2 border-primary-700">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Groepsplan Groep 5 - Spelling</h1>
         <div className="flex flex-wrap gap-4 text-sm text-gray-700">
           <span>
@@ -270,7 +270,7 @@ function SamplePlan() {
                   <td className="border border-gray-300 p-3">Heldere, gestructureerde instructie en voldoende oefentijd</td>
                   <td className="border border-gray-300 p-3">B-niveau</td>
                 </tr>
-                <tr className="bg-blue-50">
+                <tr className="bg-primary-50">
                   <td className="border border-gray-300 p-3 font-medium">Intensief</td>
                   <td className="border border-gray-300 p-3">5</td>
                   <td className="border border-gray-300 p-3">Verlengde instructie met visuele ondersteuning en extra herhaling</td>
@@ -291,14 +291,14 @@ function SamplePlan() {
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">2. SMARTI Doelen</h2>
           <div className="space-y-4">
-            <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+            <div className="bg-success-50 p-4 rounded-lg border-l-4 border-success-500">
               <h3 className="font-semibold text-gray-900 mb-2">Basisgroep</h3>
               <p>
                 Aan het eind van blok 2 beheerst <strong>90%</strong> van de basisgroep de werkwoordspelling (tegenwoordige
                 tijd) op <strong>D-niveau</strong>, gemeten met de methodetoets spelling.
               </p>
             </div>
-            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+            <div className="bg-primary-50 p-4 rounded-lg border-l-4 border-primary-500">
               <h3 className="font-semibold text-gray-900 mb-2">Intensieve groep</h3>
               <p>
                 Aan het eind van blok 2 beheerst <strong>80%</strong> van de intensieve groep de klankgroepenregel (open/gesloten
@@ -334,7 +334,7 @@ function SamplePlan() {
               </div>
             </div>
             <div className="border border-blue-300 rounded-lg overflow-hidden">
-              <div className="bg-blue-100 p-3 font-semibold">Intensieve groep</div>
+              <div className="bg-primary-100 p-3 font-semibold">Intensieve groep</div>
               <div className="p-4 space-y-2">
                 <p>
                   <strong>Instructie:</strong> Verlengde instructie <strong>35 min</strong> (20 + 15), ma/wo/vr 8:30-9:05.
@@ -389,7 +389,7 @@ function SamplePlan() {
         {/* 5. Evaluatie en Vervolg */}
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">5. Evaluatie en Vervolg</h2>
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+          <div className="bg-primary-50 p-6 rounded-lg border border-blue-200">
             <p className="mb-3">
               <strong>Tussenevaluatie:</strong> Week 6 – korte toets werkwoordspelling. Zijn doelen haalbaar?
             </p>
@@ -406,9 +406,9 @@ function SamplePlan() {
         </section>
 
         {/* Compliance Badge */}
-        <div className="mt-2 p-6 bg-green-50 border-2 border-green-500 rounded-lg text-center">
+        <div className="mt-2 p-6 bg-success-50 border-2 border-success-500 rounded-lg text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <span role="img" aria-label="check" className="text-green-600">
+            <span role="img" aria-label="check" className="text-success-600">
               ✔
             </span>
             <span className="text-lg font-bold text-green-800">Passend Onderwijs 2024 Compliant</span>

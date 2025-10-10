@@ -222,7 +222,7 @@ export default function LandingPage() {
                     <td className="border border-gray-300 p-3">Heldere, gestructureerde instructie en voldoende oefentijd</td>
                     <td className="border border-gray-300 p-3">B-niveau</td>
                   </tr>
-                  <tr className="bg-blue-50">
+                  <tr className="bg-primary-50">
                     <td className="border border-gray-300 p-3 font-medium">Intensief</td>
                     <td className="border border-gray-300 p-3">5</td>
                     <td className="border border-gray-300 p-3">Verlengde instructie met visuele ondersteuning en extra herhaling</td>
@@ -243,11 +243,11 @@ export default function LandingPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">2. SMARTI Doelen</h2>
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+              <div className="bg-success-50 p-4 rounded-lg border-l-4 border-success-500">
                 <h3 className="font-semibold text-gray-900 mb-2">Basisgroep</h3>
                 <p>Aan het eind van blok 2 beheerst <strong>90%</strong> van de basisgroep de werkwoordspelling (tegenwoordige tijd) op <strong>D-niveau</strong>, gemeten met de methodetoets spelling.</p>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+              <div className="bg-primary-50 p-4 rounded-lg border-l-4 border-primary-500">
                 <h3 className="font-semibold text-gray-900 mb-2">Intensieve groep</h3>
                 <p>Aan het eind van blok 2 beheerst <strong>80%</strong> van de intensieve groep de klankgroepenregel (open/gesloten lettergrepen) op <strong>E-niveau</strong> door intensieve herhaling en extra instructie met visuele stappenplannen.</p>
               </div>
@@ -272,7 +272,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="border border-blue-300 rounded-lg overflow-hidden">
-                <div className="bg-blue-100 p-3 font-semibold">Intensieve groep</div>
+                <div className="bg-primary-100 p-3 font-semibold">Intensieve groep</div>
                 <div className="p-4 space-y-2">
                   <p><strong>Instructie:</strong> Verlengde instructie <strong>35 min</strong> (20 + 15), ma/wo/vr 8:30-9:05.</p>
                   <p><strong>Verwerking:</strong> Compacte oefenstof (blz. 24-25); vaste plek bij de leerkracht.</p>
@@ -313,7 +313,7 @@ export default function LandingPage() {
           {/* 5. Evaluatie en Vervolg */}
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">5. Evaluatie en Vervolg</h2>
-            <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <div className="bg-primary-50 p-6 rounded-lg border border-blue-200">
               <p className="mb-3"><strong>Tussenevaluatie:</strong> Week 6 – korte toets werkwoordspelling. Zijn doelen haalbaar?</p>
               <p className="mb-3"><strong>Eindevaluatie:</strong> Week 12 – methodetoets spelling blok 2. Analyse: % doelbehaald.</p>
               <p className="mb-3"><strong>Bij niet-behalen:</strong> Aanpak aanpassen (frequentie/materialen); evt. niveau 2 ondersteuning.</p>
@@ -322,7 +322,7 @@ export default function LandingPage() {
           </section>
 
           {/* Compliance Badge */}
-          <div className="mt-2 p-6 bg-green-50 border-2 border-green-500 rounded-lg text-center">
+          <div className="mt-2 p-6 bg-success-50 border-2 border-success-500 rounded-lg text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span role="img" aria-label="check" className="text-green-600">✔</span>
               <span className="text-lg font-bold text-green-800">Passend Onderwijs 2024 Compliant</span>
@@ -346,12 +346,12 @@ export default function LandingPage() {
             <span className="text-2xl font-bold text-gray-900">Pebble</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <button onClick={() => scrollToId('features')} className="text-gray-700 hover:text-blue-700 transition-colors">Features</button>
-            <button onClick={() => scrollToId('testimonials')} className="text-gray-700 hover:text-blue-700 transition-colors">Ervaringen</button>
-            <a href={loginHref} className="text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
+            <button onClick={() => scrollToId('features')} className="text-gray-700 hover:text-primary-700 transition-colors">Features</button>
+            <button onClick={() => scrollToId('testimonials')} className="text-gray-700 hover:text-primary-700 transition-colors">Ervaringen</button>
+            <a href={loginHref} className="text-primary-700 hover:text-primary-900 transition-colors">Inloggen</a>
           </nav>
           <div className="md:hidden flex items-center gap-3">
-            <a href={loginHref} className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
+            <a href={loginHref} className="text-sm font-medium text-primary-700 hover:text-primary-900 transition-colors">Inloggen</a>
             <button aria-label="Menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen((v) => !v)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50">
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -362,9 +362,9 @@ export default function LandingPage() {
         {mobileOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 py-3 grid gap-2">
-            <button onClick={() => { scrollToId('features'); setMobileOpen(false); track('nav_click', { target: 'features' }); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Features</button>
-            <button onClick={() => { scrollToId('testimonials'); setMobileOpen(false); track('nav_click', { target: 'testimonials' }); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Ervaringen</button>
-              <a onClick={() => setMobileOpen(false)} href={loginHref} className="py-2 px-2 rounded-md hover:bg-blue-50">Inloggen</a>
+            <button onClick={() => { scrollToId('features'); setMobileOpen(false); track('nav_click', { target: 'features' }); }} className="text-left py-2 px-2 rounded-md hover:bg-primary-50">Features</button>
+            <button onClick={() => { scrollToId('testimonials'); setMobileOpen(false); track('nav_click', { target: 'testimonials' }); }} className="text-left py-2 px-2 rounded-md hover:bg-primary-50">Ervaringen</button>
+              <a onClick={() => setMobileOpen(false)} href={loginHref} className="py-2 px-2 rounded-md hover:bg-primary-50">Inloggen</a>
             </div>
           </div>
         )}
@@ -449,7 +449,7 @@ export default function LandingPage() {
             </a>
             <button
               onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }}
-              className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-blue-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 text-center"
+              className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-primary-700 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 text-center"
             >
               Bekijk voorbeeld
             </button>
@@ -461,15 +461,15 @@ export default function LandingPage() {
             style={{ animationDelay: '0.4s' }}
           >
             <span className="flex items-center gap-2">
-              <Check size={16} className="text-green-500" strokeWidth={2.5} />
+              <Check size={16} className="text-success-500" strokeWidth={2.5} />
               14 dagen gratis
             </span>
             <span className="flex items-center gap-2">
-              <Check size={16} className="text-green-500" strokeWidth={2.5} />
+              <Check size={16} className="text-success-500" strokeWidth={2.5} />
               Geen creditcard
             </span>
             <span className="flex items-center gap-2">
-              <Check size={16} className="text-green-500" strokeWidth={2.5} />
+              <Check size={16} className="text-success-500" strokeWidth={2.5} />
               Inspectie-OK
             </span>
           </div>
@@ -477,7 +477,7 @@ export default function LandingPage() {
           <button
             aria-label="Scroll naar features"
             onClick={() => { scrollToId('features'); track('nav_scroll', { target: 'features' }); }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 text-blue-700 hover:text-blue-800 transition-transform hover:translate-y-0.5"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 text-primary-700 hover:text-primary-900 transition-transform hover:translate-y-0.5"
           >
             <ChevronDown size={32} />
           </button>
@@ -489,7 +489,7 @@ export default function LandingPage() {
         <button
           aria-label="Terug naar boven"
           onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); track('nav_scroll', { target: 'top' }); }}
-          className="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-blue-700 hover:text-blue-800 hover:shadow-xl transition-all"
+          className="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-primary-700 hover:text-primary-900 hover:shadow-xl transition-all"
         >
           <ChevronUp size={22} />
         </button>
@@ -534,7 +534,7 @@ export default function LandingPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { setShowExitIntent(false); setShowPreview(true); track('exit_intent_cta_click', { action: 'open_preview' }); }}
-                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium"
+                  className="flex-1 bg-primary-700 hover:bg-primary-900 text-white px-4 py-2 rounded-lg font-medium"
                 >
                   Bekijk voorbeeld (30 sec)
                 </button>
@@ -562,7 +562,7 @@ export default function LandingPage() {
               { number: '2.1u', label: 'gemiddeld bespaard' },
             ].map((stat, idx) => (
               <div key={idx} className="relative">
-                <div className="text-4xl md:text-5xl font-bold text-blue-700 mb-2">{stat.number}</div>
+                <div className="text-4xl md:text-5xl font-bold text-primary-700 mb-2">{stat.number}</div>
                 <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
                 {idx < 3 && (
                   <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-px h-12 bg-gradient-to-b from-transparent via-gray-200 to-transparent" />
@@ -637,7 +637,7 @@ export default function LandingPage() {
             <div
               id="time-after"
               data-animate
-              className={`bg-gradient-to-br from-green-50 to-white border-2 border-green-500 rounded-xl p-8 text-center transition-all duration-700 ${
+              className={`bg-gradient-to-br from-green-50 to-white border-2 border-success-500 rounded-xl p-8 text-center transition-all duration-700 ${
                 isVisible['time-after'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
               style={{ animationDelay: '0.1s' }}
@@ -647,7 +647,7 @@ export default function LandingPage() {
               <div className="text-5xl font-bold text-gray-900 mb-2">22:00</div>
               <div className="text-gray-500 mb-4">Start</div>
               <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-                <div className="bg-green-500 h-3 rounded-full transition-all duration-1000" style={{ width: '8%' }} />
+                <div className="bg-success-500 h-3 rounded-full transition-all duration-1000" style={{ width: '8%' }} />
               </div>
               <div className="text-5xl font-bold text-gray-900 mb-2">22:10</div>
               <div className="text-gray-500 mb-4">Klaar</div>
@@ -676,15 +676,15 @@ export default function LandingPage() {
               },
               {
                 icon: <Users size={24} />,
-                bg: 'bg-blue-100',
-                color: 'text-blue-600',
+                bg: 'bg-primary-100',
+                color: 'text-primary-600',
                 title: 'Leert van jouw stijl',
                 desc: 'Upload je oude groepsplan. Wij leren van je aanpak en maken een nieuw plan in jouw stijl.',
               },
               {
                 icon: <Zap size={24} />,
-                bg: 'bg-orange-100',
-                color: 'text-orange-600',
+                bg: 'bg-warm-100',
+                color: 'text-warm-600',
                 title: 'Geen generiek gezwam',
                 desc: 'Concrete tijden, specifieke materialen, realistische doelen. Geen "maatwerk bieden".',
               },
@@ -730,7 +730,7 @@ export default function LandingPage() {
                 role: 'Groep 5, Rotterdam',
                 text:
                   'Eindelijk een tool die begrijpt hoe het écht is. Geen onnodige functies, gewoon: snel een goed groepsplan. Scheelt me 2 uur per keer.',
-                bg: 'bg-blue-100',
+                bg: 'bg-primary-100',
                 color: 'text-blue-700',
               },
               {
