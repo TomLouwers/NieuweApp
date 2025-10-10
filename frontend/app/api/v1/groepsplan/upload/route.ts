@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { applyRateHeaders } from "@/lib/api/rate-limit";
+import { applyRateHeaders, checkRate } from "@/lib/api/rate-limit";
+import { requireAuth } from "@/lib/api/auth";
 import { ok, err, HTTP } from "@/lib/api/respond";
 
 export async function POST(request: Request) {
+  // Enforce JWT auth for v1
+  const authCtx = await requireAuth(request);
+  if (authCtx instanceof Response) return authCtx;
+
   // Phase 1: proxy to existing route, then reshape to spec envelope
   const url = new URL(request.url);
   const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || url.host;
@@ -16,6 +21,15 @@ export async function POST(request: Request) {
   if (auth) headers["Authorization"] = auth;
   if (ct) headers["Content-Type"] = ct;
   if (bypass) headers["x-vercel-protection-bypass"] = bypass as string;
+
+  // Rate-limiting (authenticated 100/h generic for upload)
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || null;
+  const rate = await checkRate({ endpoint: "upload", userId: authCtx.userId, ip, limit: 100, token: authCtx.token });
+  if (!rate.allowed) {
+    const h = new Headers(rate.headers as any);
+    h.set("Retry-After", "3600");
+    return err({ code: "RATE_LIMIT_EXCEEDED", message: "Je hebt de limiet bereikt. Probeer het over 1 uur opnieuw." }, HTTP.TOO_MANY, { headers: h });
+  }
 
   const resp = await fetch(target, { method: "POST", headers, body: request.body as any });
   const outHeaders = new Headers({ ...applyRateHeaders() });

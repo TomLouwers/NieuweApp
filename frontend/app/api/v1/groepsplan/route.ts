@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { applyRateHeaders } from "@/lib/api/rate-limit";
-import { ok } from "@/lib/api/respond";
+import { ok, err, HTTP } from "@/lib/api/respond";
 import { getClient } from "@/lib/api/supabase-helpers";
+import { requireAuth } from "@/lib/api/auth";
 
 export async function GET(request: Request) {
   // List documents for authenticated user when possible.
   const url = new URL(request.url);
-  const auth = request.headers.get("authorization") || request.headers.get("Authorization");
-  const token = typeof auth === "string" && auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : null;
+  const authCtx = await requireAuth(request);
+  if (authCtx instanceof Response) return authCtx;
+  const token = authCtx.token;
   const limit = Math.max(1, Math.min(100, parseInt(url.searchParams.get("limit") || "20", 10)));
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") || "0", 10));
   const sort = (url.searchParams.get("sort") || "createdAt").toLowerCase();
@@ -16,10 +18,7 @@ export async function GET(request: Request) {
   const headers = new Headers({ ...applyRateHeaders() });
 
   const sb = getClient(token);
-  if (!sb) {
-    // Fallback: empty list, keeps app working when no DB
-    return ok({ items: [], pagination: { total: 0, limit, offset, hasMore: false } }, { headers });
-  }
+  if (!sb) return err({ code: "SERVICE_UNAVAILABLE", message: "Database niet beschikbaar" }, HTTP.UNAVAILABLE, { headers });
 
   try {
     let q = sb.from("documents").select("id, title, metadata, created_at, updated_at");
@@ -49,4 +48,3 @@ export async function GET(request: Request) {
     return ok({ items: [], pagination: { total: 0, limit, offset, hasMore: false } }, { headers });
   }
 }
-

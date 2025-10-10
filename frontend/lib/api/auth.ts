@@ -20,3 +20,13 @@ export async function parseAuth(request: Request, { allowDemo = true }: { allowD
   }
 }
 
+export async function requireAuth(request: Request): Promise<AuthContext | Response> {
+  const ctx = await parseAuth(request, { allowDemo: false });
+  if (!ctx.userId || !ctx.token) {
+    return new Response(
+      JSON.stringify({ error: { code: "UNAUTHORIZED", message: "Authentication required" }, meta: { requestId: Math.random().toString(36).slice(2,10), timestamp: new Date().toISOString() } }),
+      { status: 401, headers: { "content-type": "application/json" } }
+    );
+  }
+  return ctx;
+}

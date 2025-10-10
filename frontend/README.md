@@ -82,3 +82,30 @@ Notes
 - If both keys are set, the API prefers OpenAI and falls back to Anthropic on recoverable errors (HTTP 429/5xx/timeout).
 - On 429, the API sets `Retry-After` and the `/test-generate` page auto-retries using that header.
 
+## API v1 (Authenticated)
+
+New endpoints under `/api/v1`:
+
+- `GET /api/v1/health` — basic health check, no auth.
+- `GET /api/v1/openapi.json` — OpenAPI 3.1 spec for v1.
+- `POST /api/v1/generate-groepsplan` — requires `Authorization: Bearer <JWT>` (Supabase token). Rate limited.
+  - Body (JSON):
+    - `groep` (int 1..8)
+    - `vak` ("rekenen" | "taal" | "lezen")
+    - `periode` (string, <=64 chars)
+    - `previousContent?` (string, <=2000)
+    - `output?` ("markdown" | "pdf", default "markdown")
+    - `strictMode?` (boolean, default true)
+    - `filename?` (string, used when `output="pdf"`)
+  - Responds with JSON when `output=markdown`, or a PDF stream for `output=pdf`.
+  - Quality gates in `strictMode`: required H2 sections, min word-count, valid SLO codes.
+
+Legacy route `/api/generate-groepsplan` remains permissive (no auth, no rate limit).
+
+Environment knobs:
+
+- `RATE_LIMIT_MAX` (default 20)
+- `RATE_LIMIT_WINDOW_MS` (default 60000)
+- `GENERATE_MIN_WORDS` (default 550)
+- `GENERATE_MAX_WORDS` (default 1200)
+
