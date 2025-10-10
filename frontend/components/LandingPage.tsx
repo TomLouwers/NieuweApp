@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown } from 'lucide-react';
+import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp } from 'lucide-react';
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
   const loginHref = (process?.env?.NEXT_PUBLIC_LOGIN_URL as string) || '/dashboard';
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   function scrollToId(id: string) {
     const el = document.getElementById(id);
@@ -31,6 +33,14 @@ export default function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => {
+      try { setShowBackToTop(window.scrollY > 400); } catch {}
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -47,8 +57,24 @@ export default function LandingPage() {
             <button onClick={() => scrollToId('testimonials')} className="text-gray-700 hover:text-blue-700 transition-colors">Ervaringen</button>
             <a href={loginHref} className="text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
           </nav>
-          <a href={loginHref} className="md:hidden text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
+          <div className="md:hidden flex items-center gap-3">
+            <a href={loginHref} className="text-sm font-medium text-blue-700 hover:text-blue-800 transition-colors">Inloggen</a>
+            <button aria-label="Menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen((v) => !v)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50">
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile menu overlay */}
+        {mobileOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="max-w-6xl mx-auto px-4 py-3 grid gap-2">
+              <button onClick={() => { scrollToId('features'); setMobileOpen(false); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Features</button>
+              <button onClick={() => { scrollToId('testimonials'); setMobileOpen(false); }} className="text-left py-2 px-2 rounded-md hover:bg-blue-50">Ervaringen</button>
+              <a onClick={() => setMobileOpen(false)} href={loginHref} className="py-2 px-2 rounded-md hover:bg-blue-50">Inloggen</a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -140,6 +166,17 @@ export default function LandingPage() {
           </button>
         </div>
       </section>
+
+      {/* Back to top button */}
+      {showBackToTop && (
+        <button
+          aria-label="Terug naar boven"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-blue-700 hover:text-blue-800 hover:shadow-xl transition-all"
+        >
+          <ChevronUp size={22} />
+        </button>
+      )}
 
       {/* Stats Bar */}
       <section className="bg-white border-y border-gray-200 py-12 md:py-16">
