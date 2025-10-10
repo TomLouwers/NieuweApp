@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
-import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp } from 'lucide-react';
+import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp, Star } from 'lucide-react';
 import { track } from "@/lib/utils/analytics";
 import PreviewModal from "@/components/PreviewModal";
 
@@ -340,7 +340,7 @@ export default function LandingPage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-700 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-700 to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
               <div className="w-6 h-6 bg-white rounded-full opacity-20" />
             </div>
             <span className="text-2xl font-bold text-gray-900">Pebble</span>
@@ -395,7 +395,7 @@ export default function LandingPage() {
 
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-100 mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full text-sm font-medium border border-primary-100 mb-6 animate-fade-in">
             <Check size={16} strokeWidth={2.5} />
             <span>Gebruikt door 247 Nederlandse leerkrachten</span>
           </div>
@@ -442,7 +442,7 @@ export default function LandingPage() {
             <a
               href="/groepsplan/new"
               onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant, device })}
-              className="group bg-gradient-to-r from-blue-700 to-blue-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2"
+              className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
             >
               Maak je groepsplan
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -763,7 +763,7 @@ export default function LandingPage() {
               >
                 <div className="flex text-yellow-400 mb-4 gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i}>★</span>
+                    <Star key={i} size="16" className="text-yellow-400" />
                   ))}
                 </div>
                 <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
@@ -785,7 +785,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative bg-gradient-to-r from-blue-700 to-blue-600 py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-primary-700 to-primary-600 py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -820,7 +820,7 @@ export default function LandingPage() {
       <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-blue-600 rounded-lg" />
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-700 to-primary-600 rounded-lg" />
             <span className="text-xl font-bold text-white">Pebble</span>
           </div>
           <p className="text-sm mb-4">Gemaakt voor Nederlandse leerkrachten</p>

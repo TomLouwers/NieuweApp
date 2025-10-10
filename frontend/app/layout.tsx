@@ -2,6 +2,9 @@ import "./globals.css";
 import "./groepsplan/new/components/animations.css";
 import React from "react";
 import IntlProvider from "@/components/IntlProvider";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata = {
   title: "Nieuwe App",
@@ -28,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ) : null}
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased">
+      <body className={`min-h-screen bg-background text-foreground antialiased ${inter.className}`}>
         <IntlProvider>
           <div className="mx-auto max-w-screen-md px-4 py-6 md:py-8">{children}</div>
         </IntlProvider>
