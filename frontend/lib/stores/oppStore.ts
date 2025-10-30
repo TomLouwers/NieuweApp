@@ -99,8 +99,8 @@ export const useOppStore = create<OppStore>((set, get) => ({
   },
   generateOpp: async () => {
     const { answers } = get();
-    if (!answers.studentName || !answers.age || !answers.groep || !answers.gender) {
-      set({ error: { message: 'Vul naam, leeftijd, groep en geslacht in.' } });
+    if (!answers.groep) {
+      set({ error: { message: 'Vul de groep in.' } });
       return;
     }
     set({ generation: { status: 'loading' }, error: null });
@@ -140,4 +140,3 @@ export const useOppStore = create<OppStore>((set, get) => ({
     set({ currentStep: 'decision', path: null, answers: initialAnswers, upload: { status: 'idle' }, generation: { status: 'idle' }, error: null });
   },
 }));
-

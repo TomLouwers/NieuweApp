@@ -10,12 +10,12 @@ export default function SummaryGenerate({ onBack }: { onBack: () => void }) {
   async function onDownload() {
     const content = useOppStore.getState().generation.content || '';
     if (!content) return;
-    const meta = { studentName: answers.studentName || '[Leerling]', groep: answers.groep || '', age: answers.age || '' };
+    const meta = { studentName: '[Leerling]', groep: answers.groep || '' };
     const resp = await fetch('/api/export-opp-word', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, metadata: meta }) });
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `opp_${String(meta.studentName).replace(/[^a-z0-9_-]+/gi,'') || 'leerling'}_g${meta.groep || ''}.docx`;
+    a.href = url; a.download = `opp_anon_g${meta.groep || ''}.docx`;
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
 
@@ -23,7 +23,7 @@ export default function SummaryGenerate({ onBack }: { onBack: () => void }) {
     <div className="space-y-4">
       <h2>Samenvatting & Genereren</h2>
       <div className="text-sm bg-gray-50 p-4 rounded-md border">
-        <div>Leerling: {answers.studentName || 'Onbekend'}, {answers.age || '?'} jaar, groep {answers.groep || '?'}</div>
+        <div>Leerling: Anoniem, groep {answers.groep || '?'}</div>
         <div>Uitstroomprofiel: {answers.uitstroomprofiel?.type || 'onbekend'}</div>
         <div>Oudercontact: {answers.parentInvolvement || 'onbekend'}</div>
       </div>
@@ -46,4 +46,3 @@ export default function SummaryGenerate({ onBack }: { onBack: () => void }) {
     </div>
   );
 }
-

@@ -154,13 +154,12 @@ function buildUserPromptOPP(payload) {
   let prompt = "";
 
   // If user uploaded a previous OPP or provided continuation context, prepend enhanced continuation block
-  const hasContinuation = Boolean(uploadId || uploadedText || prev.previousGoals || changesSinceLast);
+  const hasContinuation = Boolean(uploadId || changesSinceLast);
   if (hasContinuation) {
     prompt += (
       "# PREVIOUS OPP CONTEXT\n\n" +
       "You have received a previous OPP for this student. Use it as foundation.\n\n" +
-      "## Previous OPP Content\n<previous_opp>\n" + (coerceString(uploadedText || "").slice(0, 4000)) + "\n</previous_opp>\n\n" +
-      "## Changes Since Last OPP\n" + coerceString(changesSinceLast || prev.reasonForProgress || prev.progressSince || "") + "\n\n" +
+      "## Changes Since Last OPP\n" + coerceString(changesSinceLast || "") + "\n\n" +
       "## Current Situation (Updated)\n" +
       `Technisch lezen: ${cl.technischLezen} | Spelling: ${cl.spelling} | Rekenen: ${cl.rekenen} | Begrijpend lezen: ${cl.begrijpendLezen} | Sociaal-emotioneel: ${cl.sociaalEmotioneel}` +
       (cl.gedrag ? ` | Gedrag/werkhouding: ${cl.gedrag}` : "") +
@@ -173,11 +172,10 @@ function buildUserPromptOPP(payload) {
 
   prompt += (
     "# TASK\nGenerate a complete OPP (Ontwikkelingsperspectief Plan) for a primary school student.\n\n" +
-    "# STUDENT CONTEXT\n" +
-      `- **Naam:** ${coerceString(studentName)}\n` +
-      `- **Leeftijd:** ${coerceNumber(age, "")} jaar\n` +
+    "# STUDENT CONTEXT (ANON)\n" +
+      `- **Leerling:** [anoniem]\n` +
       `- **Groep:** ${coerceNumber(groep, "")}\n` +
-      `- **Geslacht:** ${coerceString(gender)} (use pronoun '${p}')\n\n` +
+      `- **Voornaamwoorden:** '${p}' (afgeleid van keuze of neutraal)\n\n` +
     "# REASON FOR OPP\n" + coerceString(reasonForOpp) + "\n\n" +
     "# CURRENT LEVELS\n" +
       `- **Technisch lezen:** ${cl.technischLezen} (AVI)\n` +
@@ -190,7 +188,6 @@ function buildUserPromptOPP(payload) {
     "# UITSTROOMPROFIEL\n" + `${up.type} - ${up.rationale}\n\n` +
     "# EXTERNAL SUPPORT\n" + `${coerceArray(externalSupport).join(", ") || "(geen of onbekend)"}\n\n` +
     "# PARENT INVOLVEMENT\n" + `${coerceString(parentInvolvement)}\n\n` +
-    "# ADDITIONAL CONTEXT\n" + `${coerceString(additionalContext || "")}\n\n` +
     "# OUTPUT REQUIREMENTS (7 mandatory sections)\n" +
       "## 1. Leerlingprofiel (start met sterktes; ontwikkelingsgeschiedenis; gezinssituatie indien relevant; eerdere ondersteuning)\n" +
       "## 2. Beginsituatie (concrete niveaus met vergelijkingen; SEO; werkhouding; start met wat goed gaat)\n" +
@@ -364,8 +361,8 @@ async function handler(req, res) {
   const age = coerceNumber(body.age);
   const groep = coerceNumber(body.groep);
   const gender = coerceString(body.gender);
-  if (!name || !age || !groep || groep < 1 || groep > 8) {
-    return res.status(400).json(friendlyValidationError("Ongeldige invoer: 'studentName', 'age', 'groep' zijn verplicht (groep 1..8)."));
+  if (!groep || groep < 1 || groep > 8) {
+    return res.status(400).json(friendlyValidationError("Ongeldige invoer: 'groep' is verplicht (1..8)."));
   }
 
   const system = buildSystemPromptOPP();
@@ -393,27 +390,8 @@ async function handler(req, res) {
       } catch {}
     }
 
-    // Optional persistence (authenticated calls only)
-    let storageSaved = false;
-    try {
-      const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
-      const token = typeof authHeader === "string" && authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
-      if (token) {
-        const { user } = await getUserFromToken(token);
-        if (user) {
-          const supabase = createSupabaseClient(undefined, undefined, { accessToken: token });
-          const insert = {
-            user_id: user.id,
-            type: "opp",
-            title: `OPP ${name} (groep ${groep})`,
-            content: text,
-            metadata: { studentName: name, age, groep, gender, model: modelUsed || MODEL, tokensUsed: usage?.output_tokens ?? null, duration_ms: durationMs },
-          };
-          const { error: dbError } = await supabase.from("documents").insert(insert);
-          if (!dbError) storageSaved = true;
-        }
-      }
-    } catch {}
+    // No persistence for OPP content to avoid storing PII (AVG compliance)
+    const storageSaved = false;
 
     const resp = { success: true, content: text, metadata: { model: modelUsed || MODEL, duration_ms: Date.now() - started, length: text.length, storage: { saved: storageSaved } } };
     if (qc.warnings?.length) resp.warnings = qc.warnings;
