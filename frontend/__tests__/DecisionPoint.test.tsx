@@ -34,7 +34,7 @@ describe('DecisionPoint interactions', () => {
     await waitFor(() => {
       fireEvent.change(input, { target: { files: [file] } });
     });
-    expect(await screen.findByRole('alert')).toHaveTextContent(/Ongeldig bestandstype/i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Upload een PDF, Word-document of foto/i);
   });
 
   test('dropping multiple files warns and uploads first valid file', async () => {

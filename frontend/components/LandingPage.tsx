@@ -448,6 +448,15 @@ export default function LandingPage() {
               <span className="hidden sm:inline group-hover:inline"> (10 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
+            <a
+              href="/opp/new"
+              onClick={() => track('cta_click', { cta: 'start_opp', variant: headlineVariant, device })}
+              className="group bg-teal-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 tracking-[0.01em]"
+            >
+              Maak OPP
+              <span className="hidden sm:inline group-hover:inline"> (15 min)</span>
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </a>
             <button
               onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }}
               className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-primary-700 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 text-center"
@@ -829,13 +838,22 @@ export default function LandingPage() {
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Klaar om je weekend terug te krijgen?</h2>
           <p className="text-xl text-blue-100 mb-8">Start gratis. Geen creditcard nodig. Opzeggen wanneer je wilt.</p>
-          <a
-            href="/groepsplan/new"
-            className="bg-white text-blue-700 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3 mb-6"
-          >
-            Maak je groepsplan - 100% gratis starten
-            <ArrowRight size={24} />
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <a
+              href="/groepsplan/new"
+              className="bg-white text-blue-700 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
+            >
+              Maak je groepsplan - 100% gratis starten
+              <ArrowRight size={24} />
+            </a>
+            <a
+              href="/opp/new"
+              className="bg-teal-50 text-teal-800 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
+            >
+              Maak OPP (nieuw)
+              <ArrowRight size={24} />
+            </a>
+          </div>
           <div className="flex flex-wrap justify-center gap-4 text-blue-100 text-sm font-medium mb-4">
             <span>Geen account nodig</span>
             <span className="hidden sm:inline">•</span>

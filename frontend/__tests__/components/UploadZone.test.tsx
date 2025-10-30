@@ -19,7 +19,7 @@ describe('Upload Zone (DecisionPoint upload card)', () => {
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const bad = new File(["foo"], "notes.txt", { type: 'text/plain' });
     fireEvent.change(input, { target: { files: [bad] } });
-    expect(screen.getByRole('alert')).toHaveTextContent(/Ongeldig bestandstype/i);
+    expect(screen.getByRole('alert')).toHaveTextContent(/Upload een PDF, Word-document of foto/i);
   });
 
   test.skip('happy path: upload success navigates to a2', async () => {
