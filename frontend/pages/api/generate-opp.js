@@ -85,25 +85,24 @@ function coerceArray(v) { return Array.isArray(v) ? v : []; }
 
 // ---- Prompt builders ----
 function buildSystemPromptOPP() {
+  // System context derived from AI Prompt Engineering Guide (GUIDE-PROMPT-OPP-2025-001)
   return (
-    "Je bent een ervaren IB'er (Intern Begeleider) gespecialiseerd in het schrijven van Ontwikkelingsperspectiefplannen (OPP's) voor het Nederlandse basisonderwijs.\n" +
-    "\n## Jouw expertise\n" +
-    "- Je schrijft OPP's die voldoen aan Passend Onderwijs 2024\n" +
-    "- Je begrijpt de emotionele impact: ouders lezen dit over hun kind\n" +
-    "- Je bent altijd respectvol, empathisch en handelingsgericht\n" +
-    "- Je begrijpt de lange termijn: dit is geen groepsplan, maar een ontwikkelpad\n" +
-    "\n## Kritieke verschillen met Groepsplannen\n" +
-    "- OPP is INDIVIDUEEL, niet groep\n" +
-    "- OPP is LANGE TERMIJN (6-12 maanden), niet 8 weken\n" +
-    "- OPP moet UITSTROOMPROFIEL bevatten\n" +
-    "- OPP is GEVOELIG: ouders lezen dit, wees respectvol\n" +
-    "- OPP moet HOOP bieden: focus op wat WEL kan\n" +
-    "\n## Taalgebruik (zeer belangrijk!)\nNOOIT:\n" +
-    "- 'Student kan niet...'\n- 'Student is zwak in...'\n- 'Student heeft problemen met...'\n- 'Student faalt regelmatig...'\n" +
-    "ALTIJD:\n- 'Student heeft behoefte aan...'\n- 'Student ontwikkelt zich op het gebied van...'\n- 'Student maakt kleine stappen in...'\n- 'We zien dat student goed reageert op...'\n" +
-    "\n## Structuur sterkte-eerst\nBegin ALTIJD elke sectie met sterktes/positieve punten.\n\n## Uitstroomprofiel\n" +
-    "- Wees realistisch maar niet definitief\n- Gebruik 'op dit moment lijkt X realistisch'\n- Erken dat dit kan veranderen en motiveer waarom\n\n## Ouders\n" +
-    "- Ouders zijn partner, niet probleem\n- Erken hun zorgen en geef handvatten\n- Wees transparant over haalbaarheid\n\nGenereer een volledig, empathisch, en compliant OPP."
+    "# SYSTEM CONTEXT\n" +
+      "You are an expert Dutch primary school teacher and IB'er (internal coach) with 20+ years of experience writing OPPs (Ontwikkelingsperspectief Plannen).\n" +
+      "You understand Passend Onderwijs 2024, the Handelingsgericht approach, parent-sensitive communication, realistic goal-setting for struggling students, and you write with an empathetic but professional tone.\n\n" +
+    "# CRITICAL DIFFERENCES VS GROEPSPLAN\n" +
+      "- OPP is INDIVIDUEEL, not a group\n- OPP is LANGE TERMIJN (6-12 maanden)\n- OPP MOET een UITSTROOMPROFIEL bevatten\n- OPP is GEVOELIG: ouders lezen dit\n- OPP biedt HOOP: focus op wat WEL kan\n\n" +
+    "# TONE & LANGUAGE RULES (STRICT)\n" +
+      "1) Start ELKE sectie met iets positiefs (sterktes/interesses).\n" +
+      "2) Gebruik HANDELINGSGERICHTE taal: 'heeft baat bij', 'werkt aan', 'ontwikkelt zich naar'.\n" +
+      "3) VERMIJD deficit-taal: 'kan niet', 'faalt', 'zwak', 'hopeloos', 'zal nooit'.\n" +
+      "4) Oudervriendelijk: leg jargon uit (AVI, DMT, etc.), gebruik vergelijkingen (bijv. 'ongeveer groep 4 niveau').\n" +
+      "5) Wees concreet: frequenties, tijden, wie-doet-wat; geen 'extra aandacht' zonder details.\n" +
+      "6) Realistisch maar hoopvol: feitelijk over uitdagingen, concrete steun, haalbare doelen, hoopvolle afronding.\n\n" +
+    "# OUTPUT FORMAT\n" +
+      "- Gebruik Markdown met duidelijke H2-koppen voor 7 verplichte secties.\n" +
+      "- Korte alinea's en opsommingen waar passend.\n" +
+      "- Consistente voornaamwoorden op basis van het aangegeven gender (hij/zij/hen).\n"
   );
 }
 
@@ -126,6 +125,8 @@ function buildUserPromptOPP(payload) {
     previousOppData = {},
     additionalContext,
     teacherFocusArea,
+    uploadedText,
+    changesSinceLast,
   } = payload || {};
 
   const p = pronounFor(gender);
@@ -149,65 +150,90 @@ function buildUserPromptOPP(payload) {
     reasonForProgress: coerceString(previousOppData.reasonForProgress || ""),
   };
 
-  // Build a concise, explicit generation instruction
-  const header = (
-    `Genereer een volledig Ontwikkelingsperspectief Plan (OPP) voor:\n\n` +
-    `## Leerlinggegevens\n- Naam: ${coerceString(studentName)}\n- Leeftijd: ${coerceNumber(age, "")} jaar\n- Groep: ${coerceNumber(groep, "")}\n- Geslacht: ${coerceString(gender)} (gebruik '${p}')\n\n` +
-    `## Reden voor OPP\n${coerceString(reasonForOpp)}\n\n` +
-    `## Huidige Situatie\n` +
-    `**Technisch lezen:** ${cl.technischLezen}\n` +
-    `**Spelling:** ${cl.spelling}\n` +
-    `**Rekenen:** ${cl.rekenen}\n` +
-    `**Begrijpend lezen:** ${cl.begrijpendLezen}\n` +
-    `**Sociaal-emotioneel:** ${cl.sociaalEmotioneel}\n` +
-    (cl.gedrag ? `**Gedrag/werkhouding:** ${cl.gedrag}\n` : "") +
-    `\n## Voortgang sinds vorige OPP\n` +
-    (uploadId ? (
-      `**Eerdere doelen:** ${prev.previousGoals}\n` +
-      `**Behaald:** ${prev.goalsAchieved}\n` +
-      `**Niet behaald:** ${prev.goalsNotAchieved}\n` +
-      `**Reden:** ${prev.reasonForProgress || prev.progressSince}\n`
-    ) : `Dit is het eerste OPP voor deze leerling.`) +
-    `\n## Uitstroomprofiel\n${up.type}\n**Motivatie:** ${up.rationale}\n\n` +
-    `## Betrokken externe partijen\n${coerceArray(externalSupport).join(", ") || "(geen of onbekend)"}\n\n` +
-    `## Oudercontact\n${coerceString(parentInvolvement)}\n\n` +
-    `## Specifieke focus leerkracht\n${coerceString(teacherFocusArea || "")}\n\n---\n\n` +
-    `Genereer het volledige OPP in Markdown met de volgende secties en volgorde:\n` +
-    `1. **Leerlingprofiel** (sterktes eerst, ontwikkelingsgeschiedenis, gezinssituatie indien relevant)\n` +
-    `2. **Beginsituatie** (cognitief per vak + SEO, concreet, noem sterktes en huidige ondersteuning)\n` +
-    `3. **Uitstroomprofiel** (realistisch, kan wijzigen, motiveer op basis van huidige ontwikkeling)\n` +
-    `4. **Ontwikkeldoelen (SMARTI)** (3-5 doelen, incl. minimaal 1 sociaal-emotioneel, termijn 6-12m)\n` +
-    `5. **Aanpak** (concrete interventies met frequenties, wie-doet-wat, klasaanpassingen, rol ouders)\n` +
-    `6. **Betrokkenen** (school, extern, ouders, leerling)\n` +
-    `7. **Evaluatie en Bijstelling** (momenten, metingen, plan B/plan bij behalen)\n` +
-    `8. **Transitie en Vervolgstappen** (naar VO of SO indien van toepassing)\n` +
-    `9. **Bijlagen (optioneel)**\n` +
-    `10. **Ondertekening**\n\n` +
-    `Toon: empathisch, respectvol, handelingsgericht, concreet, hoopvol maar realistisch.\n` +
-    `Gebruik '${p}' consequent. Vermijd deficit-taal ('kan niet', 'faalt', 'zwak', 'onmogelijk').\n` +
-    `Wees specifiek met tijden/frequenties (bijv. '15 min 1-op-1, 3x per week').\n`
+  // Master prompt with optional continuation (upload) context
+  let prompt = "";
+
+  // If user uploaded a previous OPP or provided continuation context, prepend enhanced continuation block
+  const hasContinuation = Boolean(uploadId || uploadedText || prev.previousGoals || changesSinceLast);
+  if (hasContinuation) {
+    prompt += (
+      "# PREVIOUS OPP CONTEXT\n\n" +
+      "You have received a previous OPP for this student. Use it as foundation.\n\n" +
+      "## Previous OPP Content\n<previous_opp>\n" + (coerceString(uploadedText || "").slice(0, 4000)) + "\n</previous_opp>\n\n" +
+      "## Changes Since Last OPP\n" + coerceString(changesSinceLast || prev.reasonForProgress || prev.progressSince || "") + "\n\n" +
+      "## Current Situation (Updated)\n" +
+      `Technisch lezen: ${cl.technischLezen} | Spelling: ${cl.spelling} | Rekenen: ${cl.rekenen} | Begrijpend lezen: ${cl.begrijpendLezen} | Sociaal-emotioneel: ${cl.sociaalEmotioneel}` +
+      (cl.gedrag ? ` | Gedrag/werkhouding: ${cl.gedrag}` : "") +
+      "\n\n---\n\n# TASK: Generate NEW OPP that Shows Continuity\n" +
+      "- Refer to previous goals in Beginsituatie ('Vorig jaar was het doel...').\n" +
+      "- Explain progress or lack thereof constructively; adjust approach accordingly.\n" +
+      "- Continue what worked; change what didn’t; keep tone consistent and respectful.\n\n"
+    );
+  }
+
+  prompt += (
+    "# TASK\nGenerate a complete OPP (Ontwikkelingsperspectief Plan) for a primary school student.\n\n" +
+    "# STUDENT CONTEXT\n" +
+      `- **Naam:** ${coerceString(studentName)}\n` +
+      `- **Leeftijd:** ${coerceNumber(age, "")} jaar\n` +
+      `- **Groep:** ${coerceNumber(groep, "")}\n` +
+      `- **Geslacht:** ${coerceString(gender)} (use pronoun '${p}')\n\n` +
+    "# REASON FOR OPP\n" + coerceString(reasonForOpp) + "\n\n" +
+    "# CURRENT LEVELS\n" +
+      `- **Technisch lezen:** ${cl.technischLezen} (AVI)\n` +
+      `- **Spelling:** ${cl.spelling} (Cito)\n` +
+      `- **Rekenen:** ${cl.rekenen} (Cito)\n` +
+      `- **Begrijpend lezen:** ${cl.begrijpendLezen}\n` +
+      `- **Sociaal-emotioneel:** ${cl.sociaalEmotioneel}\n` +
+      (cl.gedrag ? `- **Gedrag/werkhouding:** ${cl.gedrag}\n` : "") +
+      "\n" +
+    "# UITSTROOMPROFIEL\n" + `${up.type} - ${up.rationale}\n\n` +
+    "# EXTERNAL SUPPORT\n" + `${coerceArray(externalSupport).join(", ") || "(geen of onbekend)"}\n\n` +
+    "# PARENT INVOLVEMENT\n" + `${coerceString(parentInvolvement)}\n\n` +
+    "# ADDITIONAL CONTEXT\n" + `${coerceString(additionalContext || "")}\n\n` +
+    "# OUTPUT REQUIREMENTS (7 mandatory sections)\n" +
+      "## 1. Leerlingprofiel (start met sterktes; ontwikkelingsgeschiedenis; gezinssituatie indien relevant; eerdere ondersteuning)\n" +
+      "## 2. Beginsituatie (concrete niveaus met vergelijkingen; SEO; werkhouding; start met wat goed gaat)\n" +
+      "## 3. Uitstroomprofiel & Perspectief (realistisch; implicaties voor ondersteuning; VO-perspectief)\n" +
+      "## 4. Ontwikkeldoelen (minimaal 3 SMART; incl. 1 cognitief en 1 sociaal-emotioneel)\n" +
+      "## 5. Aanpak (concrete interventies met frequenties, wie, materialen; klasaanpassingen; rol ouders)\n" +
+      "## 6. Betrokkenen (school, extern, ouders, leerling)\n" +
+      "## 7. Evaluatie en Vervolg (momenten, metingen, plan B; herziening uitstroomprofiel)\n\n" +
+    "# TONE & LANGUAGE (ENFORCE)\n" +
+      `- Begin elke sectie met iets positiefs. Vermijd 'kan niet', 'faalt', 'zwak'. Gebruik handelingsgerichten zoals 'heeft baat bij'.\n` +
+      `- Oudervriendelijk (leg jargon uit; vergelijkingsniveaus). Zinnen < 20 woorden waar mogelijk.\n` +
+      `- Gebruik voornaamwoorden consistent: '${p}'.\n\n` +
+    "# QUALITY CHECKS BEFORE OUTPUT\n" +
+      "- Minimaal 3 SMART-doelen (koppel 'Specifiek/Meetbaar/Realistisch/Tijdsgebonden').\n" +
+      "- Concrete frequenties en tijden ('3x/week 15 min 1-op-1').\n" +
+      "- Geen onverklaard jargon.\n" +
+      "- Balans realisme en hoop.\n\n" +
+    "# FORMAT\n" +
+      "Output als nette Markdown met H2-koppen zoals boven gespecificeerd.\n"
   );
 
-  return header;
+  return prompt;
 }
 
 // ---- Quality checks for OPP (empathy + completeness) ----
-function oppQuality(text) {
+function oppQuality(text, opts = {}) {
   const checks = { warnings: [], errors: [], flags: {} };
   const full = String(text || "");
   const t = full.toLowerCase();
-  // Deficit language
-  const banned = ["kan niet", "zwak", "problemen", "faalt", "nooit", "onmogelijk"];
-  const foundBanned = banned.filter((b) => t.includes(b));
-  if (foundBanned.length) { checks.warnings.push(`Deficit-taal gedetecteerd: ${foundBanned.join(", ")}`); checks.flags.deficit = true; }
-  // Required sections (loose match)
+  // 1) Required sections
   const must = ["## 1. leer", "## 2. begin", "## 3. uitstroom", "## 4. ontwikkeldoelen", "## 5. aanpak", "## 6. betrokken", "## 7. evalu"];
   const missing = must.filter((h) => !t.includes(h));
   if (missing.length) { checks.errors.push("Vereiste secties ontbreken of zijn onvolledig."); checks.flags.missingSections = true; }
-  // Minimal length
-  if (full.length < 1200) { checks.warnings.push("OPP lijkt kort. Overweeg meer concreetheid en voorbeelden."); }
-  // Strength-balance ratio heuristic per section: count sentences starting with positive cues vs challenge cues
-  const positiveCues = [/\b(sterk|sterktes|positief|goed|gemotiveerd|interesse)\b/i, /heeft behoefte aan/i, /maakt kleine stappen/i, /reageert goed op/i];
+  // 2) Length target (approx)
+  const wordCount = full.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 1500) checks.warnings.push(`Kort document (${wordCount} woorden, doel 2000-3500).`);
+  if (wordCount > 4000) checks.warnings.push(`Lang document (${wordCount} woorden, doel 2000-3500).`);
+  // 3) Deficit language
+  const banned = ["kan niet", "faalt", "zwak", "hopeloos", "zal nooit", "onmogelijk"];
+  const foundBanned = banned.filter((b) => t.includes(b));
+  if (foundBanned.length) { checks.warnings.push(`Deficit-taal gedetecteerd: ${foundBanned.join(", ")}`); checks.flags.deficit = true; }
+  // 4) Strength-balance heuristic
+  const positiveCues = [/\b(sterk|sterktes|positief|goed|gemotiveerd|interesse)\b/i, /heeft baat bij/i, /maakt kleine stappen/i, /reageert goed op/i, /werkt aan/i, /ontwikkelt zich/i];
   const challengeCues = [/\b(uitdaging|moeilijk|zorg|achterstand|intensieve ondersteuning)\b/i, /moeite met/i];
   let pos = 0, neg = 0;
   try {
@@ -222,10 +248,28 @@ function oppQuality(text) {
     checks.warnings.push("Weinig positieve formuleringen t.o.v. aandachtspunten. Voeg sterktes toe per sectie (sterktes eerst).");
     checks.flags.lowStrengthBalance = true;
   }
-  // Jargon or vague phrasing
-  const vague = ["extra aandacht", "maatwerk", "uitdaging aangaan", "optimaliseren"];
+  // 5) SMART goal heuristic (count Specifiek/Meetbaar pairs)
+  const smartMatches = full.match(/\b(Specifiek|Meetbaar|Realistisch|Tijdsgebonden)\b[:：]/gi) || [];
+  const smartCount = Math.floor(smartMatches.length / 3); // rough lower bound
+  if (smartCount < 3) checks.warnings.push(`Weinig SMART-structuur gedetecteerd (~${smartCount} doelen). Doel: ≥ 3.`);
+  // 6) Presence of SEO goal terms
+  if (!/sociaal\-?emot/i.test(t)) checks.warnings.push("Controleer: is er een sociaal-emotioneel doel opgenomen?");
+  // 7) Jargon detection without hints
+  const jargon = ["avi", "dmt", "stanine", "didact", "seo ", "leeftijdsadequaat"];
+  const foundJargon = jargon.filter((j) => t.includes(j));
+  if (foundJargon.length) checks.warnings.push(`Controleer uitleg bij jargon: ${foundJargon.join(", ")}`);
+  // 8) Vague phrasing
+  const vague = ["extra aandacht", "meer oefenen", "beter leren", "optimaliseren", "uitdaging aangaan"];
   const foundVague = vague.filter((v) => t.includes(v));
   if (foundVague.length) checks.warnings.push(`Mogelijk vage taal: ${foundVague.join(", ")}. Maak concreet met tijden/frequentie.`);
+  // 9) Pronoun consistency (heuristic)
+  const g = String(opts.gender || "").toLowerCase();
+  const usedHij = /\bhij\b|\bhem\b|\bzijn\b/i.test(full);
+  const usedZij = /\bzij\b|\bhaar\b/i.test(full);
+  const usedHen = /\bhen\b|\bhun\b/i.test(full);
+  if (g === 'male' && (usedZij || usedHen)) checks.warnings.push("Controleer voornaamwoorden: verwacht 'hij/hem/zijn'.");
+  if (g === 'female' && (usedHij || usedHen)) checks.warnings.push("Controleer voornaamwoorden: verwacht 'zij/haar'.");
+  if (g !== 'male' && g !== 'female' && (usedHij || usedZij)) checks.warnings.push("Overweeg genderneutraal 'hen/hun'.");
   return checks;
 }
 
@@ -339,10 +383,10 @@ async function handler(req, res) {
       return res.status(502).json({ success: false, content: "", metadata: { error: "Generatie mislukt of resultaat te kort.", model: modelUsed || MODEL, duration_ms: durationMs } });
     }
 
-    const qc = oppQuality(text);
+    const qc = oppQuality(text, { gender });
     if (qc.flags?.missingSections || qc.flags?.deficit || qc.flags?.lowStrengthBalance) {
       // one retry with stronger instructions
-      const emph = user + "\n\nKRITIEK: Neem ALLE vereiste secties op; vermijd deficit-taal; formuleer handelingsgericht; begin elke sectie met sterktes (positief) en voeg concrete voorbeelden en frequenties toe.";
+      const emph = user + "\n\nKRITIEK: Neem ALLE vereiste secties op; vermijd deficit-taal; formuleer handelingsgericht; begin elke sectie met sterktes; voeg concrete voorbeelden en frequenties toe; gebruik consistente voornaamwoorden.";
       try {
         const r2 = await generateOPP({ system, user: emph, signal: ctrl?.signal });
         if (r2?.text && r2.text.length > text.length * 0.8) text = r2.text;
