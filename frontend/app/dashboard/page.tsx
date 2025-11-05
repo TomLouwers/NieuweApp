@@ -11,9 +11,14 @@ export default async function DashboardPage() {
     <main className="space-y-6">
       <header className="flex items-center justify-between">
         <h1>Dashboard</h1>
-        <Link href="/groepsplan/new">
-          <Button className="btn-primary">+ Maak Groepsplan</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/maatwerk/new">
+            <Button className="btn-primary">+ Maatwerk-opdrachten</Button>
+          </Link>
+          <Link href="/groepsplan/new">
+            <Button className="btn-primary">+ Maak Groepsplan</Button>
+          </Link>
+        </div>
       </header>
 
       <section className="space-y-3">
@@ -38,4 +43,3 @@ export default async function DashboardPage() {
     </main>
   );
 }
-
