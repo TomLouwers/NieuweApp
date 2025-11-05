@@ -437,18 +437,18 @@ export default function LandingPage() {
                     {/* CTAs */}
           <div className="flex flex-col items-center justify-center gap-3 mb-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <a
-              href="/groepsplan/new"
+              href="/maatwerk/new"
               onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant, device })}
               className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 inline-flex items-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
             >
-              Start nu
+              Start maatwerk
               <span className="hidden sm:inline group-hover:inline"> (10 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-              <a href="/opp/new" onClick={() => track('cta_click', { cta: 'start_opp', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">OPP</a>
+              <a href="/groepsplan/new" onClick={() => track('cta_click', { cta: 'start_groepsplan', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">Groepsplan</a>
               <span className="hidden sm:inline">·</span>
-              <a href="/maatwerk/new" onClick={() => track('cta_click', { cta: 'start_maatwerk', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">Maatwerk‑opdrachten</a>
+              <a href="/opp/new" onClick={() => track('cta_click', { cta: 'start_opp', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">OPP</a>
               <span className="hidden sm:inline">·</span>
               <button onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }} className="underline-offset-4 hover:underline">Bekijk voorbeeld</button>
             </div>
@@ -829,16 +829,16 @@ export default function LandingPage() {
           <p className="text-xl text-blue-100 mb-8">Start gratis. Geen creditcard nodig. Opzeggen wanneer je wilt.</p>
                     <div className="flex flex-col items-center justify-center gap-3 mb-6"> 
             <a
-              href="/groepsplan/new"
+              href="/maatwerk/new"
               className="bg-white text-blue-700 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
             >
-              Start gratis
+              Start maatwerk
               <ArrowRight size={24} />
             </a>
             <div className="flex items-center justify-center gap-4 text-blue-100 text-sm font-medium">
-              <a href="/opp/new" className="underline-offset-4 hover:underline">OPP</a>
+              <a href="/groepsplan/new" className="underline-offset-4 hover:underline">Groepsplan</a>
               <span className="hidden sm:inline">·</span>
-              <a href="/maatwerk/new" className="underline-offset-4 hover:underline">Maatwerk‑opdrachten</a>
+              <a href="/opp/new" className="underline-offset-4 hover:underline">OPP</a>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-blue-100 text-sm font-medium mb-4">
