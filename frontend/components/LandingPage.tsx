@@ -430,8 +430,8 @@ export default function LandingPage() {
             style={{ animationDelay: '0.2s' }}
           >
             {headlineVariant === 'a'
-              ? 'Pebble maakt je groepsplan in 10 minuten. Upload je oude plan, of beantwoord 5 vragen. Download als Word. Klaar.'
-              : 'Upload je oude plan of beantwoord 5 vragen. Jij checkt, downloadt en bent klaar. Minder gedoe, meer tijd.'}
+              ? 'Maak in 3-5 min maatwerk-opdrachten voor je klas. Upload een foto uit de methode of kies scenario\'s (dyslexie, traag tempo, NT2). Download als PDF of Word.'
+              : 'Upload een werkblad -> wij passen het aan voor jouw leerlingen. Jij checkt, downloadt en gaat lesgeven. Minder kopiëren, meer tijd.'}
           </p>
 
                     {/* CTAs */}
