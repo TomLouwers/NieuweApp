@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useMemo } from 'react';
 import { Check, ArrowRight, Users, Zap, Smartphone, Clock, ChevronDown, Menu, X, ChevronUp, Star } from 'lucide-react';
 import { track } from "@/lib/utils/analytics";
@@ -314,8 +314,8 @@ export default function LandingPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-200">5. Evaluatie en Vervolg</h2>
             <div className="bg-primary-50 p-6 rounded-lg border border-blue-200">
-              <p className="mb-3"><strong>Tussenevaluatie:</strong> Week 6 – korte toets werkwoordspelling. Zijn doelen haalbaar?</p>
-              <p className="mb-3"><strong>Eindevaluatie:</strong> Week 12 – methodetoets spelling blok 2. Analyse: % doelbehaald.</p>
+              <p className="mb-3"><strong>Tussenevaluatie:</strong> Week 6 â€“ korte toets werkwoordspelling. Zijn doelen haalbaar?</p>
+              <p className="mb-3"><strong>Eindevaluatie:</strong> Week 12 â€“ methodetoets spelling blok 2. Analyse: % doelbehaald.</p>
               <p className="mb-3"><strong>Bij niet-behalen:</strong> Aanpak aanpassen (frequentie/materialen); evt. niveau 2 ondersteuning.</p>
               <p className="mb-0"><strong>Bij behalen:</strong> Doorgaan; nieuwe uitdaging Meer-groep: complexere regels (samenstellingen).</p>
             </div>
@@ -324,10 +324,10 @@ export default function LandingPage() {
           {/* Compliance Badge */}
           <div className="mt-2 p-6 bg-success-50 border-2 border-success-500 rounded-lg text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span role="img" aria-label="check" className="text-green-600">✔</span>
+              <span role="img" aria-label="check" className="text-green-600">âœ”</span>
               <span className="text-lg font-bold text-green-800">Passend Onderwijs 2024 Compliant</span>
             </div>
-            <p className="text-sm text-green-700">✓ SMARTI doelen • ✓ Handelingsgericht • ✓ Mickey Mouse model • ✓ Evaluatie gepland</p>
+            <p className="text-sm text-green-700">âœ“ SMARTI doelen â€¢ âœ“ Handelingsgericht â€¢ âœ“ Mickey Mouse model â€¢ âœ“ Evaluatie gepland</p>
           </div>
         </div>
       </div>
@@ -434,53 +434,33 @@ export default function LandingPage() {
               : 'Upload je oude plan of beantwoord 5 vragen. Jij checkt, downloadt en bent klaar. Minder gedoe, meer tijd.'}
           </p>
 
-          {/* CTAs */}
-          <div
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in-up"
-            style={{ animationDelay: '0.3s' }}
-          >
+                    {/* CTAs */}
+          <div className="flex flex-col items-center justify-center gap-3 mb-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <a
               href="/groepsplan/new"
               onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant, device })}
-              className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
+              className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 inline-flex items-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
             >
-              Maak je groepsplan
+              Start nu
               <span className="hidden sm:inline group-hover:inline"> (10 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
-            <a
-              href="/opp/new"
-              onClick={() => track('cta_click', { cta: 'start_opp', variant: headlineVariant, device })}
-              className="group bg-teal-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 tracking-[0.01em]"
-            >
-              Maak OPP
-              <span className="hidden sm:inline group-hover:inline"> (15 min)</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </a>
-            <a
-              href="/maatwerk/new"
-              onClick={() => track('cta_click', { cta: 'start_maatwerk', variant: headlineVariant, device })}
-              className="group bg-amber-500 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 tracking-[0.01em]"
-            >
-              Maatwerk‑opdrachten
-              <span className="hidden sm:inline group-hover:inline"> (3–5 min)</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </a>
-            <button
-              onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }}
-              className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-primary-700 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 text-center"
-            >
-              Bekijk voorbeeld
-            </button>
+            <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+              <a href="/opp/new" onClick={() => track('cta_click', { cta: 'start_opp', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">OPP</a>
+              <span className="hidden sm:inline">·</span>
+              <a href="/maatwerk/new" onClick={() => track('cta_click', { cta: 'start_maatwerk', variant: headlineVariant, device })} className="underline-offset-4 hover:underline">Maatwerk‑opdrachten</a>
+              <span className="hidden sm:inline">·</span>
+              <button onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }} className="underline-offset-4 hover:underline">Bekijk voorbeeld</button>
+            </div>
           </div>
 
           {/* Hero microcopy + social proof */}
           <div className="text-center text-sm text-gray-600 space-y-1 mb-8 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
             <div>Geen account nodig om te starten. Probeer eerst, beslis daarna.</div>
-            <div className="text-gray-500">Gebruikt door 247 leerkrachten • 4.8/5
+            <div className="text-gray-500">Gebruikt door 247 leerkrachten â€¢ 4.8/5
               <span className="inline-flex align-middle ml-1 text-yellow-400">
                 {[...Array(5)].map((_, i) => (
-                  <span key={i}>★</span>
+                  <span key={i}>â˜…</span>
                 ))}
               </span>
             </div>
@@ -520,13 +500,13 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="bg-primary-50 border border-primary-100 rounded-xl p-6 md:p-8">
             <div className="flex items-start gap-3 mb-3">
-              <span className="text-xl">⚠️</span>
+              <span className="text-xl">âš ï¸</span>
               <h3 className="text-lg md:text-xl font-semibold text-gray-900">Maar de inspectie dan?</h3>
             </div>
             <ul className="grid md:grid-cols-2 gap-3 text-sm md:text-base text-gray-700">
               <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> Automatische check op Passend Onderwijs 2024</li>
               <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> SMARTI doelen, handelingsgericht, Mickey Mouse</li>
-              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> 247 leerkrachten gebruiken het – 0 problemen</li>
+              <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> 247 leerkrachten gebruiken het â€“ 0 problemen</li>
               <li className="flex items-start gap-2"><Check size={18} className="text-success-500 mt-0.5" /> Niet goed? We helpen gratis bijschaven</li>
             </ul>
           </div>
@@ -576,9 +556,9 @@ export default function LandingPage() {
       {showExitIntent && (
         <div className="fixed inset-x-0 bottom-0 z-40 p-4 md:left-auto md:right-6 md:bottom-6 md:inset-x-auto">
           <div className="mx-auto md:mx-0 max-w-xl bg-white border border-gray-200 shadow-xl rounded-2xl p-4 md:p-5 flex items-start gap-4">
-            <div className="hidden md:block text-2xl">👋</div>
+            <div className="hidden md:block text-2xl">ðŸ‘‹</div>
             <div className="flex-1">
-              <div className="font-semibold text-gray-900 mb-1">Wacht! Zie eerst hoe het eruitziet →</div>
+              <div className="font-semibold text-gray-900 mb-1">Wacht! Zie eerst hoe het eruitziet â†’</div>
               <div className="text-sm text-gray-600 mb-3">30 seconden: bekijk een voorbeeldgroepsplan voordat je gaat.</div>
               <div className="flex gap-2">
                 <button
@@ -635,19 +615,19 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Herkenbaar?</h2>
             <div className="space-y-4 mb-8">
               {[
-                'Je kopiëert je vorige groepsplan en past de datums aan. Voelt als vals spelen, maar je hebt geen tijd.',
+                'Je kopiÃ«ert je vorige groepsplan en past de datums aan. Voelt als vals spelen, maar je hebt geen tijd.',
                 'Je IB\'er zegt: "Dit is nog te algemeen, maak het specifieker." Nog een uur extra werk.',
                 'Het is 22:30. Je zit op de bank met je laptop. Morgen weer vroeg op. Je bent moe.',
                 'Je googlet "groepsplan voorbeeld" voor inspiratie. De templates zijn te algemeen of niet van dit jaar.',
               ].map((text, idx) => (
                 <div key={idx} className="flex items-start gap-4">
-                  <span className="text-2xl text-amber-600 flex-shrink-0 mt-1">☐</span>
+                  <span className="text-2xl text-amber-600 flex-shrink-0 mt-1">â˜</span>
                   <span className="text-gray-700 text-base md:text-lg leading-relaxed">{text}</span>
                 </div>
               ))}
             </div>
             <p className="text-lg md:text-xl font-semibold text-gray-900 pt-6 border-t-2 border-amber-200">
-              → Pebble doet het zware werk. Jij checkt en downloadt.
+              â†’ Pebble doet het zware werk. Jij checkt en downloadt.
             </p>
           </div>
         </div>
@@ -677,7 +657,7 @@ export default function LandingPage() {
               </div>
               <div className="text-5xl font-bold text-gray-900 mb-2">00:00</div>
               <div className="text-gray-500 mb-4">Klaar</div>
-              <div className="text-3xl mb-2">😫</div>
+              <div className="text-3xl mb-2">ðŸ˜«</div>
               <div className="text-lg font-semibold text-gray-700">2 uur werk</div>
               <div className="text-sm text-gray-500 mt-2">Naar bed, moe</div>
             </div>
@@ -700,7 +680,7 @@ export default function LandingPage() {
               </div>
               <div className="text-5xl font-bold text-gray-900 mb-2">22:10</div>
               <div className="text-gray-500 mb-4">Klaar</div>
-              <div className="text-3xl mb-2">✨</div>
+              <div className="text-3xl mb-2">âœ¨</div>
               <div className="text-lg font-semibold text-green-700">10 minuten werk</div>
               <div className="text-sm text-gray-500 mt-2">Netflix kijken</div>
             </div>
@@ -778,7 +758,7 @@ export default function LandingPage() {
                 name: 'Marieke',
                 role: 'Groep 5, Rotterdam',
                 text:
-                  'Eindelijk een tool die begrijpt hoe het écht is. Geen onnodige functies, gewoon: snel een goed groepsplan. Scheelt me 2 uur per keer.',
+                  'Eindelijk een tool die begrijpt hoe het Ã©cht is. Geen onnodige functies, gewoon: snel een goed groepsplan. Scheelt me 2 uur per keer.',
                 bg: 'bg-primary-100',
                 color: 'text-blue-700',
               },
@@ -787,7 +767,7 @@ export default function LandingPage() {
                 name: 'Tim',
                 role: 'Groep 3, Utrecht',
                 text:
-                  'Ik was sceptisch. Maar het groepsplan was beter dan wat ik zelf had gemaakt. Mijn IB\'er zei: "Dit is goed uitgewerkt!" Ik zei niks 😅',
+                  'Ik was sceptisch. Maar het groepsplan was beter dan wat ik zelf had gemaakt. Mijn IB\'er zei: "Dit is goed uitgewerkt!" Ik zei niks ðŸ˜…',
                 bg: 'bg-green-100',
                 color: 'text-green-700',
               },
@@ -796,7 +776,7 @@ export default function LandingPage() {
                 name: 'Lisa',
                 role: 'Groep 7, Amsterdam',
                 text:
-                  'Het fijne: het leert van je oude plan. Dus het voelt als míjn plan, niet als een generieke template. Precies wat ik nodig had.',
+                  'Het fijne: het leert van je oude plan. Dus het voelt als mÃ­jn plan, niet als een generieke template. Precies wat ik nodig had.',
                 bg: 'bg-amber-100',
                 color: 'text-amber-700',
               },
@@ -847,37 +827,28 @@ export default function LandingPage() {
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Klaar om je weekend terug te krijgen?</h2>
           <p className="text-xl text-blue-100 mb-8">Start gratis. Geen creditcard nodig. Opzeggen wanneer je wilt.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+                    <div className="flex flex-col items-center justify-center gap-3 mb-6"> 
             <a
               href="/groepsplan/new"
               className="bg-white text-blue-700 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
             >
-              Maak je groepsplan - 100% gratis starten
+              Start gratis
               <ArrowRight size={24} />
             </a>
-            <a
-              href="/opp/new"
-              className="bg-teal-50 text-teal-800 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
-            >
-              Maak OPP (nieuw)
-              <ArrowRight size={24} />
-            </a>
-            <a
-              href="/maatwerk/new"
-              className="bg-amber-50 text-amber-800 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
-            >
-              Maatwerk‑opdrachten (nieuw)
-              <ArrowRight size={24} />
-            </a>
+            <div className="flex items-center justify-center gap-4 text-blue-100 text-sm font-medium">
+              <a href="/opp/new" className="underline-offset-4 hover:underline">OPP</a>
+              <span className="hidden sm:inline">·</span>
+              <a href="/maatwerk/new" className="underline-offset-4 hover:underline">Maatwerk‑opdrachten</a>
+            </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-blue-100 text-sm font-medium mb-4">
             <span>Geen account nodig</span>
-            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">â€¢</span>
             <span>Geen creditcard</span>
-            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">â€¢</span>
             <span>Gewoon doen</span>
           </div>
-          <p className="text-sm text-blue-200">14 dagen gratis, daarna €9,99/maand</p>
+          <p className="text-sm text-blue-200">14 dagen gratis, daarna â‚¬9,99/maand</p>
         </div>
       </section>
 
@@ -939,3 +910,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+
