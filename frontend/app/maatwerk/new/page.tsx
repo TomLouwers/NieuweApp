@@ -15,6 +15,14 @@ export default function MaatwerkNewPage() {
 
   React.useEffect(() => {
     try { const raw = localStorage.getItem("maatwerk_recent"); if (raw) setRecent(JSON.parse(raw)); } catch {}
+    try {
+      const pf = localStorage.getItem('maatwerk_prefill');
+      if (pf) {
+        const obj = JSON.parse(pf);
+        setCtx((c) => ({ ...c, groep: obj.groep ?? c.groep, vak: obj.vak ?? c.vak, onderwerp: obj.onderwerp ?? c.onderwerp }));
+        localStorage.removeItem('maatwerk_prefill');
+      }
+    } catch {}
   }, []);
 
   function saveRecent(entry: any) {
@@ -40,6 +48,9 @@ export default function MaatwerkNewPage() {
       <header>
         <h1 className="wb-title">Maatwerk-opdrachten Generator</h1>
         <p className="wb-subtle">Kies 1-10 scenario's en vul de lescontext in. Klaar in 3 minuten.</p>
+        <div className="mt-2">
+          <a href="/maatwerk/upload" className="wb-btn wb-btn-secondary">Upload werkblad uit methode</a>
+        </div>
         {recent.length > 0 && (
           <div className="mt-2">
             <button className="wb-btn wb-btn-secondary" onClick={() => { const last = recent[0]; setSelected(last.selected || []); setCtx(last.ctx || {}); }}>Laatst gebruikt: {recent[0]?.ctx?.vak} · Groep {recent[0]?.ctx?.groep} · {recent[0]?.ctx?.onderwerp}</button>
@@ -163,4 +174,3 @@ export default function MaatwerkNewPage() {
     </main>
   );
 }
-

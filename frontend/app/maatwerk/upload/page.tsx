@@ -1,0 +1,155 @@
+"use client";
+import React from "react";
+import LoadingScreen from "@/app/groepsplan/new/components/LoadingScreen";
+
+type Analysis = {
+  vak: string;
+  onderwerp: string;
+  groep: number;
+  aantalOpgaven: number;
+  niveau: string;
+  opgaven: { nummer: number; type: string; tekst: string }[];
+  confidence: number;
+};
+
+export default function MaatwerkUploadPage() {
+  const [file, setFile] = React.useState<File | null>(null);
+  const [preview, setPreview] = React.useState<string | null>(null);
+  const [processing, setProcessing] = React.useState(false);
+  const [analysis, setAnalysis] = React.useState<Analysis | null>(null);
+  const [edit, setEdit] = React.useState<Partial<Analysis> | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  function onPick() { inputRef.current?.click(); }
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    try { setPreview(URL.createObjectURL(f)); } catch {}
+  }
+
+  async function startAnalyze() {
+    if (!file) return;
+    setProcessing(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const resp = await fetch('/api/maatwerk/analyze', { method: 'POST', body: fd });
+    const json = await resp.json().catch(() => ({}));
+    setProcessing(false);
+    if (resp.ok && json?.ok) {
+      setAnalysis(json.analysis as Analysis);
+      setEdit(json.analysis as Analysis);
+    } else {
+      alert('Analyseren mislukt. Probeer opnieuw.');
+    }
+  }
+
+  function confirmAndContinue() {
+    if (!edit) return;
+    const pf = { groep: edit.groep, vak: edit.vak, onderwerp: edit.onderwerp } as any;
+    try { localStorage.setItem('maatwerk_prefill', JSON.stringify(pf)); } catch {}
+    location.href = '/maatwerk/new?source=upload';
+  }
+
+  return (
+    <main className="theme-warmbath wb-plain-bg min-h-screen space-y-6">
+      <header>
+        <h1 className="wb-title">Upload uit methode</h1>
+        <p className="wb-subtle">Maak een foto of upload een PDF van een werkblad. We herkennen vak/onderwerp/groep en vullen het formulier voor je in. AVG-proof.</p>
+      </header>
+
+      {!file && (
+        <section className="wb-paper paper-texture rounded-xl p-6">
+          <div className="text-center space-y-3">
+            <div className="text-2xl" aria-hidden>📷</div>
+            <div className="wb-subtle">Leg je boek plat, goede verlichting, camera recht</div>
+            <div className="flex items-center justify-center gap-3">
+              <button className="wb-btn wb-btn-primary" onClick={onPick}>Upload bestand</button>
+              <input ref={inputRef} type="file" accept="image/*,.pdf,.heic" className="hidden" onChange={onFile} />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {file && !processing && !analysis && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-border bg-white p-4">
+            <div className="flex items-start gap-3">
+              {preview ? <img src={preview} alt="preview" className="w-24 h-24 object-cover rounded" /> : <div className="w-24 h-24 rounded bg-gray-100" />}
+              <div>
+                <div className="text-base" style={{ fontWeight: 600 }}>{file.name}</div>
+                <div className="text-sm wb-subtle">{Math.round(file.size/1024)} KB</div>
+                <div className="mt-2">
+                  <button className="wb-btn wb-btn-primary" onClick={startAnalyze}>Analyseren</button>
+                  <button className="wb-btn wb-btn-secondary ml-2" onClick={() => { setFile(null); setPreview(null); }}>Andere foto</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {processing && (
+        <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-center justify-center">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-md">
+            <LoadingScreen start={async () => ({ ok: true })} onDone={() => {}} onRetry={() => setProcessing(false)} />
+          </div>
+        </div>
+      )}
+
+      {analysis && edit && (
+        <section className="space-y-4">
+          <div className="wb-paper paper-texture rounded-xl p-6">
+            <h2 className="wb-h2">Herkend van je foto</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <label className="wb-text-field">
+                <span className="wb-text-field-label">Vak</span>
+                <div className="wb-text-field-wrapper">
+                  <select className="wb-text-field-input" value={edit.vak} onChange={(e) => setEdit({ ...edit, vak: e.target.value })}>
+                    {["Rekenen","Taal","Spelling","Begrijpend lezen","Schrijven","Wereldoriëntatie"].map((v) => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                  <div className="wb-text-field-underline" />
+                </div>
+              </label>
+              <label className="wb-text-field">
+                <span className="wb-text-field-label">Onderwerp</span>
+                <div className="wb-text-field-wrapper">
+                  <input className="wb-text-field-input" value={edit.onderwerp} onChange={(e) => setEdit({ ...edit, onderwerp: e.target.value })} />
+                  <div className="wb-text-field-underline" />
+                </div>
+              </label>
+              <label className="wb-text-field">
+                <span className="wb-text-field-label">Groep</span>
+                <div className="wb-text-field-wrapper">
+                  <select className="wb-text-field-input" value={String(edit.groep)} onChange={(e) => setEdit({ ...edit, groep: Number(e.target.value) })}>
+                    {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                  <div className="wb-text-field-underline" />
+                </div>
+              </label>
+              <label className="wb-text-field">
+                <span className="wb-text-field-label">Aantal opgaven</span>
+                <div className="wb-text-field-wrapper">
+                  <input type="number" className="wb-text-field-input" value={edit.aantalOpgaven} onChange={(e) => setEdit({ ...edit, aantalOpgaven: Number(e.target.value) })} />
+                  <div className="wb-text-field-underline" />
+                </div>
+              </label>
+            </div>
+            <div className="mt-4">
+              <div className="text-sm wb-subtle">Preview opgaven (eerste 3):</div>
+              <ul className="mt-1 text-sm">
+                {edit.opgaven?.slice(0, 3).map((o) => (<li key={o.nummer}>• Opgave {o.nummer}: {o.tekst}</li>))}
+              </ul>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <button className="wb-btn wb-btn-primary" onClick={confirmAndContinue}>Dit klopt, ga verder</button>
+              <a className="wb-btn wb-btn-secondary" href="/maatwerk/new">Start vanaf nul</a>
+            </div>
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}
+
