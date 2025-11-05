@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-const SWIPE_THRESHOLD = 100; // px
+const SWIPE_THRESHOLD = 50; // px (gentle back swipe)
 const SWIPE_VELOCITY_THRESHOLD = 0.5; // px/ms
 
 export type SwipeBind = {
@@ -63,8 +63,6 @@ export default function useSwipeBack(onBack: () => void) {
       const dt = Math.max(1, endT - startTRef.current);
       const velocity = dx / dt;
       if (dx > SWIPE_THRESHOLD || velocity > SWIPE_VELOCITY_THRESHOLD) {
-        // Haptic feedback if supported
-        try { (navigator as any)?.vibrate?.(10); } catch {}
         onBack();
       } else {
         resetTransform();
@@ -79,4 +77,3 @@ export default function useSwipeBack(onBack: () => void) {
 
   return { ref: containerRef, bind, thresholdReached } as const;
 }
-

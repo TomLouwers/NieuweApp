@@ -20,10 +20,10 @@ export default function NewGroepsplanPage() {
     })();
   }, []);
   return (
-    <main className="space-y-4">
+    <main className="theme-warmbath wb-plain-bg min-h-screen space-y-4">
       <div>
         <h1>Nieuw Groepsplan</h1>
-        <p className="text-muted">Maak een keuze om te starten.</p>
+        <p className="wb-subtle">Maak een keuze om te starten.</p>
       </div>
       <Suspense fallback={<div className="loading">Laden…</div>}>
         <StepFlow />
@@ -43,8 +43,8 @@ export default function NewGroepsplanPage() {
               })()} van 5
             </div>
             <div className="flex items-center justify-end gap-3">
-              <button className="border border-border px-4 py-2 rounded-md" onClick={async () => { await clearDraftLocal(resume.key); await clearDraft(); setResume(null); router.push('/groepsplan/new'); }}>Opnieuw beginnen</button>
-              <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={async () => { await loadDraft(); const step = useGroepsplanStore.getState().currentStep || 'decision'; setResume(null); router.push(`/groepsplan/new?step=${step}`); }}>Verder gaan</button>
+              <button className="border border-border px-4 py-2 rounded-md wb-btn wb-btn-secondary" onClick={async () => { await clearDraftLocal(resume.key); await clearDraft(); setResume(null); router.push('/groepsplan/new'); }}>Opnieuw beginnen</button>
+              <button className="px-4 py-2 rounded-md wb-btn wb-btn-primary" onClick={async () => { await loadDraft(); const step = useGroepsplanStore.getState().currentStep || 'decision'; setResume(null); router.push(`/groepsplan/new?step=${step}`); }}>Verder gaan</button>
             </div>
           </div>
         </div>

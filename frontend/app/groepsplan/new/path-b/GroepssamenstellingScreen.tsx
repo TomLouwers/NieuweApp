@@ -106,7 +106,8 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
           step={1}
           value={total}
           onChange={(e) => setTotal(Number((e.target as HTMLInputElement).value))}
-          className="total-range"
+          className="wb-slider"
+          style={{ ['--progress' as any]: `${Math.round(((total - 15) / (35 - 15)) * 100)}%` }}
           aria-label="Totaal aantal leerlingen"
         />
         <div className="text-base">{total} leerlingen</div>
@@ -129,14 +130,7 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
         <button className="px-4 py-2 rounded-md bg-blue-600 text-white" onClick={onNext} aria-label="Volgende">Volgende →</button>
       </div>
 
-      <style jsx>{`
-        .total-range { height: 8px; -webkit-appearance: none; appearance: none; background: transparent; }
-        .total-range:focus { outline: none; }
-        .total-range::-webkit-slider-runnable-track { height: 8px; background: #e5e7eb; border-radius: 9999px; }
-        .total-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #3B82F6; margin-top: -8px; cursor: pointer; }
-        .total-range::-moz-range-track { height: 8px; background: #e5e7eb; border-radius: 9999px; }
-        .total-range::-moz-range-thumb { width: 24px; height: 24px; border: none; border-radius: 50%; background: #3B82F6; cursor: pointer; }
-      `}</style>
+      <style jsx>{``}</style>
     </div>
   );
 }

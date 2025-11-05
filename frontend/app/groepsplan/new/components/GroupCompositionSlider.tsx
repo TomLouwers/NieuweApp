@@ -12,6 +12,7 @@ interface GroupCompositionSliderProps {
 
 export default function GroupCompositionSlider({ label, value, onChange, total, disabled }: GroupCompositionSliderProps) {
   const count = Math.round((total * value) / 100);
+  const progress = `${Math.max(0, Math.min(100, value))}%`;
   return (
     <div className="space-y-1">
       <div className="text-sm">{label}</div>
@@ -22,18 +23,12 @@ export default function GroupCompositionSlider({ label, value, onChange, total, 
         value={value}
         onChange={(e) => onChange(Number((e.target as HTMLInputElement).value))}
         disabled={disabled}
-        className="composition-range"
+        className="wb-slider"
+        style={{ ['--progress' as any]: progress }}
         aria-label={`${label} percentage`}
       />
-      <div className="text-sm text-muted">{value}% → {count} leerlingen</div>
-      <style jsx>{`
-        .composition-range { height: 8px; -webkit-appearance: none; appearance: none; background: transparent; }
-        .composition-range:focus { outline: none; }
-        .composition-range::-webkit-slider-runnable-track { height: 8px; background: #e5e7eb; border-radius: 9999px; }
-        .composition-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #3B82F6; margin-top: -8px; cursor: pointer; }
-        .composition-range::-moz-range-track { height: 8px; background: #e5e7eb; border-radius: 9999px; }
-        .composition-range::-moz-range-thumb { width: 24px; height: 24px; border: none; border-radius: 50%; background: #3B82F6; cursor: pointer; }
-      `}</style>
+      <div className="text-sm text-muted">{value}% - {count} leerlingen</div>
     </div>
   );
 }
+

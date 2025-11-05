@@ -119,15 +119,17 @@ export default function DecisionPoint() {
 
   const [showSample, setShowSample] = React.useState(false);
 
-  const cardBase = "border-2 border-gray-200 rounded-xl p-6 transition-colors duration-200 cursor-pointer min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const cardHover = "hover:border-blue-500";
+  const cardBase = "wb-paper paper-texture border-0 rounded-xl p-6 transition-all duration-200 cursor-pointer min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 hover:-translate-y-0.5";
+  const cardHover = "";
 
   return (
     <div className="space-y-4" aria-labelledby="dp-title">
       <h1 id="dp-title">{tNew('title')}</h1>
-      
-      <p className="text-muted">{tNew('subtitle')}</p>
-      <p>Kies een startpunt</p>
+      <p className="wb-subtle">{tNew('subtitle')}</p>
+      <div>
+        <span className="wb-time-badge"><span className="icon" aria-hidden>⏱</span><span>5 minuten werk</span></span>
+      </div>
+      <p className="wb-subtle">Kies een startpunt</p>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* Upload */}
@@ -137,7 +139,7 @@ export default function DecisionPoint() {
           aria-label={tUpload('title')}
           data-testid="card-upload"
           aria-disabled={uploading}
-          className={clsx(cardBase, cardHover, isDragOver && "border-blue-500 bg-blue-50/30", uploading && "opacity-60 pointer-events-none")}
+          className={clsx(cardBase, cardHover, isDragOver && "ring-2", uploading && "opacity-60 pointer-events-none")}
           onClick={!uploading ? onOpenPicker : undefined}
           onKeyDown={(e) => onCardKey(e, onOpenPicker)}
           onDragOver={onDragOver}
@@ -145,7 +147,7 @@ export default function DecisionPoint() {
           onDrop={onDrop}
         >
           <h2 className="mb-2">{tUpload('title')}</h2>
-          <p className="text-sm text-muted">{uploading ? tToast('uploading') : `${tUpload('dragDrop')} ${tUpload('formats')}`}</p>
+          <p className="text-sm wb-subtle">{uploading ? tToast('uploading') : `${tUpload('dragDrop')} ${tUpload('formats')}`}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -168,7 +170,7 @@ export default function DecisionPoint() {
           onKeyDown={(e) => onCardKey(e, toScratch)}
         >
           <h2 className="mb-2">{tScratch('title')}</h2>
-          <p className="text-sm text-muted">{tScratch('description')}</p>
+          <p className="text-sm wb-subtle">{tScratch('description')}</p>
         </Card>
 
         {/* Sample */}
@@ -183,7 +185,7 @@ export default function DecisionPoint() {
           onKeyDown={(e) => onCardKey(e, onSample)}
         >
           <h2 className="mb-2">{tExample('title')}</h2>
-          <p className="text-sm text-muted">{tExample('description')}</p>
+          <p className="text-sm wb-subtle">{tExample('description')}</p>
         </Card>
       </div>
 

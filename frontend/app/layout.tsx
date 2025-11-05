@@ -1,5 +1,6 @@
 import "./globals.css";
 import "./groepsplan/new/components/animations.css";
+import "./warmbath.css";
 import React from "react";
 import IntlProvider from "@/components/IntlProvider";
 import { Inter } from "next/font/google";
