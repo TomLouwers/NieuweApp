@@ -409,15 +409,15 @@ export default function LandingPage() {
               <>
                 Het is woensdag.
                 <br />
-                Je groepsplan moet vrijdag klaar.
+                Je maatwerk-opdrachten voor morgen zijn nog niet klaar.
                 <br />
-                Je hebt er nog geen letter van geschreven.
+                Je wilt geen avond kopiëren en plakken.
               </>
             ) : (
               <>
                 Morgen inspectie.
                 <br />
-                10 minuten voor een goed groepsplan.
+                3–5 minuten voor goed maatwerk.
                 <br />
                 Kan dat? Met Pebble wel.
               </>
