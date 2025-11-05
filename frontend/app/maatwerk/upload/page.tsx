@@ -17,6 +17,7 @@ export default function MaatwerkUploadPage() {
   const [preview, setPreview] = React.useState<string | null>(null);
   const [processing, setProcessing] = React.useState(false);
   const [analysis, setAnalysis] = React.useState<Analysis | null>(null);
+  const [uploadJob, setUploadJob] = React.useState<{ upload_id: string; status_url: string } | null>(null);
   const [edit, setEdit] = React.useState<Partial<Analysis> | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -36,8 +37,39 @@ export default function MaatwerkUploadPage() {
   async function startAnalyze() {
     if (!file) return;
     setProcessing(true);
-    const fd = new FormData();
-    fd.append('file', file);
+    // Try job-based upload first
+    const fdUpload = new FormData();
+    fdUpload.append('image', file);
+    const upResp = await fetch('/api/maatwerk/worksheets/upload', { method: 'POST', body: fdUpload });
+    if (upResp.status === 202) {
+      const job = await upResp.json().catch(() => ({}));
+      if (job?.upload_id && job?.status_url) {
+        setUploadJob({ upload_id: job.upload_id, status_url: job.status_url });
+        // poll until awaiting_validation
+        const started = Date.now();
+        let status: any = null;
+        while (Date.now() - started < 30000) {
+          status = await fetch(job.status_url, { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+          if (status && (status.status === 'awaiting_validation' || status.recognized_content)) break;
+          await new Promise(res => setTimeout(res, 1500));
+        }
+        setProcessing(false);
+        if (status?.recognized_content) {
+          const rc = status.recognized_content;
+          const mapped: Analysis = {
+            vak: rc.vak, onderwerp: rc.onderwerp, groep: rc.groep,
+            aantalOpgaven: rc.aantal_opgaven, niveau: rc.niveau,
+            opgaven: (rc.opgaven_preview || []).map((o: any) => ({ nummer: o.nummer, type: o.type, tekst: o.tekst })),
+            confidence: rc.overall_confidence || 0.7,
+          };
+          setAnalysis(mapped); setEdit(mapped);
+          try { if (preview) localStorage.setItem('maatwerk_upload_preview', preview); localStorage.setItem('maatwerk_upload_analysis', JSON.stringify(mapped)); } catch {}
+          return;
+        }
+      }
+    }
+    // Fallback: local analyze
+    const fd = new FormData(); fd.append('file', file);
     const resp = await fetch('/api/maatwerk/analyze', { method: 'POST', body: fd });
     const json = await resp.json().catch(() => ({}));
     setProcessing(false);
@@ -64,9 +96,33 @@ export default function MaatwerkUploadPage() {
 
   function confirmAndContinue() {
     if (!edit) return;
-    const pf = { groep: edit.groep, vak: edit.vak, onderwerp: edit.onderwerp } as any;
-    try { localStorage.setItem('maatwerk_prefill', JSON.stringify(pf)); } catch {}
-    location.href = '/maatwerk/new?source=upload';
+    // If job exists, attempt validate; otherwise just proceed to generator
+    if (uploadJob) {
+      (async () => {
+        const corrections = { vak: edit.vak, onderwerp: edit.onderwerp, groep: edit.groep, aantal_opgaven: edit.aantalOpgaven } as any;
+        await fetch(`/api/maatwerk/worksheets/upload/${uploadJob.upload_id}/validate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ corrections, confirmed: true }) });
+        // Poll until completed
+        const started = Date.now();
+        let status: any = null;
+        while (Date.now() - started < 60000) {
+          status = await fetch(uploadJob.status_url, { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+          if (status && status.status === 'completed' && status.worksheets) break;
+          await new Promise(res => setTimeout(res, 1500));
+        }
+        if (status?.worksheets?.length) {
+          // Show results inline by writing to local storage for preview page, or navigate back to generator
+          try { localStorage.setItem('maatwerk_upload_result', JSON.stringify(status)); } catch {}
+          const pf = { groep: edit.groep, vak: edit.vak, onderwerp: edit.onderwerp } as any;
+          try { localStorage.setItem('maatwerk_prefill', JSON.stringify(pf)); } catch {}
+          location.href = '/maatwerk/new?source=upload';
+          return;
+        }
+      })();
+    } else {
+      const pf = { groep: edit.groep, vak: edit.vak, onderwerp: edit.onderwerp } as any;
+      try { localStorage.setItem('maatwerk_prefill', JSON.stringify(pf)); } catch {}
+      location.href = '/maatwerk/new?source=upload';
+    }
   }
 
   return (

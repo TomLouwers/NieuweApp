@@ -38,6 +38,16 @@ export default function MaatwerkNewPage() {
 
   async function startGenerate() {
     if (!canGenerate) return null;
+    // Check compatibility per spec
+    try {
+      const qs = new URLSearchParams({ subject: ctx.vak, scenarios: selected.join(',') }).toString();
+      const comp = await fetch(`/api/maatwerk/scenarios/compatible?${qs}`, { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+      if (comp && comp.compatible === false) {
+        const warnings = (comp.warnings || []).join('\n');
+        alert(`Combinatie niet toegestaan:\n${warnings || ''}`);
+        return null;
+      }
+    } catch {}
     const startBody = { scenarios: selected, context: { groep: Number(ctx.groep), vak: ctx.vak, onderwerp: ctx.onderwerp, week: ctx.week || null, methode: ctx.methode || null }, options: { format: 'pdf', include_answer_key: true, include_teaching_notes: true } };
     // Proxy to spec-compliant job start
     const startResp = await fetch('/api/maatwerk/worksheets/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(startBody) });
