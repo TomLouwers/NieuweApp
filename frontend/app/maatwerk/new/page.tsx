@@ -11,6 +11,7 @@ export default function MaatwerkNewPage() {
   const [ctx, setCtx] = React.useState<Context>({ groep: null, vak: "Rekenen", onderwerp: "" });
   const [showLoading, setShowLoading] = React.useState(false);
   const [results, setResults] = React.useState<any[] | null>(null);
+  const [compareIdx, setCompareIdx] = React.useState<number | null>(null);
   const [recent, setRecent] = React.useState<any[]>([]);
 
   React.useEffect(() => {
@@ -153,7 +154,7 @@ export default function MaatwerkNewPage() {
                   <div className="flex items-center gap-2">
                     <button className="wb-btn wb-btn-secondary" onClick={() => {
                       const w = window.open("", "_blank");
-                      if (w) w.document.write(`<pre style="white-space: pre-wrap; font-family: system-ui, sans-serif; padding: 16px">${it.content.replaceAll("<","&lt;")}</pre>`);
+                      if (w) w.document.write(`<pre style=\"white-space: pre-wrap; font-family: system-ui, sans-serif; padding: 16px\">${it.content.replaceAll("<","&lt;")}</pre>`);
                     }}>Bekijk</button>
                     <button className="wb-btn wb-btn-primary" onClick={async () => {
                       const body = { content: String(it.content || ''), metadata: { groep: ctx.groep, vak: ctx.vak, periode: ctx.week || '' } };
@@ -164,6 +165,7 @@ export default function MaatwerkNewPage() {
                       a.href = url; a.download = `Maatwerk_${it.label}_${ctx.vak}_G${ctx.groep}.docx`;
                       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
                     }}>Download als Word</button>
+                    <button className="wb-btn wb-btn-secondary" onClick={() => setCompareIdx(idx)}>Vergelijk met origineel</button>
                   </div>
                 </div>
               </div>
@@ -171,6 +173,33 @@ export default function MaatwerkNewPage() {
           </div>
         </section>
       )}
+
+      {compareIdx !== null && results && (
+        <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-center justify-center" role="dialog" aria-modal="true">
+          <div className="w-full max-w-4xl rounded-xl bg-white p-4 shadow-md">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="wb-h2">Vergelijk met origineel</h3>
+              <button className="wb-btn wb-btn-secondary" onClick={() => setCompareIdx(null)}>Sluiten</button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3" style={{ maxHeight: 600, overflow: 'auto' }}>
+              <div>
+                <div className="wb-section-header" style={{ fontSize: 16 }}>Origineel</div>
+                {(() => {
+                  let src: string | null = null;
+                  try { src = localStorage.getItem('maatwerk_upload_preview'); } catch {}
+                  if (!src) return <div className="wb-subtle text-sm">Geen originele foto beschikbaar.</div>;
+                  return <img src={src} alt="origineel" className="w-full h-auto rounded border border-border" />;
+                })()}
+              </div>
+              <div>
+                <div className="wb-section-header" style={{ fontSize: 16 }}>Aangepast</div>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'system-ui, sans-serif' }}>{String(results[compareIdx!]?.content || '')}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
+

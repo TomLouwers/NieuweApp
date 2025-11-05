@@ -26,7 +26,11 @@ export default function MaatwerkUploadPage() {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     setFile(f);
-    try { setPreview(URL.createObjectURL(f)); } catch {}
+    try {
+      const reader = new FileReader();
+      reader.onload = () => { const url = String(reader.result || ''); setPreview(url); };
+      reader.readAsDataURL(f);
+    } catch {}
   }
 
   async function startAnalyze() {
@@ -40,6 +44,7 @@ export default function MaatwerkUploadPage() {
     if (resp.ok && json?.ok) {
       setAnalysis(json.analysis as Analysis);
       setEdit(json.analysis as Analysis);
+      try { if (preview) localStorage.setItem('maatwerk_upload_preview', preview); localStorage.setItem('maatwerk_upload_analysis', JSON.stringify(json.analysis)); } catch {}
     } else {
       alert('Analyseren mislukt. Probeer opnieuw.');
     }
@@ -152,4 +157,3 @@ export default function MaatwerkUploadPage() {
     </main>
   );
 }
-
