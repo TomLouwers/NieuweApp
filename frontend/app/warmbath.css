@@ -228,4 +228,5 @@
 .theme-warmbath .dropdown-option { width: 100%; display: flex; align-items: center; gap: var(--wb-space-sm); padding: var(--wb-space-sm); background: transparent; border: none; border-radius: 6px; text-align: left; cursor: pointer; transition: all 120ms ease-out; }
 .theme-warmbath .dropdown-option:hover { background: var(--wb-sage-tint); }
 .theme-warmbath .dropdown-option.selected { background: var(--wb-sage-tint); position: relative; }
-.theme-warmbath .dropdown-option.selected::after { content: '✓'; margin-left: auto; color: var(--wb-chalkboard-green); }
+.theme-warmbath .dropdown-option.selected::after { content: '?'; margin-left: auto; color: var(--wb-chalkboard-green); }
+

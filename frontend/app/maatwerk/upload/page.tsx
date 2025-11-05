@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 import React from "react";
 import LoadingScreen from "@/app/groepsplan/new/components/LoadingScreen";
+import ScenarioSelector from "../new/components/ScenarioSelector";
 
 type Analysis = {
   vak: string;
@@ -19,6 +20,7 @@ export default function MaatwerkUploadPage() {
   const [analysis, setAnalysis] = React.useState<Analysis | null>(null);
   const [uploadJob, setUploadJob] = React.useState<{ upload_id: string; status_url: string } | null>(null);
   const [edit, setEdit] = React.useState<Partial<Analysis> | null>(null);
+  const [selectedScenarios, setSelectedScenarios] = React.useState<string[]>([]);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   function onPick() { inputRef.current?.click(); }
@@ -40,6 +42,9 @@ export default function MaatwerkUploadPage() {
     // Try job-based upload first
     const fdUpload = new FormData();
     fdUpload.append('image', file);
+    if (selectedScenarios?.length) {
+      fdUpload.append('scenarios', JSON.stringify(selectedScenarios));
+    }
     const upResp = await fetch('/api/maatwerk/worksheets/upload', { method: 'POST', body: fdUpload });
     if (upResp.status === 202) {
       const job = await upResp.json().catch(() => ({}));
@@ -135,7 +140,7 @@ export default function MaatwerkUploadPage() {
       {!file && (
         <section className="wb-paper paper-texture rounded-xl p-6">
           <div className="text-center space-y-3">
-            <div className="text-2xl" aria-hidden>📷</div>
+            <div className="text-2xl" aria-hidden>ðŸ“·</div>
             <div className="wb-subtle">Leg je boek plat, goede verlichting, camera recht</div>
             <div className="flex items-center justify-center gap-3">
               <button className="wb-btn wb-btn-primary" onClick={onPick}>Upload bestand</button>
@@ -144,6 +149,13 @@ export default function MaatwerkUploadPage() {
           </div>
         </section>
       )}
+
+      {/* Scenario selection (optional but recommended by spec) */}
+      <section className="space-y-3">
+        <h2 className="wb-h2">Voor welke leerlingen wil je dit aanpassen?</h2>
+        <ScenarioSelector value={selectedScenarios} onChange={setSelectedScenarios} />
+        <div className="text-sm wb-subtle">{selectedScenarios.length} scenario(s) geselecteerd</div>
+      </section>
 
       {file && !processing && !analysis && (
         <section className="space-y-4">
@@ -212,7 +224,7 @@ export default function MaatwerkUploadPage() {
             <div className="mt-4">
               <div className="text-sm wb-subtle">Preview opgaven (eerste 3):</div>
               <ul className="mt-1 text-sm">
-                {edit.opgaven?.slice(0, 3).map((o) => (<li key={o.nummer}>• Opgave {o.nummer}: {o.tekst}</li>))}
+                {edit.opgaven?.slice(0, 3).map((o) => (<li key={o.nummer}>â€¢ Opgave {o.nummer}: {o.tekst}</li>))}
               </ul>
             </div>
             <div className="mt-4 flex items-center gap-3">
@@ -225,3 +237,5 @@ export default function MaatwerkUploadPage() {
     </main>
   );
 }
+
+

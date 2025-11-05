@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 export const runtime = 'nodejs';
 
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     const onderwerp = vak === 'Rekenen' ? 'Vermenigvuldigen' : vak === 'Taal' ? 'Begrijpend lezen' : 'Onderwerp';
     const aantalOpgaven = 10;
     const niveau = 'Midden';
-    const opgaven = Array.from({ length: Math.min(10, aantalOpgaven) }, (_, i) => ({ nummer: i + 1, type: vak === 'Rekenen' ? 'calculation' : 'question', tekst: vak === 'Rekenen' ? `${12 + i} × ${2 + (i % 3)} = ___` : `Vraag ${i + 1}: …` }));
+    const opgaven = Array.from({ length: Math.min(10, aantalOpgaven) }, (_, i) => ({ nummer: i + 1, type: vak === 'Rekenen' ? 'calculation' : 'question', tekst: vak === 'Rekenen' ? `${12 + i} Ã— ${2 + (i % 3)} = ___` : `Vraag ${i + 1}: â€¦` }));
     const confidence = 0.65;
     const recognized_content = {
       vak, onderwerp, groep,
@@ -137,3 +137,5 @@ export async function POST(req: Request) {
 }
 
 export function GET() { return NextResponse.json({ ok: true, message: 'POST multipart/form-data with file' }); }
+
+

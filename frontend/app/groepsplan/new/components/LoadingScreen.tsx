@@ -3,19 +3,35 @@ import React from "react";
 import ErrorPanel from "@/app/groepsplan/new/components/ErrorPanel";
 import { track } from "@/lib/utils/analytics";
 
-interface LoadingScreenProps<Result = any> {
-  start: () => Promise<Result>;
-  onDone: (result: Result) => void;
-  onRetry: () => void;
+interface LoadingScreenExternal {
+  setStatus: (s: string) => void;
+  setProgress: (p: number) => void;
 }
 
-export default function LoadingScreen<Result = any>({ start, onDone, onRetry }: LoadingScreenProps<Result>) {
+interface LoadingScreenProps<Result = any> {
+  start: (ext?: LoadingScreenExternal) => Promise<Result>;
+  onDone: (result: Result) => void;
+  onRetry: () => void;
+  externalRef?: React.MutableRefObject<LoadingScreenExternal | null>;
+}
+
+export default function LoadingScreen<Result = any>({ start, onDone, onRetry, externalRef }: LoadingScreenProps<Result>) {
   const [progress, setProgress] = React.useState(0);
   const [status, setStatus] = React.useState("Je plan wordt geschreven");
   const [error, setError] = React.useState<{ code?: string | null; message?: string | null } | null>(null);
   const [startedAt] = React.useState(() => Date.now());
   const minDisplayMs = 5000;
   const doneRef = React.useRef(false);
+
+  // Optional: expose setters to parent for live updates
+  React.useEffect(() => {
+    if (!externalRef) return;
+    externalRef.current = {
+      setStatus: (s) => setStatus(String(s || "")),
+      setProgress: (p) => setProgress(Math.max(0, Math.min(100, Number(p) || 0))),
+    };
+    return () => { externalRef.current = null; };
+  }, [externalRef]);
 
   React.useEffect(() => {
     const msgs = [
@@ -51,7 +67,7 @@ export default function LoadingScreen<Result = any>({ start, onDone, onRetry }: 
     (async () => {
       try {
         try { track('generation_started'); } catch {}
-        const res = await start();
+        const res = await start(externalRef?.current || undefined);
         doneRef.current = true;
         const elapsed = Date.now() - startedAt;
         const wait = Math.max(0, minDisplayMs - elapsed);
@@ -106,4 +122,3 @@ export default function LoadingScreen<Result = any>({ start, onDone, onRetry }: 
     </div>
   );
 }
-

@@ -457,6 +457,15 @@ export default function LandingPage() {
               <span className="hidden sm:inline group-hover:inline"> (15 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
+            <a
+              href="/maatwerk/new"
+              onClick={() => track('cta_click', { cta: 'start_maatwerk', variant: headlineVariant, device })}
+              className="group bg-amber-500 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 flex items-center justify-center gap-2 tracking-[0.01em]"
+            >
+              Maatwerk‑opdrachten
+              <span className="hidden sm:inline group-hover:inline"> (3–5 min)</span>
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </a>
             <button
               onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }}
               className="bg-white text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg border-2 border-gray-300 hover:border-primary-700 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 text-center"
@@ -851,6 +860,13 @@ export default function LandingPage() {
               className="bg-teal-50 text-teal-800 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
             >
               Maak OPP (nieuw)
+              <ArrowRight size={24} />
+            </a>
+            <a
+              href="/maatwerk/new"
+              className="bg-amber-50 text-amber-800 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
+            >
+              Maatwerk‑opdrachten (nieuw)
               <ArrowRight size={24} />
             </a>
           </div>

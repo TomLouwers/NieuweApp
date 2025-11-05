@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { SCENARIOS } from "@/lib/maatwerk/scenarios";
 
 const TOKEN = process.env.PEBBLE_API_TOKEN || process.env.PEBBLE_API_KEY || "";
@@ -66,4 +66,6 @@ export async function GET(req: Request) {
     suggestions,
   });
 }
+
+
 

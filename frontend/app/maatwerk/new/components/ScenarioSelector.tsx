@@ -8,6 +8,23 @@ interface Props {
 }
 
 export default function ScenarioSelector({ value, onChange }: Props) {
+  const [items, setItems] = React.useState<(ScenarioDefinition & { icon?: string; color?: string })[]>(SCENARIOS as any);
+  const cats = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const s of items) set.add(s.category);
+    return Array.from(set.values());
+  }, [items]);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const resp = await fetch('/api/maatwerk/scenarios', { cache: 'force-cache' });
+        const data = await resp.json().catch(() => ({}));
+        const list = (data?.scenarios || []) as any[];
+        if (Array.isArray(list) && list.length) setItems(list as any);
+      } catch {}
+    })();
+  }, []);
   function toggle(id: string) {
     const set = new Set(value);
     if (set.has(id)) set.delete(id); else set.add(id);
@@ -15,11 +32,11 @@ export default function ScenarioSelector({ value, onChange }: Props) {
   }
   return (
     <div className="space-y-6">
-      {CATEGORIES.map((cat) => (
+      {(cats.length ? cats : CATEGORIES).map((cat) => (
         <div key={cat}>
           <h3 className="wb-section-header" style={{ fontSize: 18 }}>{cat}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {SCENARIOS.filter((s) => s.category === cat).map((s) => {
+            {(items.length ? items : SCENARIOS).filter((s: any) => s.category === cat).map((s: any) => {
               const selected = value.includes(s.id);
               return (
                 <button
@@ -33,7 +50,7 @@ export default function ScenarioSelector({ value, onChange }: Props) {
                       <div className="text-base" style={{ fontWeight: 500 }}>{s.label}</div>
                       <div className="text-sm wb-subtle">{s.description}</div>
                     </div>
-                    {selected ? <span aria-hidden style={{ color: 'var(--wb-chalkboard-green)' }}>✓</span> : null}
+                    {selected ? <span aria-hidden style={{ color: 'var(--wb-chalkboard-green)' }}>?</span> : null}
                   </div>
                 </button>
               );

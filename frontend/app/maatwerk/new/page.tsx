@@ -11,8 +11,10 @@ export default function MaatwerkNewPage() {
   const [ctx, setCtx] = React.useState<Context>({ groep: null, vak: "Rekenen", onderwerp: "" });
   const [showLoading, setShowLoading] = React.useState(false);
   const [results, setResults] = React.useState<any[] | null>(null);
+  const [batchUrl, setBatchUrl] = React.useState<string | null>(null);
   const [compareIdx, setCompareIdx] = React.useState<number | null>(null);
   const [recent, setRecent] = React.useState<any[]>([]);
+  const loadingRef = React.useRef<any>(null);
 
   React.useEffect(() => {
     try { const raw = localStorage.getItem("maatwerk_recent"); if (raw) setRecent(JSON.parse(raw)); } catch {}
@@ -22,6 +24,16 @@ export default function MaatwerkNewPage() {
         const obj = JSON.parse(pf);
         setCtx((c) => ({ ...c, groep: obj.groep ?? c.groep, vak: obj.vak ?? c.vak, onderwerp: obj.onderwerp ?? c.onderwerp }));
         localStorage.removeItem('maatwerk_prefill');
+      }
+    } catch {}
+    try {
+      const rawRes = localStorage.getItem('maatwerk_upload_result');
+      if (rawRes) {
+        const st = JSON.parse(rawRes);
+        const ws = st?.worksheets || st?.items || [];
+        setResults(Array.isArray(ws) ? ws : []);
+        setBatchUrl(st?.batch_download_url || null);
+        localStorage.removeItem('maatwerk_upload_result');
       }
     } catch {}
   }, []);
@@ -38,6 +50,17 @@ export default function MaatwerkNewPage() {
 
   async function startGenerate() {
     if (!canGenerate) return null;
+    // Subject restrictions (UI-level guard)
+    try {
+      if (selected.includes('dyscalculie') && ctx.vak !== 'Rekenen') {
+        alert('Dyscalculie is alleen geschikt voor Rekenen.');
+        return null;
+      }
+      if (selected.includes('ruimtelijk-inzicht-zwak') && !(ctx.vak === 'Rekenen' || ctx.vak === 'Wereldoriëntatie')) {
+        alert('Zwak ruimtelijk inzicht is alleen voor Rekenen of Wereldoriëntatie.');
+        return null;
+      }
+    } catch {}
     // Check compatibility per spec
     try {
       const qs = new URLSearchParams({ subject: ctx.vak, scenarios: selected.join(',') }).toString();
@@ -56,14 +79,23 @@ export default function MaatwerkNewPage() {
     const jobId = startJson.job_id as string;
     const statusUrl = (startJson.status_url as string) || `/api/maatwerk/worksheets/generate/${jobId}/status`;
 
-    // Poll until completed (simple loop: up to 60s)
+    // Poll until completed (with gentle backoff and live progress)
     const started = Date.now();
     let last: any = null;
+    let delay = 1200;
     while (Date.now() - started < 60000) {
-      const s = await fetch(statusUrl, { cache: 'no-store' }).then(r => r.json()).catch(() => null);
-      last = s;
-      if (s && (s.status === 'completed' || s.worksheets)) break;
-      await new Promise(res => setTimeout(res, 1500));
+      let s: any = null;
+      try { s = await fetch(statusUrl, { cache: 'no-store' }).then(r => r.json()); } catch {}
+      if (s) {
+        last = s;
+        try {
+          if (typeof s.progress === 'number' && loadingRef.current?.setProgress) loadingRef.current.setProgress(Math.round(s.progress * 100));
+          if (s.current_step && loadingRef.current?.setStatus) loadingRef.current.setStatus(String(s.current_step));
+        } catch {}
+        if (s.status === 'completed' || s.worksheets) break;
+      }
+      await new Promise(res => setTimeout(res, delay));
+      delay = Math.min(5000, Math.floor(delay * 1.3));
     }
     return { ok: true, json: { status: 'completed', ...(last || {}) } } as any;
   }
@@ -148,6 +180,7 @@ export default function MaatwerkNewPage() {
         <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-center justify-center">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-md">
             <LoadingScreen
+              externalRef={loadingRef}
               start={async () => {
                 const res = await startGenerate();
                 return res;
@@ -156,6 +189,7 @@ export default function MaatwerkNewPage() {
                 setShowLoading(false);
                 const ws = res?.json?.worksheets || res?.json?.items || [];
                 setResults(ws);
+                setBatchUrl(res?.json?.batch_download_url || null);
                 saveRecent({ selected, ctx });
               }}
               onRetry={() => setShowLoading(false)}
@@ -167,6 +201,11 @@ export default function MaatwerkNewPage() {
       {results && results.length > 0 && (
         <section className="space-y-3">
           <h2 className="wb-h2">{results.length} Aangepaste werkbladen</h2>
+          {batchUrl ? (
+            <div>
+              <a className="wb-btn wb-btn-primary" href={batchUrl} target="_blank" rel="noreferrer">Download alles (ZIP)</a>
+            </div>
+          ) : null}
           <div className="grid gap-3">
             {results.map((it, idx) => (
               <div key={idx} className="rounded-lg border border-border p-3 bg-white">
