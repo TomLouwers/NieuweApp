@@ -89,7 +89,19 @@ export async function POST(req: Request) {
       const niveau = String(analysis.niveau || 'Midden');
       const opgaven = Array.isArray(analysis.opgaven) ? analysis.opgaven.slice(0, 20).map((o: any, i: number) => ({ nummer: Number(o.nummer) || (i + 1), type: String(o.type || 'question'), tekst: String(o.tekst || '') })) : [];
       const confidence = clamp(Number(analysis.confidence) || 0.75, 0, 1);
-      return NextResponse.json({ ok: true, analysis: { vak, onderwerp, groep, aantalOpgaven, niveau, opgaven, confidence }, source: 'anthropic' });
+      const recognized_content = {
+        vak, onderwerp, groep,
+        groep_confidence: confidence,
+        niveau,
+        aantal_opgaven: aantalOpgaven,
+        opgaven_preview: opgaven.map((o: any) => ({ nummer: o.nummer, type: o.type, tekst: o.tekst, confidence })),
+        methode_detected: undefined,
+        methode_confidence: undefined,
+        page_number: undefined,
+        ocr_quality: confidence > 0.8 ? 'good' : confidence > 0.6 ? 'fair' as const : 'poor',
+        overall_confidence: confidence,
+      } as const;
+      return NextResponse.json({ ok: true, recognized_content, analysis: { vak, onderwerp, groep, aantalOpgaven, niveau, opgaven, confidence }, source: 'anthropic' });
     }
 
     // Fallback heuristic
@@ -106,7 +118,19 @@ export async function POST(req: Request) {
     const niveau = 'Midden';
     const opgaven = Array.from({ length: Math.min(10, aantalOpgaven) }, (_, i) => ({ nummer: i + 1, type: vak === 'Rekenen' ? 'calculation' : 'question', tekst: vak === 'Rekenen' ? `${12 + i} × ${2 + (i % 3)} = ___` : `Vraag ${i + 1}: …` }));
     const confidence = 0.65;
-    return NextResponse.json({ ok: true, analysis: { vak, onderwerp, groep, aantalOpgaven, niveau, opgaven, confidence }, source: 'fallback' });
+    const recognized_content = {
+      vak, onderwerp, groep,
+      groep_confidence: 0.6,
+      niveau,
+      aantal_opgaven: aantalOpgaven,
+      opgaven_preview: opgaven.map((o) => ({ ...o, confidence: 0.6 })),
+      methode_detected: undefined,
+      methode_confidence: undefined,
+      page_number: undefined,
+      ocr_quality: 'fair' as const,
+      overall_confidence: confidence,
+    };
+    return NextResponse.json({ ok: true, recognized_content, analysis: { vak, onderwerp, groep, aantalOpgaven, niveau, opgaven, confidence }, source: 'fallback' });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: 'INTERNAL', message: e?.message || 'Analyze failed' }, { status: 500 });
   }

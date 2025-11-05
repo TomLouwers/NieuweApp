@@ -42,9 +42,21 @@ export default function MaatwerkUploadPage() {
     const json = await resp.json().catch(() => ({}));
     setProcessing(false);
     if (resp.ok && json?.ok) {
-      setAnalysis(json.analysis as Analysis);
-      setEdit(json.analysis as Analysis);
-      try { if (preview) localStorage.setItem('maatwerk_upload_preview', preview); localStorage.setItem('maatwerk_upload_analysis', JSON.stringify(json.analysis)); } catch {}
+      const rc = json.recognized_content as any;
+      const ana = json.analysis as any;
+      const mapped: Analysis | null = rc ? {
+        vak: rc.vak,
+        onderwerp: rc.onderwerp,
+        groep: rc.groep,
+        aantalOpgaven: rc.aantal_opgaven,
+        niveau: rc.niveau,
+        opgaven: (rc.opgaven_preview || []).map((o: any) => ({ nummer: o.nummer, type: o.type, tekst: o.tekst })),
+        confidence: rc.overall_confidence || 0.7,
+      } : (ana || null);
+      if (!mapped) { alert('Analyseren mislukt. Probeer opnieuw.'); return; }
+      setAnalysis(mapped);
+      setEdit(mapped);
+      try { if (preview) localStorage.setItem('maatwerk_upload_preview', preview); localStorage.setItem('maatwerk_upload_analysis', JSON.stringify(mapped)); } catch {}
     } else {
       alert('Analyseren mislukt. Probeer opnieuw.');
     }

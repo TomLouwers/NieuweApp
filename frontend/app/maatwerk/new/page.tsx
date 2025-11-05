@@ -38,10 +38,24 @@ export default function MaatwerkNewPage() {
 
   async function startGenerate() {
     if (!canGenerate) return null;
-    const body = { scenarios: selected, context: { groep: Number(ctx.groep), vak: ctx.vak, onderwerp: ctx.onderwerp, week: ctx.week || null, methode: ctx.methode || null } };
-    const resp = await fetch("/api/maatwerk/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const json = await resp.json().catch(() => ({}));
-    return { ok: resp.ok, json };
+    const startBody = { scenarios: selected, context: { groep: Number(ctx.groep), vak: ctx.vak, onderwerp: ctx.onderwerp, week: ctx.week || null, methode: ctx.methode || null }, options: { format: 'pdf', include_answer_key: true, include_teaching_notes: true } };
+    // Proxy to spec-compliant job start
+    const startResp = await fetch('/api/maatwerk/worksheets/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(startBody) });
+    const startJson = await startResp.json().catch(() => ({}));
+    if (!startResp.ok || !startJson?.job_id) return { ok: false, json: startJson };
+    const jobId = startJson.job_id as string;
+    const statusUrl = (startJson.status_url as string) || `/api/maatwerk/worksheets/generate/${jobId}/status`;
+
+    // Poll until completed (simple loop: up to 60s)
+    const started = Date.now();
+    let last: any = null;
+    while (Date.now() - started < 60000) {
+      const s = await fetch(statusUrl, { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+      last = s;
+      if (s && (s.status === 'completed' || s.worksheets)) break;
+      await new Promise(res => setTimeout(res, 1500));
+    }
+    return { ok: true, json: { status: 'completed', ...(last || {}) } } as any;
   }
 
   return (
@@ -130,8 +144,8 @@ export default function MaatwerkNewPage() {
               }}
               onDone={(res: any) => {
                 setShowLoading(false);
-                const items = res?.json?.items || [];
-                setResults(items);
+                const ws = res?.json?.worksheets || res?.json?.items || [];
+                setResults(ws);
                 saveRecent({ selected, ctx });
               }}
               onRetry={() => setShowLoading(false)}
@@ -202,4 +216,3 @@ export default function MaatwerkNewPage() {
     </main>
   );
 }
-
