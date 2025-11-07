@@ -441,7 +441,7 @@ export default function LandingPage() {
               onClick={() => track('cta_click', { cta: 'start_plan', variant: headlineVariant, device })}
               className="group bg-gradient-to-r from-primary-700 to-primary-600 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 inline-flex items-center gap-2 animate-gentle-pulse hover:[animation:none] tracking-[0.01em]"
             >
-              Start maatwerk
+              Probeer gratis
               <span className="hidden sm:inline group-hover:inline"> (10 min)</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </a>
@@ -452,11 +452,33 @@ export default function LandingPage() {
               <span className="hidden sm:inline">·</span>
               <button onClick={() => { track('cta_click', { cta: 'view_sample', variant: headlineVariant, device }); setShowPreview(true); }} className="underline-offset-4 hover:underline">Bekijk voorbeeld</button>
             </div>
+            <div className="text-gray-500">Individueel vanaf €9,99/mnd • Schoollicenties beschikbaar</div>
+          </div>
+
+          {/* Product preview (video if available, otherwise placeholder) */}
+          <div className="relative max-w-5xl mx-auto mb-6 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
+            {demoUrl ? (
+              <video className="w-full rounded-xl shadow-xl border border-gray-200" src={demoUrl} autoPlay muted loop playsInline />
+            ) : (
+              <div className="w-full rounded-xl shadow-xl border border-gray-200 bg-white p-4 text-left">
+                <div className="h-8 w-40 bg-gray-100 rounded mb-3" />
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-100 rounded" />
+                  <div className="h-3 bg-gray-100 rounded w-5/6" />
+                  <div className="h-3 bg-gray-100 rounded w-3/4" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="h-24 bg-gray-50 rounded border" />
+                  <div className="h-24 bg-gray-50 rounded border" />
+                </div>
+                <div className="mt-4 text-sm text-gray-500">Product preview</div>
+              </div>
+            )}
           </div>
 
           {/* Hero microcopy + social proof */}
           <div className="text-center text-sm text-gray-600 space-y-1 mb-8 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
-            <div>Geen account nodig om te starten. Probeer eerst, beslis daarna.</div>
+            <div>Geen account nodig. Geen leerlingen-accounts. Gewoon maken, downloaden, klaar.</div>
             <div className="text-gray-500">Gebruikt door 247 leerkrachten â€¢ 4.8/5
               <span className="inline-flex align-middle ml-1 text-yellow-400">
                 {[...Array(5)].map((_, i) => (
@@ -492,6 +514,33 @@ export default function LandingPage() {
           >
             <ChevronDown size={32} />
           </button>
+        </div>
+      </section>
+
+      {/* What You Get */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Wat je krijgt</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="font-semibold text-gray-900 mb-1">Groepsplan</div>
+              <div className="text-gray-600">Inspectie‑proof: SMARTI, handelingsgericht, Mickey Mouse‑model.</div>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="font-semibold text-gray-900 mb-1">OPP</div>
+              <div className="text-gray-600">Met uitstroomprofiel, realistische doelen en aanpak.</div>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="font-semibold text-gray-900 mb-1">Differentiatie</div>
+              <div className="text-gray-600">Scenario’s: dyslexie, NT2, traag tempo – direct inzetbaar.</div>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="font-semibold text-gray-900 mb-1">Export</div>
+              <div className="text-gray-600">Download als PDF of Word. Geen leerlingen‑accounts nodig.</div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -714,7 +763,7 @@ export default function LandingPage() {
                 icon: <Zap size={24} />,
                 bg: 'bg-warm-100',
                 color: 'text-warm-600',
-                title: 'Geen generiek gezwam',
+                title: 'Geen algemene onzin',
                 desc: 'Concrete tijden, specifieke materialen, realistische doelen. Geen "maatwerk bieden".',
               },
               {
@@ -832,7 +881,7 @@ export default function LandingPage() {
               href="/maatwerk/new"
               className="bg-white text-blue-700 px-12 py-5 rounded-xl font-semibold text-xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 transition-all duration-200 inline-flex items-center gap-3"
             >
-              Start maatwerk
+              Krijg je weekend terug
               <ArrowRight size={24} />
             </a>
             <div className="flex items-center justify-center gap-4 text-blue-100 text-sm font-medium">
