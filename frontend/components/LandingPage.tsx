@@ -43,7 +43,7 @@ export default function LandingPage() {
               Je maatwerk-opdrachten zijn nog niet klaar.
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 mb-8">
-              Upload een foto uit je methode. Kies een scenario (dyslexie, NT2, traag tempo). Download je aangepaste opdracht. 3–5 minuten, klaar.
+              Upload een foto uit je methode, kies een scenario, download als Word. Klaar in 3–5 minuten.
             </p>
 
             <div className="flex flex-col items-start gap-3 mb-4">
@@ -51,23 +51,10 @@ export default function LandingPage() {
                 Probeer gratis (10 min)
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </CTAButton>
-              <div className="text-sm text-gray-600">Geen account nodig. Geen leerlingen‑accounts. Gewoon maken, downloaden, klaar.</div>
-              <div className="text-sm text-gray-500">Individueel vanaf €9,99/mnd • Schoollicenties beschikbaar</div>
+              <div className="text-sm text-gray-600">Geen account nodig · Geen creditcard · 14 dagen gratis</div>
+              <div className="text-sm text-gray-500">Vanaf €9,99/mnd (individueel) · Schoollicenties beschikbaar</div>
             </div>
-
-            {/* Mini stats */}
-            <div className="grid grid-cols-3 gap-6 pt-6">
-              {[
-                { v: "247", l: "leerkrachten" },
-                { v: "1.247", l: "opdrachten" },
-                { v: "4.8/5", l: "beoordeling" },
-              ].map((s) => (
-                <div key={s.l} className="text-center md:text-left">
-                  <div className="text-2xl font-bold text-gray-900">{s.v}</div>
-                  <div className="text-xs text-gray-500">{s.l}</div>
-                </div>
-              ))}
-            </div>
+            {/* Stats moved further down for focus */}
           </div>
 
           {/* Product preview */}
@@ -105,18 +92,21 @@ export default function LandingPage() {
       {/* Empathy */}
       <section className="py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-4">
-          <div id="empathy" className="bg-gradient-to-br from-amber-100 to-amber-50 border-l-4 border-amber-600 rounded-xl p-8 md:p-12 shadow-sm">
+          <div id="empathy" className="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-6 md:p-10 shadow-sm">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 text-center">Herkenbaar?</h2>
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 md:space-y-4 mb-8">
               {[
-                "Je kopieert je vorige groepsplan en past de datums aan. Voelt als vals spelen, maar je hebt geen tijd.",
-                "Je IB'er zegt: 'Dit is nog te algemeen, maak het specifieker.' Nog een uur extra werk.",
-                "Het is 22:30. Je zit op de bank met je laptop. Morgen weer vroeg op. Je bent moe.",
-                "Je googelt 'groepsplan voorbeeld' – templates zijn te algemeen of verouderd.",
-              ].map((text, idx) => (
-                <div key={idx} className="flex items-start gap-4 bg-white/40 rounded-xl p-4">
-                  <span className="text-amber-600 font-semibold">{idx + 1}</span>
-                  <span className="text-gray-700 text-base md:text-lg leading-relaxed">{text}</span>
+                { text: "Je kopieert je vorige groepsplan en past de datums aan. Voelt als vals spelen, maar je hebt geen tijd.", icon: "⏰" },
+                { text: "Je IB'er zegt: 'Dit is nog te algemeen, maak het specifieker.' Nog een uur extra werk.", icon: "💻" },
+                { text: "Het is 22:30. Je zit op de bank met je laptop. Morgen weer vroeg op. Je bent moe.", icon: "☕" },
+                { text: "Je googelt 'groepsplan voorbeeld' – templates zijn te algemeen of verouderd.", icon: "🔍" },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`flex items-start gap-3 md:gap-4 p-4 md:p-5 rounded-xl border-l-4 ${idx % 2 === 0 ? "bg-white/70 border-amber-300" : "bg-white border-amber-500"}`}
+                >
+                  <span className="text-xl md:text-2xl" aria-hidden>{item.icon}</span>
+                  <span className="text-gray-800 text-[17px] md:text-lg leading-relaxed">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -165,18 +155,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* What you get */}
+      {/* What you get (benefit-first) */}
       <section className="py-12 md:py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Wat je krijgt</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Groepsplan</div><div className="text-gray-600">Inspectie‑proof: SMARTI, handelingsgericht, Mickey Mouse‑model.</div></div>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">OPP</div><div className="text-gray-600">Met uitstroomprofiel, realistische doelen en aanpak.</div></div>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Differentiatie</div><div className="text-gray-600">Scenario’s: dyslexie, NT2, traag tempo – direct inzetbaar.</div></div>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Export</div><div className="text-gray-600">Download als PDF of Word. Geen leerlingen‑accounts nodig.</div></div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Groepsplan in 10 minuten</div><div className="text-gray-600">Inspectie‑proof, handelingsgericht met SMARTI‑doelen.</div></div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">OPP in 10 minuten</div><div className="text-gray-600">Met uitstroomprofiel en concrete aanpak.</div></div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Differentiatie in 5–10 minuten</div><div className="text-gray-600">Scenario’s: dyslexie, NT2, traag tempo – direct inzetbaar.</div></div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4"><div className="font-semibold text-gray-900 mb-1">Download zonder gedoe</div><div className="text-gray-600">Word of PDF. Geen leerlingen‑accounts nodig.</div></div>
           </div>
+        </div>
+      </section>
+
+      {/* Contextual stats */}
+      <section className="py-8 md:py-10 bg-white">
+        <div className="max-w-4xl mx-auto px-4 text-center text-gray-700">
+          <div>247 leerkrachten gebruiken Pebble al. Samen maakten ze 1.247 opdrachten met een gemiddelde beoordeling van <span className="font-semibold">4.8/5</span>.</div>
         </div>
       </section>
 
@@ -211,7 +208,7 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Klaar om je weekend terug te krijgen?</h2>
           <p className="text-xl text-blue-100 mb-8">Start gratis. Geen creditcard nodig. Opzeggen wanneer je wilt.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <CTAButton href="/maatwerk/new">Krijg je weekend terug <ArrowRight size={22} /></CTAButton>
+            <CTAButton href="/maatwerk/new">Probeer nu – gratis <ArrowRight size={22} /></CTAButton>
             <CTAButton variant="secondary" onClick={() => { setShowPreview(true); track("cta_click", { cta: "view_sample", device }); }}>Bekijk voorbeelden</CTAButton>
           </div>
           <div className="text-blue-100 text-sm">🔒 Geen data in de cloud · AVG‑proof · Fire‑and‑forget</div>
