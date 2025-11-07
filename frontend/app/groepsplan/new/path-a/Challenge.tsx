@@ -74,6 +74,14 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
     scheduleSave();
   }
 
+  function selectValue(v: string) {
+    setValue(v);
+    setSelectedChallenge(v);
+    try { setChallengeZ(v); } catch {}
+    try { track('groepsplan_question_answered', { step: 'a3', field: 'challenge', value: v }); } catch {}
+    scheduleSave();
+  }
+
   function onKeyDown(e: React.KeyboardEvent) {
     if (!open) {
       if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
@@ -108,7 +116,27 @@ export default function Challenge({ onBack, onNext }: ChallengeProps) {
         <h2 id="challenge-title" ref={headingRef} tabIndex={-1}>Wat is de grootste uitdaging voor dit blok?</h2>
       </div>
 
-      <div className="relative" onKeyDown={onKeyDown}>
+      <div role="radiogroup" aria-label="Uitdagingen" className="grid grid-cols-1 gap-2">
+        {OPTIONS.map((opt) => {
+          const selected = value === opt;
+          return (
+            <div
+              key={opt}
+              role="radio"
+              aria-checked={selected}
+              tabIndex={selected || !value ? 0 : -1}
+              className={`inline-flex items-start gap-2 rounded-md border px-3 py-2 min-h-[44px] ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-foreground border-border hover:bg-blue-50'}`}
+              onClick={() => selectValue(opt)}
+              onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); selectValue(opt); } }}
+            >
+              <span className="mt-1" aria-hidden>●</span>
+              <span className="break-words">{opt}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="relative hidden" onKeyDown={onKeyDown}>
         <button
           ref={btnRef}
           type="button"
