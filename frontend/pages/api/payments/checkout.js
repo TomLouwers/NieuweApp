@@ -3,14 +3,14 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ ok: false });
   }
-  // Soft-fail if Stripe not configured
-  let Stripe;
-  try { Stripe = require('stripe'); } catch { Stripe = null; }
-  if (!Stripe || !process.env.STRIPE_SECRET_KEY) {
+  // Soft-fail if Stripe not configured. Use eval('require') to avoid bundler resolution at build time on Vercel.
+  let StripeMod = null;
+  try { StripeMod = eval('require')('stripe'); } catch { StripeMod = null; }
+  if (!StripeMod || !process.env.STRIPE_SECRET_KEY) {
     return res.status(200).json({ ok: true, simulated: true });
   }
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' });
+    const stripe = new StripeMod(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' });
     const priceCents = Math.round(Number(process.env.PPD_PRICE_EUR_CENTS || '399'));
     const origin = req.headers['origin'] || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const email = (req.body?.email || '').toString();
@@ -35,4 +35,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false });
   }
 }
-
