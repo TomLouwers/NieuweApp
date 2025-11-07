@@ -1,0 +1,40 @@
+[
+  {
+    "id": "getalbegrip_bewerkingen",
+    "naam": "Getalbegrip en bewerkingen",
+    "kerndoel_id": "F4",
+    "leergebied": "Rekenen en wiskunde",
+    "fases": [
+      {
+        "fase_nummer": 2,
+        "groepen": "Groep 3-4",
+        "beschrijving": "Automatiseren tot 100 in opbouw; basis-strategieën en getalbeeld.",
+        "aanbodsdoelen": [
+          {
+            "id": "rek-f2-splits-20",
+            "beschrijving": "Splitsen tot 20 vlot en automatisch",
+            "kennis": ["getalrelaties tot 20"],
+            "vaardigheden": ["splitsen", "optellen en aftrekken tot 20"],
+            "voorbeelden": ["17 = 10+7", "14 = 8+6", "13 = 9+4"],
+            "didactiek": "Concreet–schematisch–abstract; gebruik getallenlijn en rekenrek"
+          },
+          {
+            "id": "rek-f2-tafels-1-2-5-10",
+            "beschrijving": "Tafels van 1, 2, 5 en 10 automatiseren",
+            "kennis": ["groepjes", "herhaald optellen"],
+            "vaardigheden": ["tafelrekenen"],
+            "voorbeelden": ["2x5", "5x4", "10x7"]
+          },
+          {
+            "id": "rek-f2-getallenlijn-100",
+            "beschrijving": "Getallenlijn tot 100 gebruiken",
+            "kennis": ["orde van getallen", "rijgen en springen"],
+            "vaardigheden": ["oriënteren op 0–100"],
+            "voorbeelden": ["sprongen van 10", "tussen 35 en 50"]
+          }
+        ]
+      }
+    ]
+  }
+]
+

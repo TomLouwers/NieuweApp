@@ -366,7 +366,16 @@ async function handler(req, res) {
   }
 
   const system = buildSystemPromptOPP();
-  const user = buildUserPromptOPP(body);
+  const userBase = buildUserPromptOPP(body);
+  // Inject SLO ontwikkelperspectief context (non-fatal)
+  let user = userBase;
+  try {
+    const { buildSLOOppContext } = require("../../lib/slo-opp.js");
+    const slo = buildSLOOppContext(body);
+    if (slo && slo.length > 0) {
+      user = `${userBase}\n\n${slo}`;
+    }
+  } catch (_) {}
 
   const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
   let timeoutId = null;

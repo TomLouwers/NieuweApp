@@ -1,0 +1,51 @@
+[
+  {
+    "id": "T1",
+    "code": "T1",
+    "titel": "Mondelinge taalvaardigheid",
+    "doelzin": "De leerling leert informatie mondeling te uiten en te begrijpen in uiteenlopende situaties.",
+    "uitwerking": "Luisteren, spreken, gesprekken voeren, woordenschat vergroten.",
+    "toelichting": "Gebruik alledaagse contexten, rollenspellen, kringgesprek.",
+    "leergebied": "Nederlandse taal",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["T2", "T3"],
+    "inhoudslijnen": ["mondeling"]
+  },
+  {
+    "id": "T2",
+    "code": "T2",
+    "titel": "Technisch lezen",
+    "doelzin": "De leerling leert woorden en teksten vlot en accuraat te decoderen.",
+    "uitwerking": "Opbouw van letter-klank, klankgroepen, vloeiend lezen van zinnen en korte teksten.",
+    "toelichting": "Eerst decoderen, dan pas begrijpend lezen. Fluency-oefeningen.",
+    "leergebied": "Nederlandse taal",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["T3"],
+    "inhoudslijnen": ["technisch_lezen"]
+  },
+  {
+    "id": "T3",
+    "code": "T3",
+    "titel": "Begrijpend lezen",
+    "doelzin": "De leerling leert informatie uit teksten te halen, te interpreteren en te evalueren.",
+    "uitwerking": "Strategieën toepassen, vragen stellen, hoofd- en bijzaken onderscheiden.",
+    "toelichting": "Strategieën IGDI, close reading elementen.",
+    "leergebied": "Nederlandse taal",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["T2"],
+    "inhoudslijnen": ["begrijpend_lezen"]
+  },
+  {
+    "id": "T4",
+    "code": "T4",
+    "titel": "Schrijven",
+    "doelzin": "De leerling leert teksten te schrijven voor verschillende doelen en publiek.",
+    "uitwerking": "Plannen, schrijven, herzien, conventies toepassen.",
+    "toelichting": "Procesgericht schrijven met feedback.",
+    "leergebied": "Nederlandse taal",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["T5", "T6"],
+    "inhoudslijnen": ["schrijven"]
+  }
+]
+

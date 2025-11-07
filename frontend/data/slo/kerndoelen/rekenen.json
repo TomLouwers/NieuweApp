@@ -1,0 +1,39 @@
+[
+  {
+    "id": "F1",
+    "code": "F1",
+    "titel": "Inzicht in verhoudingen",
+    "doelzin": "De leerling leert inzicht te krijgen in het gebruik van verhoudingen, breuken, procenten en kommagetallen.",
+    "uitwerking": "Eenvoudige verhoudingen herkennen en toepassen in context.",
+    "toelichting": "Start met concrete situaties (delen, eerlijk verdelen).",
+    "leergebied": "Rekenen en wiskunde",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["F2", "F3"],
+    "inhoudslijnen": ["getalbegrip_bewerkingen"]
+  },
+  {
+    "id": "F4",
+    "code": "F4",
+    "titel": "Automatiseren",
+    "doelzin": "De leerling leert de getallen tot 100 te gebruiken en elementaire bewerkingen daarmee automatisch uit te voeren.",
+    "uitwerking": "Vlot splitsen en optellen tot 20; inzicht in getallen tot 100; automatiseren van tafels tot 10.",
+    "toelichting": "Tempo en nauwkeurigheid zijn belangrijk, met opbouw via concreet–schematisch–abstract.",
+    "leergebied": "Rekenen en wiskunde",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["F5", "F6"],
+    "inhoudslijnen": ["getalbegrip_bewerkingen"]
+  },
+  {
+    "id": "F6",
+    "code": "F6",
+    "titel": "Vermenigvuldigen binnen de tafels",
+    "doelzin": "De leerling leert vermenigvuldigen en delen binnen de tafels.",
+    "uitwerking": "Alle tafels tot en met 10 kennen en toepassen in context.",
+    "toelichting": "Opbouw met getalbeelden en groepjes; van begrip naar automatiseren.",
+    "leergebied": "Rekenen en wiskunde",
+    "onderwijs_type": "Primair Onderwijs",
+    "gerelateerde_doelen": ["F4", "F5"],
+    "inhoudslijnen": ["getalbegrip_bewerkingen"]
+  }
+]
+

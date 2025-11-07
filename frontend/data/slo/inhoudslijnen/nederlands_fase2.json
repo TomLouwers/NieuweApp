@@ -1,0 +1,54 @@
+[
+  {
+    "id": "technisch_lezen",
+    "naam": "Technisch lezen",
+    "kerndoel_id": "T2",
+    "leergebied": "Nederlandse taal",
+    "fases": [
+      {
+        "fase_nummer": 2,
+        "groepen": "Groep 3-4",
+        "beschrijving": "Van klank naar woord en zin; vloeiend lezen opstarten.",
+        "aanbodsdoelen": [
+          {
+            "id": "taal-f2-klankgroepen",
+            "beschrijving": "Klankgroepen decoderen in langere woorden",
+            "kennis": ["klankgroepen", "rijm"],
+            "vaardigheden": ["decoderen", "vloeiend lezen"],
+            "voorbeelden": ["bomen, kleuren, verhalen"]
+          },
+          {
+            "id": "taal-f2-avi-e4",
+            "beschrijving": "Leest korte teksten op AVI E4-niveau",
+            "kennis": ["woordenschat"],
+            "vaardigheden": ["vloeiend lezen"],
+            "voorbeelden": ["zinnen met 8-12 woorden"]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "begrijpend_lezen",
+    "naam": "Begrijpend lezen",
+    "kerndoel_id": "T3",
+    "leergebied": "Nederlandse taal",
+    "fases": [
+      {
+        "fase_nummer": 2,
+        "groepen": "Groep 3-4",
+        "beschrijving": "Beginnen met begrip: eenvoudige strategieën.",
+        "aanbodsdoelen": [
+          {
+            "id": "taal-f2-strategie-start",
+            "beschrijving": "Eenvoudige strategieën toepassen (voorkennis, vragen stellen)",
+            "kennis": ["tekstsoorten"],
+            "vaardigheden": ["zoeken", "samenvatten"],
+            "voorbeelden": ["korte informatieve tekstjes"]
+          }
+        ]
+      }
+    ]
+  }
+]
+

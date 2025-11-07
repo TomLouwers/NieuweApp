@@ -1,0 +1,33 @@
+{
+  "rekenen_automatiseren": {
+    "leergebied": "Rekenen en wiskunde",
+    "kerndoel_codes": ["F4", "F6"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  },
+  "rekenen_begrip": {
+    "leergebied": "Rekenen en wiskunde",
+    "kerndoel_codes": ["F1", "F4"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  },
+  "spelling": {
+    "leergebied": "Nederlandse taal",
+    "kerndoel_codes": ["T4"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  },
+  "technisch_lezen": {
+    "leergebied": "Nederlandse taal",
+    "kerndoel_codes": ["T2", "T3"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  },
+  "begrijpend_lezen": {
+    "leergebied": "Nederlandse taal",
+    "kerndoel_codes": ["T3"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  },
+  "schrijven": {
+    "leergebied": "Nederlandse taal",
+    "kerndoel_codes": ["T4"],
+    "fase_by_groep": {"1": null, "2": null, "3": 2, "4": 2, "5": 3, "6": 3, "7": 4, "8": 4}
+  }
+}
+

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "getalbegrip_bewerkingen",
+    "naam": "Getalbegrip en bewerkingen",
+    "kerndoel_id": "F4",
+    "leergebied": "Rekenen en wiskunde",
+    "fases": [
+      {
+        "fase_nummer": 3,
+        "groepen": "Groep 5-6",
+        "beschrijving": "Alle tafels tot 10 volledig automatisch; flexibel rekenen tot 100.",
+        "aanbodsdoelen": [
+          {
+            "id": "rek-f3-tafels-alles",
+            "beschrijving": "Alle tafels tot 10 volledig automatisch",
+            "kennis": ["vermenigvuldigen", "delen"],
+            "vaardigheden": ["tafelautomatisering"],
+            "voorbeelden": ["6x7", "8x9", "9x9"],
+            "didactiek": "Spaced practice, retrieval practice, mixing"
+          },
+          {
+            "id": "rek-f3-strategieen-100",
+            "beschrijving": "Strategieën voor vermenigvuldigen en delen tot 100",
+            "kennis": ["opsplitsen", "compensatie"],
+            "vaardigheden": ["meerdere oplossingswegen kiezen"],
+            "voorbeelden": ["12x8 = 10x8 + 2x8", "84:7 via tafel 7"]
+          }
+        ]
+      }
+    ]
+  }
+]
+
