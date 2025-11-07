@@ -1,12 +1,12 @@
 ﻿"use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, Clock, Smartphone, Users, Zap } from "lucide-react";`nimport Image from "next/image";
+import { ArrowRight, Check, Clock, Smartphone, Users, Zap } from "lucide-react";
 import { track } from "@/lib/utils/analytics";
 import PreviewModal from "@/components/PreviewModal";
 
 export default function LandingPage() {
   const [showPreview, setShowPreview] = useState(false);
-  const demoUrl = (process?.env?.NEXT_PUBLIC_DEMO_VIDEO_URL as string) || "";`n  const heroImageUrl = (process?.env?.NEXT_PUBLIC_HERO_IMAGE_URL as string) || "";
+  const demoUrl = (process?.env?.NEXT_PUBLIC_DEMO_VIDEO_URL as string) || "";
 
   const device: "mobile" | "desktop" | "unknown" = useMemo(() => {
     try {
@@ -43,7 +43,7 @@ export default function LandingPage() {
               Je maatwerk-opdrachten zijn nog niet klaar.
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 mb-8">
-              Upload een foto uit je methode, kies een scenario, download als Word. Klaar in 3â€“5 minuten.
+              Upload een foto uit je methode, kies een scenario, download als Word. Klaar in 3–5 minuten.
             </p>
 
             <div className="flex flex-col items-start gap-3 mb-4">
@@ -51,8 +51,8 @@ export default function LandingPage() {
                 Probeer nu (10 min)
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </CTAButton>
-              <div className="text-sm text-gray-600">Geen account nodig Â· Geen creditcard Â· 14 dagen gratis</div>
-              <div className="text-sm text-gray-500">Vanaf â‚¬9,99/mnd (individueel) Â· Schoollicenties beschikbaar</div>
+              <div className="text-sm text-gray-600">Geen account nodig · Geen creditcard · 14 dagen gratis</div>
+              <div className="text-sm text-gray-500">Vanaf €9,99/mnd (individueel) · Schoollicenties beschikbaar</div>
               {/* Secondary navigation: direct deep links (subtle) */}
               <div className="text-[15px] text-gray-700 font-medium mt-1">
                 <span className="mr-2">Direct naar:</span>
@@ -270,4 +270,6 @@ export default function LandingPage() {
     </main>
   );
 }
+
+
 
