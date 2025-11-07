@@ -37,7 +37,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-16 md:py-20">
         <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-6">
               Het is woensdag.
               <br />
               Je maatwerk-opdrachten zijn nog niet klaar.
@@ -48,20 +48,20 @@ export default function LandingPage() {
 
             <div className="flex flex-col items-start gap-3 mb-4">
               <CTAButton href="/start" onClick={() => track("cta_click", { cta: "start_plan", device })}>
-                Probeer gratis (10 min)
+                Probeer nu (10 min)
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </CTAButton>
               <div className="text-sm text-gray-600">Geen account nodig · Geen creditcard · 14 dagen gratis</div>
               <div className="text-sm text-gray-500">Vanaf €9,99/mnd (individueel) · Schoollicenties beschikbaar</div>
               {/* Secondary navigation: direct deep links (subtle) */}
-              <div className="text-sm text-gray-600 mt-1">
+              <div className="text-[15px] text-gray-700 font-medium mt-1">
                 <span className="mr-2">Direct naar:</span>
                 <a
                   href="/groepsplan/new"
                   className="underline-offset-4 hover:underline"
                   onClick={() => track('cta_click', { cta: 'direct_groepsplan', device })}
                 >
-                  Groepsplan
+                  📋 Groepsplan
                 </a>
                 <span className="mx-2">•</span>
                 <a
@@ -69,15 +69,15 @@ export default function LandingPage() {
                   className="underline-offset-4 hover:underline"
                   onClick={() => track('cta_click', { cta: 'direct_opp', device })}
                 >
-                  OPP
+                  📝 OPP
                 </a>
                 <span className="mx-2">•</span>
                 <a
-                  href="/start"
+                  href="/maatwerk/new"
                   className="underline-offset-4 hover:underline"
                   onClick={() => track('cta_click', { cta: 'direct_differentiatie', device })}
                 >
-                  Differentiatie
+                  ✏️ Differentiatie
                 </a>
               </div>
             </div>
@@ -137,11 +137,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="text-center">
-              <CTAButton href="/start" onClick={() => track("cta_click", { cta: "mid_cta", device })}>
-                Krijg je weekend terug <ArrowRight size={20} />
-              </CTAButton>
-            </div>
+            {/* No mid-page CTA here to keep flow focused */}
           </div>
         </div>
       </section>
@@ -222,6 +218,34 @@ export default function LandingPage() {
                 <div>
                   <div className="font-semibold text-gray-900 mb-1">{f.title}</div>
                   <div className="text-sm text-gray-600">{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 md:py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Wat leerkrachten zeggen</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { q: 'Het kostte me 8 minuten voor een groepsplan waar ik anders 3 uur aan kwijt ben. Ik hoefde alleen de naam van de IB\'er aan te passen.', n: 'Marieke', meta: 'Groep 5 • Rotterdam', bg: 'bg-blue-100', color: 'text-blue-600', init: 'M' },
+              { q: 'Eindelijk concrete suggesties. Niet “bied extra uitleg”, maar “2x per week 15 min met rekenblokjes in de instructiehoek”.', n: 'Tim', meta: 'Groep 7 • Utrecht', bg: 'bg-purple-100', color: 'text-purple-600', init: 'T' },
+              { q: 'Voor het eerst sinds jaren weer een vrije woensdagavond. Geen laptop op schoot. Dit is wat ik nodig had.', n: 'Lisa', meta: 'Groep 3 • Amsterdam', bg: 'bg-emerald-100', color: 'text-emerald-600', init: 'L' },
+            ].map((t, i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex gap-1 mb-4 text-yellow-400"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p className="text-gray-700 mb-6">“{t.q}”</p>
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 ${t.bg} ${t.color} rounded-full flex items-center justify-center font-semibold`}>{t.init}</div>
+                  <div>
+                    <div className="font-semibold text-sm">{t.n}</div>
+                    <div className="text-xs text-gray-500">{t.meta}</div>
+                  </div>
                 </div>
               </div>
             ))}
