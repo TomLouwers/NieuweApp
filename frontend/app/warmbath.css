@@ -122,10 +122,10 @@
 /* Options (role=radio) */
 .theme-warmbath [role="radiogroup"] [role="radio"] {
   position: relative; background: var(--wb-soft-cream); border: var(--wb-border-light); border-radius: 10px;
-  padding: var(--wb-space-md); box-shadow: var(--wb-shadow-resting); transition: all 180ms ease-out; text-align: left;
+  padding: var(--wb-space-md); box-shadow: var(--wb-shadow-resting); transition: background 180ms ease-out, box-shadow 180ms ease-out, border-color 180ms ease-out; text-align: left;
 }
 .theme-warmbath [role="radiogroup"] [role="radio"]:hover {
-  background: #fff; border-color: rgba(74, 107, 89, 0.3); transform: translateY(-2px); box-shadow: var(--wb-shadow-lifted);
+  background: #fff; border-color: rgba(74, 107, 89, 0.3); box-shadow: var(--wb-shadow-lifted);
 }
 .theme-warmbath [role="radiogroup"] [role="radio"][aria-checked="true"] {
   background: var(--wb-sage-tint); border: 2px solid var(--wb-chalkboard-green);
