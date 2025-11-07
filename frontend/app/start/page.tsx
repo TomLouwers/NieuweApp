@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import { ArrowRight, Check, FileText, ListChecks, Sparkles } from "lucide-react";
 import { track } from "@/lib/utils/analytics";
@@ -36,19 +36,19 @@ export default function StartPickerPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card
             title="Groepsplan"
-            desc="Inspectie‑proof groepsplan in ±10 minuten."
+            desc="Inspectie-proof groepsplan in 10 minuten."
             href="/groepsplan/new"
             icon={<ListChecks size={18} />}
           />
           <Card
             title="OPP"
-            desc="Ontwikkelingsperspectief met uitstroomprofiel in ±10 minuten."
+            desc="Ontwikkelingsperspectief met uitstroomprofiel in 10 minuten."
             href="/opp/new"
             icon={<FileText size={18} />}
           />
           <Card
             title="Differentiatie"
-            desc="Maatwerk‑opdrachten met scenario’s (dyslexie, NT2, traag tempo) in 5–10 min."
+            desc="Maatwerk-opdrachten met scenario's (dyslexie, NT2, traag tempo) in 5–10 min."
             href="/maatwerk/new"
             icon={<Sparkles size={18} />}
           />
@@ -65,3 +65,4 @@ export default function StartPickerPage() {
     </main>
   );
 }
+
