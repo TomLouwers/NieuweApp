@@ -22,6 +22,7 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
   const { ref, bind } = useSwipeBack(onBack);
   const [value, setValue] = React.useState<string>(getSelectedChallenge() || "");
   const [open, setOpen] = React.useState(false);
+  const [dropUp, setDropUp] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const btnRef = React.useRef<HTMLButtonElement | null>(null);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
@@ -60,6 +61,28 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
+  }, [open]);
+
+  // Decide dropdown placement (upwards if not enough space below)
+  React.useEffect(() => {
+    if (!open) return;
+    function updatePlacement() {
+      try {
+        const trigger = btnRef.current;
+        if (!trigger) return;
+        const rect = trigger.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        // Target menu height ~ 320px; if insufficient space, open upwards
+        setDropUp(spaceBelow < 320);
+      } catch { /* ignore */ }
+    }
+    updatePlacement();
+    window.addEventListener('resize', updatePlacement);
+    window.addEventListener('scroll', updatePlacement, true);
+    return () => {
+      window.removeEventListener('resize', updatePlacement);
+      window.removeEventListener('scroll', updatePlacement, true);
+    };
   }, [open]);
 
   function confirmSelection(opt: string) {
@@ -120,7 +143,7 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
         <h2 id={headingId}>Wat is de grootste uitdaging voor dit blok?</h2>
       </div>
 
-      <div className="relative dropdown" onKeyDown={onTriggerKeyDown}>
+      <div className={`relative dropdown ${dropUp ? 'dropdown-up' : ''}`} onKeyDown={onTriggerKeyDown}>
         <button ref={btnRef} type="button" aria-haspopup="listbox" aria-expanded={open} className="dropdown-trigger" onClick={() => { setOpen(v => !v); if (!open) setSearch(""); }}>
           <span className="dropdown-value">{value || "Selecteer..."}</span>
           <svg className="dropdown-arrow" viewBox="0 0 10 6" aria-hidden>
@@ -171,4 +194,3 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
     </div>
   );
 }
-
