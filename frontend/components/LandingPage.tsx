@@ -218,8 +218,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {showPreview && <PreviewModal open={showPreview} onClose={() => setShowPreview(false)} />}
+      {showPreview && <PreviewModal isOpen={showPreview} onClose={() => setShowPreview(false)} />}
     </main>
   );
 }
-
