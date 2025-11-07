@@ -47,12 +47,39 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col items-start gap-3 mb-4">
-              <CTAButton href="/maatwerk/new" onClick={() => track("cta_click", { cta: "start_plan", device })}>
+              <CTAButton href="/start" onClick={() => track("cta_click", { cta: "start_plan", device })}>
                 Probeer gratis (10 min)
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </CTAButton>
               <div className="text-sm text-gray-600">Geen account nodig · Geen creditcard · 14 dagen gratis</div>
               <div className="text-sm text-gray-500">Vanaf €9,99/mnd (individueel) · Schoollicenties beschikbaar</div>
+              {/* Secondary navigation: direct deep links (subtle) */}
+              <div className="text-sm text-gray-600 mt-1">
+                <span className="mr-2">Direct naar:</span>
+                <a
+                  href="/groepsplan/new"
+                  className="underline-offset-4 hover:underline"
+                  onClick={() => track('cta_click', { cta: 'direct_groepsplan', device })}
+                >
+                  Groepsplan
+                </a>
+                <span className="mx-2">•</span>
+                <a
+                  href="/opp/new"
+                  className="underline-offset-4 hover:underline"
+                  onClick={() => track('cta_click', { cta: 'direct_opp', device })}
+                >
+                  OPP
+                </a>
+                <span className="mx-2">•</span>
+                <a
+                  href="/start"
+                  className="underline-offset-4 hover:underline"
+                  onClick={() => track('cta_click', { cta: 'direct_differentiatie', device })}
+                >
+                  Differentiatie
+                </a>
+              </div>
             </div>
             {/* Stats moved further down for focus */}
           </div>
@@ -111,7 +138,7 @@ export default function LandingPage() {
               ))}
             </div>
             <div className="text-center">
-              <CTAButton href="/maatwerk/new" onClick={() => track("cta_click", { cta: "mid_cta", device })}>
+              <CTAButton href="/start" onClick={() => track("cta_click", { cta: "mid_cta", device })}>
                 Krijg je weekend terug <ArrowRight size={20} />
               </CTAButton>
             </div>
@@ -208,7 +235,7 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Klaar om je weekend terug te krijgen?</h2>
           <p className="text-xl text-blue-100 mb-8">Start gratis. Geen creditcard nodig. Opzeggen wanneer je wilt.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <CTAButton href="/maatwerk/new">Probeer nu – gratis <ArrowRight size={22} /></CTAButton>
+            <CTAButton href="/start">Probeer nu – gratis <ArrowRight size={22} /></CTAButton>
             <CTAButton variant="secondary" onClick={() => { setShowPreview(true); track("cta_click", { cta: "view_sample", device }); }}>Bekijk voorbeelden</CTAButton>
           </div>
           <div className="text-blue-100 text-sm">🔒 Geen data in de cloud · AVG‑proof · Fire‑and‑forget</div>
