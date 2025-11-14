@@ -42,15 +42,15 @@ export default function ScenarioSelector({ value, onChange }: Props) {
                 <button
                   key={s.id}
                   type="button"
-                  className={`component touchable text-left p-3 rounded-lg wb-paper paper-texture ${selected ? 'selected' : ''}`}
+                  className={`scenario-card relative component touchable text-left p-3 rounded-lg wb-paper paper-texture ${selected ? 'selected' : ''}`}
                   onClick={() => toggle(s.id)}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="text-base" style={{ fontWeight: 500 }}>{s.label}</div>
-                      <div className="text-sm wb-subtle">{s.description}</div>
+                      <div className="text-sm subtitle wb-subtle">{s.description}</div>
                     </div>
-                    {selected ? <span aria-hidden style={{ color: 'var(--wb-chalkboard-green)' }}>?</span> : null}
+                    {selected ? <span aria-hidden className="check">✓</span> : null}
                   </div>
                 </button>
               );
@@ -58,6 +58,33 @@ export default function ScenarioSelector({ value, onChange }: Props) {
           </div>
         </div>
       ))}
+      <style jsx>{`
+        .scenario-card {
+          background: #FFF9F0;
+          border: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .scenario-card:hover {
+          background: #FFF5E6;
+          border-color: #E5D5BF;
+        }
+        .scenario-card.selected {
+          background: #4A6B5C; /* warm green */
+          color: #fff;
+          border-color: #3A5B4C;
+        }
+        .scenario-card.selected .subtitle { color: rgba(255,255,255,0.85); }
+        .scenario-card .check {
+          position: absolute;
+          top: 8px;
+          right: 10px;
+          font-size: 18px;
+          line-height: 1;
+          color: #fff;
+          font-weight: 700;
+        }
+      `}</style>
     </div>
   );
 }

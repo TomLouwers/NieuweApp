@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from "react";
 import ScenarioSelector from "./components/ScenarioSelector";
 import LoadingScreen from "@/app/groepsplan/new/components/LoadingScreen";
@@ -46,7 +46,7 @@ export default function MaatwerkNewPage() {
     } catch {}
   }
 
-  const canGenerate = selected.length > 0 && selected.length <= 10 && ctx.groep && ctx.onderwerp.trim().length >= 2;
+  const canGenerate = selected.length > 0 && ctx.groep && ctx.onderwerp.trim().length >= 2;
 
   async function startGenerate() {
     if (!canGenerate) return null;
@@ -56,8 +56,8 @@ export default function MaatwerkNewPage() {
         alert('Dyscalculie is alleen geschikt voor Rekenen.');
         return null;
       }
-      if (selected.includes('ruimtelijk-inzicht-zwak') && !(ctx.vak === 'Rekenen' || ctx.vak === 'Wereldoriëntatie')) {
-        alert('Zwak ruimtelijk inzicht is alleen voor Rekenen of Wereldoriëntatie.');
+      if (selected.includes('ruimtelijk-inzicht-zwak') && !(ctx.vak === 'Rekenen' || ctx.vak === 'WereldoriÃ«ntatie')) {
+        alert('Zwak ruimtelijk inzicht is alleen voor Rekenen of WereldoriÃ«ntatie.');
         return null;
       }
     } catch {}
@@ -104,13 +104,14 @@ export default function MaatwerkNewPage() {
     <main className="theme-warmbath wb-plain-bg min-h-screen space-y-6">
       <header>
         <h1 className="wb-title">Maatwerk-opdrachten Generator</h1>
-        <p className="wb-subtle">Kies 1-10 scenario's en vul de lescontext in. Klaar in 3 minuten.</p>
+        <p className="wb-subtle">Kies scenario's die passen bij je leerlingen. Klaar in 3 minuten.</p>
         <div className="mt-2">
-          <a href="/maatwerk/upload" className="wb-btn wb-btn-secondary">Upload werkblad uit methode</a>
+          <a href="/maatwerk/upload" className="wb-btn wb-btn-secondary">📎 Upload werkblad om te differentiëren</a>
+          <div className="text-sm wb-subtle">Heb je al een opdracht? Upload en wij passen deze automatisch aan voor je geselecteerde scenario's. PDF, Word of afbeelding (max 10MB).</div>
         </div>
         {recent.length > 0 && (
           <div className="mt-2">
-            <button className="wb-btn wb-btn-secondary" onClick={() => { const last = recent[0]; setSelected(last.selected || []); setCtx(last.ctx || {}); }}>Laatst gebruikt: {recent[0]?.ctx?.vak} · Groep {recent[0]?.ctx?.groep} · {recent[0]?.ctx?.onderwerp}</button>
+            <button className="wb-btn wb-btn-secondary" onClick={() => { const last = recent[0]; setSelected(last.selected || []); setCtx(last.ctx || {}); }}>Laatst gebruikt: {recent[0]?.ctx?.vak} Â· Groep {recent[0]?.ctx?.groep} Â· {recent[0]?.ctx?.onderwerp}</button>
           </div>
         )}
       </header>
@@ -118,11 +119,40 @@ export default function MaatwerkNewPage() {
       <section className="space-y-4">
         <h2 className="wb-h2">Scenarios</h2>
         <ScenarioSelector value={selected} onChange={setSelected} />
-        <div className="text-sm wb-subtle">{selected.length} scenario(s) geselecteerd</div>
+        <div className="text-sm wb-subtle">
+          {selected.length === 0 && "0 scenario's geselecteerd"}
+          {selected.length === 1 && (
+            (() => {
+              try {
+                const s = SCENARIOS.find(x => x.id === selected[0]);
+                const name = (s && (s as any).label) || selected[0];
+                return `1 scenario geselecteerd: ${name}`;
+              } catch {
+                return `1 scenario geselecteerd`;
+              }
+            })()
+          )}
+          {selected.length > 1 && (
+            (() => {
+              try {
+                const labels = selected.map(id => (SCENARIOS.find(x => x.id === id) as any)?.label || id);
+                const preview = labels.slice(0, 3).join(', ');
+                const tail = labels.length > 3 ? '…' : '';
+                return `${selected.length} scenario's geselecteerd: ${preview}${tail}`;
+              } catch {
+                return `${selected.length} scenario's geselecteerd`;
+              }
+            })()
+          )}
+          {selected.length > 0 && (
+            <button className="ml-2 text-blue-600 hover:underline" onClick={() => setSelected([])}>Wis alle selecties</button>
+          )}
+        </div>
       </section>
 
       <section className="space-y-3">
-        <h2 className="wb-h2">Lescontext</h2>
+        <h2 className="wb-h2">Lescontext (verplicht)</h2>
+        <div className="text-sm wb-subtle">Vul Groep, Vak en Onderwerp in.</div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className="wb-text-field">
             <span className="wb-text-field-label">Groep</span>
@@ -138,7 +168,7 @@ export default function MaatwerkNewPage() {
             <span className="wb-text-field-label">Vak</span>
             <div className="wb-text-field-wrapper">
               <select className="wb-text-field-input" value={ctx.vak} onChange={(e) => setCtx((c) => ({ ...c, vak: e.target.value }))}>
-                {["Rekenen","Taal","Spelling","Begrijpend lezen","Schrijven","Wereldoriëntatie"].map((v) => <option key={v} value={v}>{v}</option>)}
+                {["Rekenen","Taal","Spelling","Begrijpend lezen","Schrijven","WereldoriÃ«ntatie"].map((v) => <option key={v} value={v}>{v}</option>)}
               </select>
               <div className="wb-text-field-underline" />
             </div>
@@ -146,11 +176,13 @@ export default function MaatwerkNewPage() {
           <label className="wb-text-field sm:col-span-1 col-span-1">
             <span className="wb-text-field-label">Onderwerp</span>
             <div className="wb-text-field-wrapper">
-              <input className="wb-text-field-input" maxLength={50} placeholder="Vermenigvuldigen" value={ctx.onderwerp} onChange={(e) => setCtx((c) => ({ ...c, onderwerp: e.target.value }))} />
+              <input className="wb-text-field-input" maxLength={50} placeholder={"Bijv. 'Tafels oefenen' of 'Spelling ei/ij'"} value={ctx.onderwerp} onChange={(e) => setCtx((c) => ({ ...c, onderwerp: e.target.value }))} />
               <div className="wb-text-field-underline" />
             </div>
           </label>
         </div>
+        <hr className="border-border" />
+        <div className="text-sm wb-subtle">Extra context (optioneel)</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="wb-text-field">
             <span className="wb-text-field-label">Week/Periode (optioneel)</span>
@@ -171,9 +203,9 @@ export default function MaatwerkNewPage() {
 
       <section className="flex items-center gap-3">
         <button className={`wb-btn wb-btn-primary ${!canGenerate ? 'opacity-60 pointer-events-none' : ''}`} onClick={() => { if (!canGenerate) return; setShowLoading(true); }}>
-          Genereer {selected.length || ''} werkbladen
+          {canGenerate ? `Genereer ${selected.length || ''} werkbladen →` : 'Genereer werkbladen'}
         </button>
-        <div className="wb-subtle text-sm">Geen namen nodig. AVG-proof.</div>
+        <div className="wb-subtle text-sm">{!canGenerate ? (selected.length === 0 ? '⚠️ Selecteer minimaal 1 scenario en vul lescontext in' : '⚠️ Vul groep en onderwerp in') : 'Geen namen nodig. AVG-proof.'}</div>
       </section>
 
       {showLoading && (
@@ -212,7 +244,7 @@ export default function MaatwerkNewPage() {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-base" style={{ fontWeight: 600 }}>{SCENARIOS.find(s => s.id === it.scenarioId)?.label || it.scenarioId}</div>
-                    <div className="text-sm wb-subtle">{ctx.vak} · Groep {ctx.groep} · {ctx.onderwerp}</div>
+                    <div className="text-sm wb-subtle">{ctx.vak} Â· Groep {ctx.groep} Â· {ctx.onderwerp}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="wb-btn wb-btn-secondary" onClick={() => {
@@ -265,3 +297,4 @@ export default function MaatwerkNewPage() {
     </main>
   );
 }
+
