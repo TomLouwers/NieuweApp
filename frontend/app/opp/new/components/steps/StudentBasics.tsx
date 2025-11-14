@@ -34,7 +34,11 @@ export default function StudentBasics({ onBack, onNext }: { onBack: () => void; 
   return (
     <div className="space-y-4">
       <h2>Voor wie maak je een OPP?</h2>
-      <div className="text-sm wb-subtle">Privacy: we versturen geen naam of leeftijd naar onze AI. Het document wordt anoniem gegenereerd en je kunt het na download lokaal personaliseren.</div>
+      <div className="text-sm wb-subtle"><span aria-hidden>🔒 </span>Privacy-first: We versturen geen naam of leeftijd. Het document is anoniem en je personaliseert het na download.</div>
+
+      <hr className="border-border" />
+
+      <div className="text-sm text-muted">Deze info helpt ons het document natuurlijk te laten lezen.</div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="space-y-2">
@@ -63,21 +67,33 @@ export default function StudentBasics({ onBack, onNext }: { onBack: () => void; 
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Voornaamwoorden</label>
-          <div className="mt-1 flex items-center gap-3">
-            {['jongen','meisje','anders'].map(v => (
-              <label key={v} className="flex items-center gap-2 min-h-[44px] cursor-pointer">
-                <input type="radio" name="gender" checked={answers.gender===v} onChange={() => update({ gender: v as any })} />
-                <span>{v}</span>
-              </label>
-            ))}
+          <label className="block text-sm font-medium">Voornaamwoorden (voor de tekst)</label>
+          <div className="mt-1 grid grid-cols-1 gap-2">
+            <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
+              <input type="radio" name="gender" checked={answers.gender==='jongen'} onChange={() => update({ gender: 'jongen' })} />
+              <span>hij (jongen)</span>
+            </label>
+            <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
+              <input type="radio" name="gender" checked={answers.gender==='meisje'} onChange={() => update({ gender: 'meisje' })} />
+              <span>zij (meisje)</span>
+            </label>
+            <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
+              <input type="radio" name="gender" checked={answers.gender==='anders'} onChange={() => update({ gender: 'anders' })} />
+              <span>hen (anders/neutraal)</span>
+            </label>
+            <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
+              <input type="radio" name="gender" checked={!answers.gender} onChange={() => update({ gender: null })} />
+              <span>Weet ik niet / liever geen voorkeur</span>
+            </label>
           </div>
         </div>
       </div>
 
+      <hr className="border-border" />
+
       <div className="flex items-center gap-3">
         <button className="border px-4 py-2 rounded-md wb-btn wb-btn-secondary" onClick={onBack}>Terug</button>
-        <button className="px-4 py-2 rounded-md wb-btn wb-btn-primary" onClick={onNext} disabled={!answers.groep}>Volgende</button>
+        <button className="px-4 py-2 rounded-md wb-btn wb-btn-primary" onClick={onNext} disabled={!answers.groep}>Volgende: 7 vragen →</button>
       </div>
     </div>
   );

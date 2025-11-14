@@ -102,7 +102,7 @@ function buildSystemPromptOPP() {
     "# OUTPUT FORMAT\n" +
       "- Gebruik Markdown met duidelijke H2-koppen voor 7 verplichte secties.\n" +
       "- Korte alinea's en opsommingen waar passend.\n" +
-      "- Consistente voornaamwoorden op basis van het aangegeven gender (hij/zij/hen).\n"
+      "- Consistente voornaamwoorden op basis van het aangegeven gender (hij/zij/hen) of gebruik 'de leerling' als gender onbekend is.\n"
   );
 }
 
@@ -110,6 +110,7 @@ function pronounFor(gender) {
   const g = String(gender || "").toLowerCase();
   if (g === "male" || g === "jongen" || g === "m") return "hij";
   if (g === "female" || g === "meisje" || g === "v") return "zij";
+  if (!g) return "de leerling"; // unknown/none → use neutral noun phrase
   return "hen"; // neutral/anders
 }
 
