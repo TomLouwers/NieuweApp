@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useOppStore } from "@/lib/stores/oppStore";
+import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 
 const options = [
   { id: 'significante_achterstand', label: 'Significante leerachterstand (2+ jaar)' },
@@ -17,7 +18,9 @@ export default function WhyOpp({ onBack, onNext }: { onBack: () => void; onNext:
   const [sel, setSel] = React.useState(answers.reasonForOpp || "");
   return (
     <div className="space-y-4">
-      <h2>Waarom heeft deze leerling een OPP nodig?</h2>
+      <div className="flex items-center justify-end"><ProgressDots total={7} current={1} /></div>
+      <h2>Wat is de situatie?</h2>
+      <div className="text-sm text-muted">Kies de belangrijkste reden - dit helpt ons de juiste structuur te kiezen.</div>
       <div className="space-y-2">
         {options.map((opt) => (
           <label key={opt.id} className="flex items-center gap-2">
@@ -28,9 +31,8 @@ export default function WhyOpp({ onBack, onNext }: { onBack: () => void; onNext:
       </div>
       <div className="flex items-center gap-3">
         <button className="border px-4 py-2 rounded-md" onClick={onBack}>Terug</button>
-        <button className="px-4 py-2 rounded-md bg-teal-600 text-white" onClick={() => { update({ reasonForOpp: sel }); onNext(); }}>Volgende</button>
+        <button className={`px-4 py-2 rounded-md ${sel ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'}`} disabled={!sel} onClick={() => { update({ reasonForOpp: sel }); onNext(); }}>Volgende</button>
       </div>
     </div>
   );
 }
-

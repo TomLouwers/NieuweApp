@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useOppStore } from "@/lib/stores/oppStore";
+import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 
 export default function CurrentLevels({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const answers = useOppStore((s) => s.answers);
@@ -11,7 +12,9 @@ export default function CurrentLevels({ onBack, onNext }: { onBack: () => void; 
   }
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-end"><ProgressDots total={7} current={2} /></div>
       <h2>Waar staat de leerling nu?</h2>
+      <div className="text-sm text-muted">Vul alleen de vakken in waar de leerling extra ondersteuning krijgt. Andere vakken kun je leeg laten.</div>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div>
           <label className="block text-sm font-medium">Technisch lezen</label>
@@ -52,8 +55,8 @@ export default function CurrentLevels({ onBack, onNext }: { onBack: () => void; 
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium">Gedrag/werkhouding (optioneel)</label>
-        <input className="mt-1 w-full border rounded-md px-3 py-2" value={cl.beschrijving_gedrag || ''} onChange={(e) => set('beschrijving_gedrag', e.target.value)} placeholder="Korte beschrijving" />
+        <label className="block text-sm font-medium">Gedrag en werkhouding (optioneel)</label>
+        <input className="mt-1 w-full border rounded-md px-3 py-2" value={cl.beschrijving_gedrag || ''} onChange={(e) => set('beschrijving_gedrag', e.target.value)} placeholder="Bijv: snel afgeleid, moeite met taakafmaak, perfectionistisch…" />
       </div>
       <div className="flex items-center gap-3">
         <button className="border px-4 py-2 rounded-md" onClick={onBack}>Terug</button>
@@ -62,4 +65,3 @@ export default function CurrentLevels({ onBack, onNext }: { onBack: () => void; 
     </div>
   );
 }
-

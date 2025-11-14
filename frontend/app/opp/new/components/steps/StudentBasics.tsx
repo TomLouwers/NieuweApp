@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useOppStore } from "@/lib/stores/oppStore";
+import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 
 export default function StudentBasics({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const answers = useOppStore((s) => s.answers);

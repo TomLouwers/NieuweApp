@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useOppStore } from "@/lib/stores/oppStore";
+import ProgressDots from "@/app/groepsplan/new/components/ProgressDots";
 
 const choices = [
   { id: 'vmbo_basis_kader', label: 'VMBO Basis/Kader (praktijkgericht)' },
@@ -16,7 +17,9 @@ export default function Uitstroomprofiel({ onBack, onNext }: { onBack: () => voi
   const up = answers.uitstroomprofiel || { type: '', rationale: '' };
   return (
     <div className="space-y-4">
-      <h2>Waar gaat de leerling naar toe?</h2>
+      <div className="flex items-center justify-end"><ProgressDots total={7} current={3} /></div>
+      <h2>Wat is het huidige ontwikkelingsperspectief?</h2>
+      <div className="text-sm text-muted">Let op: Dit is een prognose, geen belofte. Je kunt dit altijd bijstellen.</div>
       <div className="space-y-2">
         {choices.map((c) => (
           <label key={c.id} className="flex items-center gap-2">
@@ -26,8 +29,8 @@ export default function Uitstroomprofiel({ onBack, onNext }: { onBack: () => voi
         ))}
       </div>
       <div>
-        <label className="block text-sm font-medium">Motivatie</label>
-        <input className="mt-1 w-full border rounded-md px-3 py-2" value={up.rationale || ''} onChange={(e) => update({ uitstroomprofiel: { ...up, rationale: e.target.value } })} placeholder="Waarom is dit realistisch?" />
+        <label className="block text-sm font-medium">Waarom past dit perspectief? <span className="text-muted">(optioneel)</span></label>
+        <input className="mt-1 w-full border rounded-md px-3 py-2" value={up.rationale || ''} onChange={(e) => update({ uitstroomprofiel: { ...up, rationale: e.target.value } })} placeholder="Bijv: gezien huidige vorderingen en werkhouding, met ondersteuning haalbaar…" />
       </div>
       <div className="flex items-center gap-3">
         <button className="border px-4 py-2 rounded-md" onClick={onBack}>Terug</button>
@@ -36,4 +39,3 @@ export default function Uitstroomprofiel({ onBack, onNext }: { onBack: () => voi
     </div>
   );
 }
-
