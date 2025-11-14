@@ -33,6 +33,9 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
   const vakRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => { headingRef.current?.focus(); }, []);
 
+  const [customMode, setCustomMode] = React.useState<boolean>(false);
+  const [customVak, setCustomVak] = React.useState<string>("");
+
   const canNext = Boolean(groep) && Boolean(vak);
 
   function selectGroep(n: number) {
@@ -42,7 +45,26 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
     try { track('groepsplan_question_answered', { step: 'scratch', field: 'groep', value: n }); } catch {}
     scheduleSave();
   }
+  function confirmCustomVak() {
+    const v = (customVak || "").trim();
+    if (!v) return;
+    setVakState(v);
+    setSelectedVak(v);
+    try { useGroepsplanStore.getState().setVakgebied(v); } catch {}
+    try { track('groepsplan_question_answered', { step: 'scratch', field: 'vakgebied', value: v }); } catch {}
+    setCustomMode(false);
+    scheduleSave();
+  }
+
   function selectVak(v: string) {
+    if (v === "Andere...") {
+      setCustomMode(true);
+      setCustomVak("");
+      setVakState("Andere...");
+      try { useGroepsplanStore.getState().setVakgebied(""); } catch {}
+      scheduleSave();
+      return;
+    }
     setVakState(v);
     setSelectedVak(v);
     try { useGroepsplanStore.getState().setVakgebied(v); } catch {}
@@ -100,6 +122,7 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
 
       <div>
         <h2 ref={headingRef} tabIndex={-1}>{t('q1.groep.label')}</h2>
+        <div className="text-sm text-muted">Voor een groep met leerlingen van verschillende leerjaren, kies de hoofdgroep</div>
       </div>
 
       <div ref={groepRef} role="radiogroup" aria-label={t('q1.groep.label')} className="grid grid-cols-4 gap-2" onKeyDown={onGroupKeyDown}>
@@ -151,6 +174,33 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
           );
         })}
       </div>
+
+      {customMode && (
+        <div className="rounded-md border border-border p-3 space-y-2">
+          <div className="text-sm">Typ het vakgebied en druk op Enter</div>
+          <input
+            className="w-full border border-border rounded-md px-3 py-2"
+            placeholder="Bijv. Wereldoriëntatie"
+            value={customVak}
+            onChange={(e) => setCustomVak((e.target as HTMLInputElement).value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); confirmCustomVak(); }
+              if (e.key === 'Escape') { e.preventDefault(); setCustomMode(false); }
+            }}
+          />
+          <div className="flex items-center gap-2">
+            <button type="button" className="px-3 py-2 rounded-md border" onClick={confirmCustomVak}>Opslaan</button>
+            <button type="button" className="text-sm text-blue-600 hover:underline" onClick={() => setCustomMode(false)}>Annuleren</button>
+          </div>
+        </div>
+      )}
+
+      {vak && !VAKS.includes(vak) && !customMode && (
+        <div className="inline-flex items-center gap-2 text-sm">
+          <span className="px-2 py-1 rounded-md border">{vak} ✓</span>
+          <button type="button" className="text-blue-600 hover:underline" onClick={() => { setVakState(""); setSelectedVak(""); try { useGroepsplanStore.getState().setVakgebied(""); } catch {}; setCustomMode(true); }}>×</button>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-3 pt-2">
         <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label={t('q1.back')}>← {t('q1.back')}</button>

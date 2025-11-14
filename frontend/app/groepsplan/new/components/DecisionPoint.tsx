@@ -130,6 +130,10 @@ export default function DecisionPoint() {
         <span className="wb-time-badge"><span className="icon" aria-hidden>⏱</span><span>5 minuten werk</span></span>
       </div>
       <p className="wb-subtle">Kies een startpunt</p>
+      <div>
+        <span className="wb-time-badge"><span className="icon" aria-hidden>⏱</span><span>5 minuten werk</span></span>
+      </div>
+      <p className="wb-subtle">Kies een startpunt</p>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* Upload */}
@@ -147,7 +151,11 @@ export default function DecisionPoint() {
           onDrop={onDrop}
         >
           <h2 className="mb-2">{tUpload('title')}</h2>
-          <p className="text-sm wb-subtle">{uploading ? tToast('uploading') : `${tUpload('dragDrop')} ${tUpload('formats')}`}</p>
+          <div className="text-sm wb-subtle space-y-1">
+            <p><span aria-hidden>⚡ </span>Snelste optie: bouw voort op vorig werk</p>
+            <p>{uploading ? tToast('uploading') : 'Sleep hier of klik om te uploaden'}</p>
+            <p>PDF, Word, of foto - max 10MB</p>
+          </div>
           <input
             ref={fileInputRef}
             type="file"
@@ -170,7 +178,10 @@ export default function DecisionPoint() {
           onKeyDown={(e) => onCardKey(e, toScratch)}
         >
           <h2 className="mb-2">{tScratch('title')}</h2>
-          <p className="text-sm wb-subtle">{tScratch('description')}</p>
+          <div className="text-sm wb-subtle space-y-1">
+            <p><span aria-hidden>🎯 </span>Populairste keuze: ik beantwoord 5 vragen</p>
+            <p>→ Ongeveer 5 minuten</p>
+          </div>
         </Card>
 
         {/* Sample */}
@@ -185,7 +196,10 @@ export default function DecisionPoint() {
           onKeyDown={(e) => onCardKey(e, onSample)}
         >
           <h2 className="mb-2">{tExample('title')}</h2>
-          <p className="text-sm wb-subtle">{tExample('description')}</p>
+          <div className="text-sm wb-subtle space-y-1">
+            <p><span aria-hidden>👁️ </span>Nieuw bij Pebble? Zie eerst wat je krijgt</p>
+            <p>→ Voorbeeld groepsplan voor Groep 3</p>
+          </div>
         </Card>
       </div>
 

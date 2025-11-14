@@ -5,15 +5,30 @@ import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
 import { getSelectedChallenge, setSelectedChallenge, useGroepsplanStore } from "@/lib/stores/groepsplanStore";
 import { track } from "@/lib/utils/analytics";
 
-const OPTIONS: string[] = [
-  "Enorme niveauverschillen (meer dan 3 jaar spreiding)",
-  "Veel leerlingen met dyslexie/dyscalculie",
-  "Weinig instructietijd (veel uitval/gedrag)",
-  "Ondersteuning van vorig blok werkte niet goed genoeg",
-  "Nieuw in deze groep, ken de leerlingen nog niet goed",
-  "Grote groep (28+), weinig ruimte voor differentiatie",
-  "Leerlingen hebben moeite met zelfstandig werken",
-  "Het gaat eigenlijk prima, gewoon continuïteit",
+const GROUPS: Array<{ title: string; options: string[] }> = [
+  {
+    title: "Over de leerlingen",
+    options: [
+      "Enorme niveauverschillen (meer dan 3 jaar spreiding)",
+      "Veel leerlingen met dyslexie/dyscalculie",
+      "Leerlingen hebben moeite met zelfstandig werken",
+      "Nieuw in deze groep, ken de leerlingen nog niet goed",
+    ],
+  },
+  {
+    title: "Over de omstandigheden",
+    options: [
+      "Grote groep (28+), weinig ruimte voor differentiatie",
+      "Weinig instructietijd (veel uitval/gedrag)",
+    ],
+  },
+  {
+    title: "Over het programma",
+    options: [
+      "Ondersteuning van vorig blok werkte niet goed genoeg",
+      "Het gaat eigenlijk prima, gewoon continuïteit",
+    ],
+  },
 ];
 
 interface Props { onBack: () => void; onNext: () => void; }
@@ -57,26 +72,33 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
 
       <div>
         <h2 id={headingId}>Wat is de grootste uitdaging voor dit blok?</h2>
+        <p className="text-sm text-muted">Kies wat nu het belangrijkst is. Je kunt later altijd aanpassen.</p>
       </div>
 
-      <div role="radiogroup" aria-label="Uitdagingen" className="grid grid-cols-1 gap-2">
-        {OPTIONS.map((opt) => {
-          const selected = value === opt;
-          return (
-            <div
-              key={opt}
-              role="radio"
-              aria-checked={selected}
-              tabIndex={selected || !value ? 0 : -1}
-              className={`inline-flex items-start gap-2 rounded-md border px-3 py-2 min-h-[44px] ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-foreground border-border hover:bg-blue-50'}`}
-              onClick={() => confirmSelection(opt)}
-              onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); confirmSelection(opt); } }}
-            >
-              <span className="mt-1" aria-hidden>●</span>
-              <span className="break-words">{opt}</span>
+      <div role="radiogroup" aria-label="Uitdagingen" className="grid grid-cols-1 gap-4">
+        {GROUPS.map((grp) => (
+          <div key={grp.title} className="space-y-2">
+            <div className="text-sm text-muted">── {grp.title} ──</div>
+            <div className="grid grid-cols-1 gap-2">
+              {grp.options.map((opt) => {
+                const selected = value === opt;
+                return (
+                  <div
+                    key={opt}
+                    role="radio"
+                    aria-checked={selected}
+                    tabIndex={selected || !value ? 0 : -1}
+                    className={`inline-flex items-start gap-2 rounded-md border px-3 py-2 min-h-[44px] ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-foreground border-border hover:bg-blue-50'}`}
+                    onClick={() => confirmSelection(opt)}
+                    onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); confirmSelection(opt); } }}
+                  >
+                    <span className="break-words">{opt}</span>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center justify-end gap-3">
@@ -88,3 +110,4 @@ export default function ChallengeScreen({ onBack, onNext }: Props) {
     </div>
   );
 }
+

@@ -96,6 +96,7 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
 
       <div>
         <h2 ref={headingRef} tabIndex={-1}>Hoe ziet je groep eruit?</h2>
+        <div className="text-sm text-muted"><span aria-hidden>ℹ️ </span>Gebruik de schuifjes voor een ruwe verdeling. Dit hoeft niet exact te zijn - een grove schatting is genoeg.</div>
       </div>
 
       <div className="space-y-2">
@@ -115,15 +116,18 @@ export default function GroepssamenstellingScreen({ onBack, onNext }: Props) {
 
       <div className="space-y-3">
         <div className="text-sm">Daarvan zitten op dit moment ongeveer:</div>
-        <GroupCompositionSlider label="Basisniveau" value={perc.basis} onChange={(v) => updateIndex(0, v)} total={total} disabled={unknown} />
-        <GroupCompositionSlider label="Meer ondersteuning" value={perc.support} onChange={(v) => updateIndex(1, v)} total={total} disabled={unknown} />
-        <GroupCompositionSlider label="Uitdaging/Meer" value={perc.more} onChange={(v) => updateIndex(2, v)} total={total} disabled={unknown} />
+        <GroupCompositionSlider label="Basis niveau" hint="De meeste leerlingen in de klas" value={perc.basis} onChange={(v) => updateIndex(0, v)} total={total} disabled={unknown} />
+        <GroupCompositionSlider label="Meer ondersteuning nodig" hint="Leerlingen die extra hulp nodig hebben" value={perc.support} onChange={(v) => updateIndex(1, v)} total={total} disabled={unknown} />
+        <GroupCompositionSlider label="Uitdaging/Verrijking" hint="Leerlingen die meer uitdaging aankunnen" value={perc.more} onChange={(v) => updateIndex(2, v)} total={total} disabled={unknown} />
       </div>
 
       <label className="flex items-center gap-2">
         <input type="checkbox" checked={unknown} onChange={(e) => setUnknownChecked(e.target.checked)} />
         <span>Weet ik niet precies</span>
       </label>
+      {unknown && (
+        <div className="text-sm text-muted">We gebruiken dan een typische verdeling voor jouw groep</div>
+      )}
 
       <div className="flex items-center justify-end gap-3 pt-2">
         <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">← Vorige</button>

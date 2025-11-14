@@ -48,20 +48,30 @@ export default function StartingPointScreen({ onBack, onNext }: Props) {
 
       <div>
         <h2 ref={headingRef} tabIndex={-1}>Waar begin je in het jaar?</h2>
+        <p className="text-sm text-muted">Dit helpt ons realistische leerdoelen en startpunten te kiezen</p>
       </div>
 
-      <div role="radiogroup" aria-label="Startpunt" className="space-y-2">
-        <label className="flex items-center gap-2">
+      <div role="radiogroup" aria-label="Startpunt" className="space-y-3">
+        <label className="flex items-start gap-2">
           <input type="radio" name="start" checked={choice === "begin"} onChange={() => onSelect("begin")} />
-          <span>Begin van het schooljaar</span>
+          <span>
+            <div>Begin van het schooljaar</div>
+            <div className="text-sm text-muted">We kiezen startdoelen bij wat past bij de eerste weken</div>
+          </span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-start gap-2">
           <input type="radio" name="start" checked={choice === "midden"} onChange={() => onSelect("midden")} />
-          <span>Midden in het jaar</span>
+          <span>
+            <div>Midden in het jaar</div>
+            <div className="text-sm text-muted">We bouwen voort op eerdere leerdoelen</div>
+          </span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-start gap-2">
           <input type="radio" name="start" checked={choice === "toets"} onChange={() => onSelect("toets")} />
-          <span>Ik heb recente toetsgegevens</span>
+          <span>
+            <div>Na een toetsmoment</div>
+            <div className="text-sm text-muted">We stemmen af op recente toetsresultaten</div>
+          </span>
         </label>
       </div>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React from "react";
 import useSwipeBack from "@/app/groepsplan/new/hooks/useSwipeBack";
 import { useGroepsplanStore } from "@/lib/stores/groepsplanStore";
@@ -81,7 +81,7 @@ export default function SummaryScreenB({ onBack, onGenerate }: SummaryScreenBPro
         <li className="checkmark-item" style={{ ['--index' as any]: 3 } as React.CSSProperties}><div className="rounded-md border border-border p-3">Startpunt: {start || '-'}</div></li>
         {start === 'toets' ? (
           <li className="checkmark-item" style={{ ['--index' as any]: 4 } as React.CSSProperties}>
-            <div className="rounded-md border border-border p-3">Niveaus – Basis: {basisLv || '-'}, Intensief: {intensiefLv || '-'}</div>
+            <div className="rounded-md border border-border p-3">Niveaus â€” Basis: {basisLv || '-'}, Intensief: {intensiefLv || '-'}</div>
           </li>
         ) : null}
         <li className="checkmark-item" style={{ ['--index' as any]: 5 } as React.CSSProperties}>
@@ -89,18 +89,18 @@ export default function SummaryScreenB({ onBack, onGenerate }: SummaryScreenBPro
         </li>
         <li className="checkmark-item" style={{ ['--index' as any]: 6 } as React.CSSProperties}>
           <div className="rounded-md border border-border p-3">
-            <div>Basis: {comp.basis}% • {count(comp.basis)} leerlingen</div>
-            <div>Meer ondersteuning: {comp.support}% • {count(comp.support)} leerlingen</div>
-            <div>Uitdaging/Meer: {comp.more}% • {count(comp.more)} leerlingen</div>
+            <div>Basis: {comp.basis}% â†’ {count(comp.basis)} leerlingen</div>
+            <div>Meer ondersteuning: {comp.support}% â†’ {count(comp.support)} leerlingen</div>
+            <div>Uitdaging/Meer: {comp.more}% â†’ {count(comp.more)} leerlingen</div>
           </div>
         </li>
         <li className="checkmark-item" style={{ ['--index' as any]: 7 } as React.CSSProperties}>
           <div className="flex items-start justify-between gap-2 rounded-md border border-border p-3 w-full">
             <div>
               <div className="text-sm text-muted">Periode</div>
-              <div className="text-base">{periode || `Automatisch: ${defaultPeriode}`}</div>
+              <div className="text-base">{periode || '-'}</div>
             </div>
-            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditPeriode((v) => !v)}>✏️ Aanpassen</button>
+            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditPeriode((v) => !v)}>âœï¸ Aanpassen</button>
           </div>
         </li>
         {editPeriode && (
@@ -112,7 +112,7 @@ export default function SummaryScreenB({ onBack, onGenerate }: SummaryScreenBPro
               <div className="text-sm text-muted">Aantal leerlingen</div>
               <div className="text-base">{aantal || '-'}</div>
             </div>
-            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditAantal((v) => !v)}>✏️ Aanpassen</button>
+            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditAantal((v) => !v)}>âœï¸ Aanpassen</button>
           </div>
         </li>
         {editAantal && (
@@ -122,9 +122,9 @@ export default function SummaryScreenB({ onBack, onGenerate }: SummaryScreenBPro
           <div className="flex items-start justify-between gap-2 rounded-md border border-border p-3 w-full">
             <div>
               <div className="text-sm text-muted">Groepsindeling</div>
-              <div className="text-base">{indeling || 'Standaard: 3 differentiatieniveaus'}</div>
+              <div className="text-base">{indeling || '-'}</div>
             </div>
-            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditIndeling((v) => !v)}>✏️ Aanpassen</button>
+            <button className="text-sm text-blue-600 hover:underline" onClick={() => setEditIndeling((v) => !v)}>âœï¸ Aanpassen</button>
           </div>
         </li>
         {editIndeling && (
@@ -142,10 +142,9 @@ export default function SummaryScreenB({ onBack, onGenerate }: SummaryScreenBPro
       </ul>
 
       <div className="flex items-center justify-end gap-3">
-        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">← Vorige</button>
-        <button className={`px-4 py-2 rounded-md ${canGenerate ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`} disabled={!canGenerate} onClick={onGenerate} aria-label="Genereer groepsplan">✓ Genereer groepsplan</button>
+        <button className={`border border-border px-4 py-2 rounded-md ${thresholdReached ? 'ring-2 ring-blue-500' : ''}`} onClick={onBack} aria-label="Vorige">â† Vorige</button>
+        <button className={`px-4 py-2 rounded-md ${canGenerate ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`} disabled={!canGenerate} onClick={onGenerate} aria-label="Genereer groepsplan">âœ“ Genereer groepsplan</button>
       </div>
-      <div className="text-sm text-muted text-right">Dit duurt ongeveer 30 seconden.</div>
     </div>
   );
 }
