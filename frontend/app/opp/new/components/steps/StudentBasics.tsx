@@ -40,10 +40,10 @@ export default function StudentBasics({ onBack, onNext }: { onBack: () => void; 
 
       <div className="text-sm text-muted">Deze info helpt ons het document natuurlijk te laten lezen.</div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="block text-sm font-medium">Groep</label>
-          <div role="radiogroup" aria-label="Groep" className="grid grid-cols-4 gap-2" onKeyDown={onGroupKeyDown}>
+          <div role="radiogroup" aria-label="Groep" className="grid grid-cols-4 gap-2 justify-items-center" onKeyDown={onGroupKeyDown}>
             {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => {
               const selected = groep === n;
               const cls = selected
