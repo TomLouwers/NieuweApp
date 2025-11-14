@@ -36,7 +36,7 @@ export default function GroepVakScreen({ onBack, onNext }: Props) {
   const [customMode, setCustomMode] = React.useState<boolean>(false);
   const [customVak, setCustomVak] = React.useState<string>("");
 
-  const canNext = Boolean(groep) && Boolean(vak);
+  const canNext = Boolean(groep) && Boolean(vak) && !customMode;
 
   function selectGroep(n: number) {
     setGroepState(n);
