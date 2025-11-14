@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import ScenarioSelector from "./components/ScenarioSelector";
 import LoadingScreen from "@/app/groepsplan/new/components/LoadingScreen";
@@ -56,8 +56,8 @@ export default function MaatwerkNewPage() {
         alert('Dyscalculie is alleen geschikt voor Rekenen.');
         return null;
       }
-      if (selected.includes('ruimtelijk-inzicht-zwak') && !(ctx.vak === 'Rekenen' || ctx.vak === 'WereldoriÃ«ntatie')) {
-        alert('Zwak ruimtelijk inzicht is alleen voor Rekenen of WereldoriÃ«ntatie.');
+      if (selected.includes('ruimtelijk-inzicht-zwak') && !(ctx.vak === 'Rekenen' || ctx.vak === 'Wereldoriëntatie')) {
+        alert('Zwak ruimtelijk inzicht is alleen voor Rekenen of Wereldoriëntatie.');
         return null;
       }
     } catch {}
@@ -111,7 +111,7 @@ export default function MaatwerkNewPage() {
         </div>
         {recent.length > 0 && (
           <div className="mt-2">
-            <button className="wb-btn wb-btn-secondary" onClick={() => { const last = recent[0]; setSelected(last.selected || []); setCtx(last.ctx || {}); }}>Laatst gebruikt: {recent[0]?.ctx?.vak} Â· Groep {recent[0]?.ctx?.groep} Â· {recent[0]?.ctx?.onderwerp}</button>
+            <button className="wb-btn wb-btn-secondary" onClick={() => { const last = recent[0]; setSelected(last.selected || []); setCtx(last.ctx || {}); }}>Laatst gebruikt: {recent[0]?.ctx?.vak} · Groep {recent[0]?.ctx?.groep} · {recent[0]?.ctx?.onderwerp}</button>
           </div>
         )}
       </header>
@@ -137,7 +137,7 @@ export default function MaatwerkNewPage() {
               try {
                 const labels = selected.map(id => (SCENARIOS.find(x => x.id === id) as any)?.label || id);
                 const preview = labels.slice(0, 3).join(', ');
-                const tail = labels.length > 3 ? '…' : '';
+                const tail = labels.length > 3 ? '.' : '';
                 return `${selected.length} scenario's geselecteerd: ${preview}${tail}`;
               } catch {
                 return `${selected.length} scenario's geselecteerd`;
@@ -168,7 +168,7 @@ export default function MaatwerkNewPage() {
             <span className="wb-text-field-label">Vak</span>
             <div className="wb-text-field-wrapper">
               <select className="wb-text-field-input" value={ctx.vak} onChange={(e) => setCtx((c) => ({ ...c, vak: e.target.value }))}>
-                {["Rekenen","Taal","Spelling","Begrijpend lezen","Schrijven","WereldoriÃ«ntatie"].map((v) => <option key={v} value={v}>{v}</option>)}
+                {["Rekenen","Taal","Spelling","Begrijpend lezen","Schrijven","Wereldoriëntatie"].map((v) => <option key={v} value={v}>{v}</option>)}
               </select>
               <div className="wb-text-field-underline" />
             </div>
@@ -244,12 +244,12 @@ export default function MaatwerkNewPage() {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-base" style={{ fontWeight: 600 }}>{SCENARIOS.find(s => s.id === it.scenarioId)?.label || it.scenarioId}</div>
-                    <div className="text-sm wb-subtle">{ctx.vak} Â· Groep {ctx.groep} Â· {ctx.onderwerp}</div>
+                    <div className="text-sm wb-subtle">{ctx.vak} · Groep {ctx.groep} · {ctx.onderwerp}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="wb-btn wb-btn-secondary" onClick={() => {
                       const w = window.open("", "_blank");
-                      if (w) w.document.write(`<pre style=\"white-space: pre-wrap; font-family: system-ui, sans-serif; padding: 16px\">${it.content.replaceAll("<","&lt;")}</pre>`);
+                      if (w) w.document.write(`<pre style=\"white-space: pre-wrap; font-family: system-ui, sans-serif; padding: 16px\">${String(it.content || '').replace(/</g, "&lt;")}</pre>`);
                     }}>Bekijk</button>
                     <button className="wb-btn wb-btn-primary" onClick={async () => {
                       const body = { content: String(it.content || ''), metadata: { groep: ctx.groep, vak: ctx.vak, periode: ctx.week || '' } };
@@ -297,4 +297,3 @@ export default function MaatwerkNewPage() {
     </main>
   );
 }
-

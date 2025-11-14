@@ -15,17 +15,31 @@ export default function ScenarioSelector({ value, onChange }: Props) {
     return Array.from(set.values());
   }, [items]);
 
-  // Collapsible categories: expand first by default
+  // Expand/collapse desktop; first category expanded by default
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   React.useEffect(() => {
     if (!cats.length) return;
     setExpanded((prev) => {
-      // keep existing toggles but ensure new cats are initialized; first cat expanded by default
       const next: Record<string, boolean> = { ...prev };
       cats.forEach((c, i) => { if (next[c] == null) next[c] = i === 0; });
       return next;
     });
   }, [cats]);
+
+  // Mobile detection: force all categories expanded on small screens
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 640px)');
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    if ((mq as any).addEventListener) (mq as any).addEventListener('change', apply);
+    else if ((mq as any).addListener) (mq as any).addListener(apply);
+    return () => {
+      if ((mq as any).removeEventListener) (mq as any).removeEventListener('change', apply);
+      else if ((mq as any).removeListener) (mq as any).removeListener(apply);
+    };
+  }, []);
 
   // Search / Quick filters
   const [query, setQuery] = React.useState("");
@@ -46,11 +60,7 @@ export default function ScenarioSelector({ value, onChange }: Props) {
   function matchesQuery(s: ScenarioDefinition) {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return (
-      s.label.toLowerCase().includes(q) ||
-      s.description.toLowerCase().includes(q) ||
-      s.id.toLowerCase().includes(q)
-    );
+    return s.label.toLowerCase().includes(q) || s.description.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
   }
   function filteredList(list: ScenarioDefinition[]) {
     return list.filter((s) => inQuickFilters(s) && matchesQuery(s));
@@ -69,11 +79,13 @@ export default function ScenarioSelector({ value, onChange }: Props) {
       } catch {}
     })();
   }, []);
+
   function toggle(id: string) {
     const set = new Set(value);
     if (set.has(id)) set.delete(id); else set.add(id);
     onChange(Array.from(set));
   }
+
   return (
     <div className="space-y-4">
       {/* Search / filter bar */}
@@ -95,7 +107,7 @@ export default function ScenarioSelector({ value, onChange }: Props) {
               <button
                 key={f.id}
                 type="button"
-                className={`px-3 py-1 text-sm rounded-full border ${on ? 'bg-teal-600 text-white' : 'bg-white'}`}
+                className={`px-3 py-1 text-sm rounded-full border ${on ? 'bg-teal-600 text-white border-teal-600' : 'bg-white'}`}
                 onClick={() => toggleQuick(f.id)}
               >
                 {f.label}
@@ -108,18 +120,25 @@ export default function ScenarioSelector({ value, onChange }: Props) {
       {(cats.length ? cats : CATEGORIES).map((cat) => {
         const list = filteredList((items.length ? items : SCENARIOS).filter((s: any) => s.category === cat));
         const count = list.length;
-        const isOpen = Boolean(expanded[cat]);
+        const isOpen = isMobile ? true : Boolean(expanded[cat]);
         return (
           <div key={cat}>
-            <button
-              type="button"
-              className="w-full flex items-center justify-between px-2 py-2 rounded-md hover:bg-[rgba(0,0,0,0.03)]"
-              aria-expanded={isOpen}
-              onClick={() => setExpanded((prev) => ({ ...prev, [cat]: !prev[cat] }))}
-            >
-              <h3 className="wb-section-header" style={{ fontSize: 18, margin: 0 }}>{cat}</h3>
-              <div className="text-sm wb-subtle">{isOpen ? '▼' : '▶'} {count} scenario{count === 1 ? '' : 's'}</div>
-            </button>
+            {isMobile ? (
+              <div className="w-full flex items-center justify-between px-2 py-2">
+                <h3 className="wb-section-header" style={{ fontSize: 18, margin: 0 }}>{cat}</h3>
+                <div className="text-sm wb-subtle">{count} scenario{count === 1 ? '' : 's'}</div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="w-full flex items-center justify-between px-2 py-2 rounded-md hover:bg-[rgba(0,0,0,0.03)]"
+                aria-expanded={isOpen}
+                onClick={() => setExpanded((prev) => ({ ...prev, [cat]: !prev[cat] }))}
+              >
+                <h3 className="wb-section-header" style={{ fontSize: 18, margin: 0 }}>{cat}</h3>
+                <div className="text-sm wb-subtle">{isOpen ? '▼' : '▶'} {count} scenario{count === 1 ? '' : 's'}</div>
+              </button>
+            )}
             {isOpen && (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {list.map((s: any) => {
@@ -130,7 +149,8 @@ export default function ScenarioSelector({ value, onChange }: Props) {
                       type="button"
                       className={`scenario-card relative component touchable text-left px-3 rounded-lg wb-paper paper-texture ${selected ? 'selected' : ''}`}
                       onClick={() => toggle(s.id)}
-                      title={`${s.label} — ${s.description}`}
+                      title={`${s.label} - ${s.description}`}
+                      aria-pressed={selected}
                     >
                       <div className="flex items-center justify-between gap-2 h-[50px] md:h-[55px]">
                         <div className="min-w-0">
@@ -148,12 +168,7 @@ export default function ScenarioSelector({ value, onChange }: Props) {
         );
       })}
       <style jsx>{`
-        .scenario-card {
-          background: #FFF9F0;
-          border: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
+        .scenario-card { background: #FFF9F0; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; }
         .scenario-card:hover { background: #FFF5E6; border-color: #E5D5BF; }
         .scenario-card.selected { background: #4A6B5C; color: #fff; border-color: #3A5B4C; }
         .scenario-card.selected .subtitle { color: rgba(255,255,255,0.85); }
